@@ -9,8 +9,14 @@ jobs:
     container: wpilib/roborio-cross-ubuntu:2025-22.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
       - name: Add repository to git safe directories
         run: git config --global --add safe.directory $GITHUB_WORKSPACE
+      - name: Sync submodule
+        run: git submodule sync --recursive
+      - name: Update submodule
+        run: git submodule update --recursive
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Compile and run tests on robot code
@@ -32,30 +38,3 @@ jobs:
             commit_user_name: Phoenix2342-Bot
             commit_author: Phoenix2342-Bot <github@team2342.org>
             commit_message: Auto-format code
-  submodule:
-    runs-on: ubuntu-latest
-    needs: [build, spotless]
-    if: success() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.BOT2342 }}
-      - name: Extract
-        env:
-          SRC_FOLDER_PATH: 'src/main/java/org/team2342/lib'
-          TARGET_BRANCH: 'submodule'
-        run: |
-          git config user.name 'Phoenix2342-Bot'
-          git config user.email 'github@team2342.org'
-
-          git fetch origin "$TARGET_BRANCH"
-          git checkout "$TARGET_BRANCH"
-
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
-          git checkout ${GITHUB_REF##*/} -- "$SRC_FOLDER_PATH"
-          mv "$SRC_FOLDER_PATH"/* .
-          rm -rf src/
-
-          git add -A
-          git diff-index --quiet HEAD || git commit -am "Extract library"
-          git push origin "$TARGET_BRANCH"
