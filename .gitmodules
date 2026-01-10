@@ -1,0 +1,4 @@
+[submodule "src/main/java/org/team2342/lib"]
+	path = src/main/java/org/team2342/lib
+	url = https://github.com/FRCTeamPhoenix/Library.git
+	branch = submodule
