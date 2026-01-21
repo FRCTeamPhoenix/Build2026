@@ -9,7 +9,11 @@ package org.team2342.frc;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import org.team2342.lib.motors.smart.SmartMotorConfig;
+import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
+import org.team2342.lib.pidff.PIDFFConfigs;
 
 public final class Constants {
   public static final Mode CURRENT_MODE = Mode.REAL;
@@ -109,13 +113,28 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
-  public static final class CANConstants {
-    public static final int PDH_ID = 14;
+  public static final class ShooterConstants {
+    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
+    public static final PIDFFConfigs SHOOTER_WHEEL_MOTOR_PID_CONFIGS = new PIDFFConfigs().withKP(1);
+    public static final SmartMotorConfig SHOOTER_WHEEL_MOTOR_CONFIG =
+        new SmartMotorConfig()
+            .withControlType(ControlType.PROFILED_VELOCITY)
+            .withPIDFFConfigs(SHOOTER_WHEEL_MOTOR_PID_CONFIGS)
+            .withMotorInverted(true)
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000))
+            .withSupplyCurrentLimit(40)
+            .withStatorCurrentLimit(50);
+  }
+
+  public static final class CANConstants {
     public static final int PIGEON_ID = 13;
     public static final int[] FL_IDS = {1, 5, 9};
     public static final int[] FR_IDS = {2, 6, 10};
     public static final int[] BL_IDS = {3, 7, 11};
     public static final int[] BR_IDS = {4, 8, 12};
+
+    public static final int SHOOTER_WHEEL_MOTOR_ID = 15;
+    public static final int PDH_ID = 14;
   }
 }

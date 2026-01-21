@@ -24,6 +24,7 @@ import org.littletonrobotics.junction.LoggedPowerDistribution;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.team2342.frc.Constants.CANConstants;
 import org.team2342.frc.Constants.DriveConstants;
+import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.commands.DriveCommands;
 import org.team2342.frc.commands.DriveToPose;
@@ -34,15 +35,19 @@ import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
 import org.team2342.frc.subsystems.drive.ModuleIO;
 import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
+import org.team2342.frc.subsystems.shooter.Shooter;
 import org.team2342.frc.subsystems.vision.Vision;
 import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
+import org.team2342.lib.motors.smart.SmartMotorIO;
+import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
 import org.team2342.lib.util.AllianceUtils;
 import org.team2342.lib.util.EnhancedXboxController;
 
 public class RobotContainer {
   @Getter private final Drive drive;
   @Getter private final Vision vision;
+  @Getter private final Shooter shooter;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -64,6 +69,11 @@ public class RobotContainer {
                 new ModuleIOTalonFX(CANConstants.BL_IDS, DriveConstants.ENCODER_OFFSETS[2]),
                 new ModuleIOTalonFX(CANConstants.BR_IDS, DriveConstants.ENCODER_OFFSETS[3]));
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+        shooter =
+            new Shooter(
+                new SmartMotorIOTalonFX(
+                    CANConstants.SHOOTER_WHEEL_MOTOR_ID,
+                    ShooterConstants.SHOOTER_WHEEL_MOTOR_CONFIG));
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
@@ -87,6 +97,7 @@ public class RobotContainer {
                     VisionConstants.LEFT_CAMERA_NAME,
                     VisionConstants.FRONT_LEFT_TRANSFORM,
                     drive::getRawOdometryPose));
+        shooter = new Shooter(new SmartMotorIO() {});
 
         break;
 
@@ -99,6 +110,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        shooter = new Shooter(new SmartMotorIO() {});
 
         break;
     }
@@ -150,6 +162,8 @@ public class RobotContainer {
                 drive::getPose,
                 () -> -driverController.getLeftY(),
                 () -> -driverController.getLeftX()));
+
+    driverController.rightTrigger().whileTrue(shooter.shoot(35)).onFalse(shooter.stop());
   }
 
   public Command getAutonomousCommand() {
