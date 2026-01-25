@@ -93,6 +93,7 @@ public final class Constants {
     public static final double DRIVE_SUPPLY_LIMIT = 40.0;
     public static final double MAX_MODULE_VELOCITY_RAD = Units.degreesToRadians(1080.0);
 
+    //TODO: Find new offsets for season modules
     public static final double[] ENCODER_OFFSETS = {
       0.229 + 0.5, 0.2834 + 0.5, 0.2009 + 0.5, 0.1563 + 0.5
     };
@@ -105,12 +106,12 @@ public final class Constants {
   }
 
   public static final class CANConstants {
-    public static final int PDH_ID = 14;
-
     public static final int PIGEON_ID = 13;
     public static final int[] FL_IDS = {1, 5, 9};
     public static final int[] FR_IDS = {2, 6, 10};
     public static final int[] BL_IDS = {3, 7, 11};
     public static final int[] BR_IDS = {4, 8, 12};
+
+    public static final int PDH_ID = 62;
   }
 }
