@@ -93,7 +93,7 @@ public final class Constants {
     public static final double DRIVE_SUPPLY_LIMIT = 40.0;
     public static final double MAX_MODULE_VELOCITY_RAD = Units.degreesToRadians(1080.0);
 
-    //TODO: Find new offsets for season modules
+    // TODO: Find new offsets for season modules
     public static final double[] ENCODER_OFFSETS = {
       0.229 + 0.5, 0.2834 + 0.5, 0.2009 + 0.5, 0.1563 + 0.5
     };
