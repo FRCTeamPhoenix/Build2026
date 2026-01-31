@@ -119,7 +119,7 @@ public final class Constants {
     public static final int PDH_ID = 62;
   }
   public static final class PivotConstants {
-    public static final double GEAR_RATIO = 9;
+    public static final double GEAR_RATIO = 27;
     public static final double CLAW_LENGTH = Units.inchesToMeters(16.6);
     public static final double MIN_ANGLE = -0.93;
     public static final double MAX_ANGLE = 1.43;

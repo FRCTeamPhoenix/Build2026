@@ -1,8 +1,12 @@
-package org.team2342.frc.subsystems.pivot;
+package org.team2342.frc.subsystems.intake;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import org.team2342.frc.Constants.PivotConstants;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOInputsAutoLogged;
 import org.team2342.frc.Constants.PivotConstants;
@@ -15,16 +19,17 @@ public class Pivot extends SubsystemBase {
     public Pivot(SmartMotorIO pivotMotor) {
         this.pivotMotor = pivotMotor;
         setName("Pivot");
-        final double MIN_ANGLE = -0.93;
-        setDefaultCommand(run(() -> pivotMotor.runPosition(MIN_ANGLE)));}
+        setDefaultCommand(run(() -> pivotMotor.runPosition(PivotConstants.MIN_ANGLE)));}
 
     @Override
     public void periodic() {
         pivotMotor.updateInputs(pivotMotorInputs);
-        Logger.processInputs("Pivot/pivotMotor", pivotMotorInputs);
+        Logger.processInputs("Intake/Pivot", pivotMotorInputs);
     }
+
+    @AutoLogOutput(key = "Intake/Pivot/Angle")
     public Rotation2d getAngle() {
-        return Rotation2d.fromRadians(pivotMotorInputs.positionRad / PivotConstants.GEAR_RATIO);
+        return Rotation2d.fromRadians(pivotMotorInputs.positionRad);
   }
 
     public Command goToAngle(Rotation2d targetAngle) {
