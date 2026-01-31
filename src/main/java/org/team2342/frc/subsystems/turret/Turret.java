@@ -20,7 +20,7 @@ public class Turret extends SubsystemBase {
 
   private final SmartMotorIO turretMotor;
   private final SmartMotorIOInputsAutoLogged inputs = new SmartMotorIOInputsAutoLogged();
-  private Rotation2d setpoint = new Rotation2d();
+  private Rotation2d goal = new Rotation2d();
 
   public Turret(SmartMotorIO turretMotor) {
     this.turretMotor = turretMotor;
@@ -36,16 +36,26 @@ public class Turret extends SubsystemBase {
     ExecutionLogger.log("Turret");
   }
 
-  public Command runPosition(Rotation2d setpoint) {
-    this.setpoint = setpoint.minus(Rotation2d.kZero);
-    return run(() -> turretMotor.runPosition(this.setpoint.getRadians()))
-        .withName("Turret RunPosition");
+  public void runPosition(Rotation2d setpoint) {
+    this.goal = setpoint.minus(Rotation2d.kZero);
+    turretMotor.runPosition(this.goal.getRadians());
   }
 
-  public Command goToPosition(Rotation2d setpoint) {
-    this.setpoint = setpoint.minus(Rotation2d.kZero);
-    return run(() -> turretMotor.runPosition(this.setpoint.getRadians()))
-        .until(() -> Math.abs(turretPosition().minus(setpoint).getRadians()) <= TurretConstants.AT_POSITION_THRESHOLD)
+  public Command runPositionCommand(Rotation2d setpoint) {
+    return run(() -> runPosition(setpoint)).withName("Turret RunPosition");
+  }
+
+  public void goToPosition(Rotation2d setpoint) {
+    this.goal = setpoint.minus(Rotation2d.kZero);
+    turretMotor.runPosition(this.goal.getRadians());
+  }
+
+  public Command goToPositionCommand(Rotation2d setpoint) {
+    return run(() -> goToPosition(setpoint))
+        .until(
+            () ->
+                Math.abs(turretPosition().minus(goal).getRadians())
+                    <= TurretConstants.AT_POSITION_THRESHOLD)
         .withName("Turret GoToPosition");
   }
 
@@ -64,7 +74,7 @@ public class Turret extends SubsystemBase {
 
   @AutoLogOutput(key = "Turret/Setpoint")
   public Rotation2d turretSetpoint() {
-    return setpoint;
+    return goal;
   }
 
   public void zeroTurret() {
