@@ -6,10 +6,18 @@
 
 package org.team2342.frc;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import org.team2342.lib.motors.MotorConfig.IdleMode;
+import org.team2342.lib.motors.smart.SmartMotorConfig;
+import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
@@ -103,6 +111,28 @@ public final class Constants {
 
     public static final boolean IS_CANFD = false;
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
+  }
+
+  public static final class TurretConstants {
+    public static final double AT_POSITION_THRESHOLD = 0.01;
+    public static final Rotation2d MIN_TURRET_ANGLE =
+        Rotation2d.fromDegrees(60).minus(Rotation2d.kZero);
+    public static final Rotation2d MAX_TURRET_ANGLE =
+        Rotation2d.fromDegrees(300).minus(Rotation2d.kZero);
+
+    public static final SmartMotorConfig TURRET_CONFIG =
+        new SmartMotorConfig()
+            .withControlType(ControlType.PROFILED_POSITION)
+            .withGearRatio(100.0 / 16.0)
+            .withIdleMode(IdleMode.BRAKE)
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(Math.PI, Math.PI))
+            .withSupplyCurrentLimit(40);
+
+    public static final DCMotor TURRET_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim TURRET_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(TURRET_SIM_MOTOR, 0.003, 100.0 / 16.0),
+            TURRET_SIM_MOTOR);
   }
 
   public static final class CANConstants {

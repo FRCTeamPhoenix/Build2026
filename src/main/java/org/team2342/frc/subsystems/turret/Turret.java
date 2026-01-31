@@ -6,49 +6,85 @@
 
 package org.team2342.frc.subsystems.turret;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+import org.team2342.frc.Constants.TurretConstants;
+import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOInputsAutoLogged;
 
 public class Turret extends SubsystemBase {
 
-    private final SmartMotorIO turretMotor;
-    private final SmartMotorIOInputsAutoLogged inputs = new SmartMotorIOInputsAutoLogged();
-    private Rotation2d setpoint = new Rotation2d();
-    private double threshold = 0.01;
+  private final SmartMotorIO turretMotor;
+  private final SmartMotorIOInputsAutoLogged inputs = new SmartMotorIOInputsAutoLogged();
+  private Rotation2d setpoint = new Rotation2d();
+  private double threshold = 0.01;
+  private final Alert motorAlert = new Alert("Turret motor is disconnected!", AlertType.kError);
 
-    public Turret(SmartMotorIO turretMotor) {
-        this.turretMotor = turretMotor;
-        setName("Turret");
-        setDefaultCommand(run(() -> turretMotor.runVoltage(0.0)));
-    }
+  private Rotation2d goal = new Rotation2d();
 
-    public Command runPosition(Rotation2d setpoint) {
-        this.setpoint = setpoint;
-        return run(() -> turretMotor.runPosition(setpoint.getRadians())).withName("turret run position");
-    }
+  public Turret(SmartMotorIO turretMotor) {
+    this.turretMotor = turretMotor;
+    setName("Turret");
+    setDefaultCommand(run(() -> turretMotor.runVoltage(0.0)));
+  }
 
-    public Command goToPosition(Rotation2d setpoint) {
-        this.setpoint = setpoint;
-        return run(() -> turretMotor.runPosition(setpoint.getRadians())).until(() -> Math.abs(turretPosition().minus(setpoint).getRadians()) <= threshold).withName("turret go to position");
-    }
+  @Override
+  public void periodic() {
+    turretMotor.updateInputs(inputs);
+    motorAlert.set(!inputs.motorsConnected[0]);
+    Logger.processInputs("Shooter/Hood/Motor", inputs);
+    ExecutionLogger.log("Turret");
+  }
 
+  public Command runPosition(Rotation2d setpoint) {
+    this.setpoint = setpoint;
+    return run(() -> turretMotor.runPosition(setpoint.getRadians()))
+        .withName("turret run position");
+  }
 
-    public Command stop() {
-        return runOnce(() -> turretMotor.runVoltage(0.0));
-    }
+  public Command runPositionCommand(Rotation2d setpoint) {
+    return run(() -> runPosition(setpoint)).withName("Turret RunPosition");
+  }
 
-    public Rotation2d turretPosition() {
-        return Rotation2d.fromRadians(inputs.positionRad);
-    }
+  public void goToPosition(Rotation2d setpoint) {
+    this.goal = setpoint.minus(Rotation2d.kZero);
+    turretMotor.runPosition(this.goal.getRadians());
+  }
 
-    public Rotation2d turretSetpoint() {
-        return setpoint;
-    }
+  public Command goToPositionCommand(Rotation2d setpoint) {
+    return run(() -> goToPosition(setpoint))
+        .until(
+            () ->
+                Math.abs(getTurretPosition().minus(goal).getRadians())
+                    <= TurretConstants.AT_POSITION_THRESHOLD)
+        .withName("Turret GoToPosition");
+  }
 
-    
+  public Command stop() {
+    return runOnce(() -> turretMotor.runVoltage(0.0));
+  }
 
+  @AutoLogOutput(key = "Turret/Position")
+  public Rotation2d getTurretPosition() {
+    return Rotation2d.fromRadians(inputs.positionRad);
+  }
+
+  public double getTurretVelocity() {
+    return inputs.velocityRadPerSec;
+  }
+
+  @AutoLogOutput(key = "Turret/Setpoint")
+  public Rotation2d getTurretSetpoint() {
+    return goal;
+  }
+
+  public void zeroTurret() {
+    turretMotor.setPosition(0.0);
+  }
 }
