@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.PivotConstants;
+import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOInputsAutoLogged;
 
@@ -30,6 +31,8 @@ public class Pivot extends SubsystemBase {
   public void periodic() {
     pivotMotor.updateInputs(pivotMotorInputs);
     Logger.processInputs("Intake/Pivot", pivotMotorInputs);
+
+    ExecutionLogger.log("Intake/Pivot");
   }
 
   @AutoLogOutput(key = "Intake/Pivot/Angle")
