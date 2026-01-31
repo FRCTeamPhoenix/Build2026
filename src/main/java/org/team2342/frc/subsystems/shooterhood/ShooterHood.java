@@ -35,9 +35,6 @@ public class ShooterHood extends SubsystemBase {
     this.motor = motor;
     this.encoder = encoder;
 
-    motorAlert.set(!motorInputs.motorsConnected[0]);
-    encoderAlert.set(!encoderInputs.connected);
-
     setName("Shooter Hood");
     motorInputs.positionRad = 0.0;
     setDefaultCommand(run(() -> motor.runVoltage(0.0)));
@@ -48,6 +45,9 @@ public class ShooterHood extends SubsystemBase {
     motor.updateInputs(motorInputs);
     encoder.updateInputs(encoderInputs);
 
+    motorAlert.set(!motorInputs.motorsConnected[0]);
+    encoderAlert.set(!encoderInputs.connected);
+    
     Logger.processInputs("Shooter Hood/Motor", motorInputs);
     Logger.processInputs("Shooter Hood/encoder", encoderInputs);
 
@@ -68,7 +68,7 @@ public class ShooterHood extends SubsystemBase {
   public Command holdAngle(Rotation2d targetAngle) {
     return run(() -> motor.runPosition(targetAngle.getRadians())).withName("Shooter Hold Angle Hold");
   }
-  
+
   public Command stop() {
     return runOnce(() -> motor.runVoltage(0.0)).withName("Shooter Hood Stop");
   }
