@@ -14,10 +14,8 @@ import edu.wpi.first.math.util.Units;
 
 import org.team2342.lib.motors.smart.SmartMotorConfig;
 import org.team2342.lib.util.CameraParameters;
-
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import org.team2342.lib.motors.MotorConfig.IdleMode;
+import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
 public final class Constants {
   public static final Mode CURRENT_MODE = Mode.REAL;
   public static final boolean TUNING = true;
@@ -121,7 +119,7 @@ public final class Constants {
     public static final int PDH_ID = 62;
   }
   public static final class PivotConstants {
-    public static final double GEAR_RATIO = 45;
+    public static final double GEAR_RATIO = 9;
     public static final double CLAW_LENGTH = Units.inchesToMeters(16.6);
     public static final double MIN_ANGLE = -0.93;
     public static final double MAX_ANGLE = 1.43;
@@ -132,9 +130,9 @@ public final class Constants {
     public static final SmartMotorConfig PIVOT_CONFIG =
         new SmartMotorConfig()
             .withGearRatio(GEAR_RATIO)
-            .withIdleMode(org.team2342.lib.motors.MotorConfig.IdleMode.BRAKE)
+            .withIdleMode(IdleMode.BRAKE)
             .withProfileConstraintsRad(new TrapezoidProfile.Constraints(Units.degreesToRadians(1260), Units.degreesToRadians(1080)))
-            .withControlType(org.team2342.lib.motors.smart.SmartMotorConfig.ControlType.PROFILED_POSITION)
+            .withControlType(ControlType.PROFILED_POSITION)
             .withSupplyCurrentLimit(40);
     
   }

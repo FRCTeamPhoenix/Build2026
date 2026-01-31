@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOInputsAutoLogged;
+import org.team2342.frc.Constants.PivotConstants;
 
 public class Pivot extends SubsystemBase {
     
@@ -14,7 +15,8 @@ public class Pivot extends SubsystemBase {
     public Pivot(SmartMotorIO pivotMotor) {
         this.pivotMotor = pivotMotor;
         setName("Pivot");
-        setDefaultCommand(run(() -> pivotMotor.runVoltage(0.0)));
+        final double MIN_ANGLE = -0.93;
+        setDefaultCommand(run(() -> pivotMotor.runPosition(MIN_ANGLE)));}
 
     @Override
     public void periodic() {
@@ -32,24 +34,18 @@ public class Pivot extends SubsystemBase {
                 double error = targetAngle.minus(getAngle()).getRadians();
                 return Math.abs(error) < PivotConstants.AT_TARGET_TOLERANCE;
             })
-            .withName("Wrist Go To Angle"); // Fixed the quote here
+            .withName("Pivot Go To Angle"); // Fixed the quote here
     }
 
     public Command holdAngle(Rotation2d targetAngle) {
-        return run(() -> pivotMotor.runPosition(targetAngle.getRadians())).withName("Wrist Hold Angle");
+        return run(() -> pivotMotor.runPosition(targetAngle.getRadians())).withName("Pivot Hold Angle");
   }
 
-    public Command shoot(double metersPerSec) {
-        double radPerSec = metersPerSec / PivotConstants.WHEEL_RADIUS_METERS;
-        return run(() -> pivotMotor.runVelocity(radPerSec)).withName("Run Pivot");
-    }
-
+    
     public Command stop() {
-        return runOnce(() -> pivotMotor.runVoltage(0.0)).withName("Stop Stop");
+        return runOnce(() -> pivotMotor.runVoltage(0.0)).withName("Stop Pivot");
     }
 
-    public double getVelocityMetersPerSec() {
-        return pivotMotorInputs.velocityRadPerSec * PivotConstants.WHEEL_RADIUS_METERS;
-    }
+   
 }
 
