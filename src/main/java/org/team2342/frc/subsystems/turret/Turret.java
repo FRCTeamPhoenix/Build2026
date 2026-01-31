@@ -54,7 +54,7 @@ public class Turret extends SubsystemBase {
     return run(() -> goToPosition(setpoint))
         .until(
             () ->
-                Math.abs(turretPosition().minus(goal).getRadians())
+                Math.abs(getTurretPosition().minus(goal).getRadians())
                     <= TurretConstants.AT_POSITION_THRESHOLD)
         .withName("Turret GoToPosition");
   }
@@ -64,16 +64,16 @@ public class Turret extends SubsystemBase {
   }
 
   @AutoLogOutput(key = "Turret/Position")
-  public Rotation2d turretPosition() {
+  public Rotation2d getTurretPosition() {
     return Rotation2d.fromRadians(inputs.positionRad);
   }
 
-  public double turretVelocity() {
+  public double getTurretVelocity() {
     return inputs.velocityRadPerSec;
   }
 
   @AutoLogOutput(key = "Turret/Setpoint")
-  public Rotation2d turretSetpoint() {
+  public Rotation2d getTurretSetpoint() {
     return goal;
   }
 
