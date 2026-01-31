@@ -18,6 +18,8 @@ public class Wheels extends SubsystemBase {
   private final DumbMotorIO intakeMotor;
   private final DumbMotorIOInputsAutoLogged intakeMotorInputs = new DumbMotorIOInputsAutoLogged();
 
+  private final Alert intakeMotorAlert = new Alert("Wheels are disconnected!", AlertType.kError);
+
   public Wheels(DumbMotorIO intakeMotor) {
     this.intakeMotor = intakeMotor;
     setName("Intake/Wheels");
@@ -28,7 +30,7 @@ public class Wheels extends SubsystemBase {
   public void periodic() {
     intakeMotor.updateInputs(intakeMotorInputs);
     Logger.processInputs("Intake/Wheels", intakeMotorInputs);
-
+    intakeMotorAlert.set(!intakeMotorInputs.motorsConnected[0]);
     ExecutionLogger.log("Intake/Wheels");
   }
 
