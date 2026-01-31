@@ -9,7 +9,12 @@ package org.team2342.frc;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+
+import org.team2342.lib.motors.MotorConfig.IdleMode;
+import org.team2342.lib.motors.smart.SmartMotorConfig;
+import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
@@ -105,6 +110,20 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
+  public static final class HoodConstants{
+    public static final double GEAR_RATIO = 208;
+    public static final double MIN_ANGLE = Units.degreesToRadians(33.5);
+    public static final double MAX_ANGLE = Units.degreesToRadians(51.6);
+    public static final double TARGET_TOLERANCE = 0.01;
+
+    public static final SmartMotorConfig HOOD_MOTOR_CONFIG = 
+      new SmartMotorConfig()
+        .withGearRatio(GEAR_RATIO)
+        .withControlType(ControlType.PROFILED_POSITION)
+        .withIdleMode(IdleMode.BRAKE)
+        .withSupplyCurrentLimit(40)
+        .withProfileConstraintsRad(new TrapezoidProfile.Constraints(Units.degreesToRadians(1260), Units.degreesToRadians(1080)));
+  }
   public static final class CANConstants {
     public static final int PIGEON_ID = 13;
     public static final int[] FL_IDS = {1, 5, 9};
