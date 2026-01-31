@@ -7,6 +7,8 @@
 package org.team2342.frc.subsystems.intake;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -21,6 +23,8 @@ public class Pivot extends SubsystemBase {
   private final SmartMotorIO pivotMotor;
   private final SmartMotorIOInputsAutoLogged pivotMotorInputs = new SmartMotorIOInputsAutoLogged();
 
+  private final Alert pivotMotorAlert = new Alert("Pivot motor is disconnected!", AlertType.kError);
+
   public Pivot(SmartMotorIO pivotMotor) {
     this.pivotMotor = pivotMotor;
     setName("Pivot");
@@ -31,6 +35,7 @@ public class Pivot extends SubsystemBase {
   public void periodic() {
     pivotMotor.updateInputs(pivotMotorInputs);
     Logger.processInputs("Intake/Pivot", pivotMotorInputs);
+    Logger.processInputs("Shooter/Hood/Motor", pivotMotorInputs);
 
     ExecutionLogger.log("Intake/Pivot");
   }
