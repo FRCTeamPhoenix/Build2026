@@ -22,10 +22,7 @@ public class Turret extends SubsystemBase {
 
   private final SmartMotorIO turretMotor;
   private final SmartMotorIOInputsAutoLogged inputs = new SmartMotorIOInputsAutoLogged();
-  private Rotation2d setpoint = new Rotation2d();
-  private double threshold = 0.01;
   private final Alert motorAlert = new Alert("Turret motor is disconnected!", AlertType.kError);
-
   private Rotation2d goal = new Rotation2d();
 
   public Turret(SmartMotorIO turretMotor) {
@@ -42,10 +39,9 @@ public class Turret extends SubsystemBase {
     ExecutionLogger.log("Turret");
   }
 
-  public Command runPosition(Rotation2d setpoint) {
-    this.setpoint = setpoint;
-    return run(() -> turretMotor.runPosition(setpoint.getRadians()))
-        .withName("turret run position");
+  public Command runPosition(Rotation2d goal) {
+    this.goal = goal;
+    return run(() -> turretMotor.runPosition(goal.getRadians())).withName("turret run position");
   }
 
   public Command runPositionCommand(Rotation2d setpoint) {
