@@ -105,6 +105,11 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
+    public static final class TurretConstants {
+        public static final double AT_POSITION_THRESHOLD = 0.01;
+
+    }
+
   public static final class CANConstants {
     public static final int PIGEON_ID = 13;
     public static final int[] FL_IDS = {1, 5, 9};
