@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
+import org.team2342.frc.Constants.IndexerConstants;
 import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOInputsAutoLogged;
@@ -19,9 +20,13 @@ public class Indexer extends SubsystemBase {
   private final DumbMotorIO motor1;
   private final DumbMotorIO motor2;
   private final DumbMotorIO motor3;
-  private final DumbMotorIOInputsAutoLogged inputs = new DumbMotorIOInputsAutoLogged();
+  private final DumbMotorIOInputsAutoLogged motor1Inputs = new DumbMotorIOInputsAutoLogged();
+  private final DumbMotorIOInputsAutoLogged motor2Inputs = new DumbMotorIOInputsAutoLogged();
+  private final DumbMotorIOInputsAutoLogged motor3Inputs = new DumbMotorIOInputsAutoLogged();
 
-  private final Alert motorAlert = new Alert("Indexer Motor is diconnected", AlertType.kError);
+  private final Alert motorAlert1 = new Alert("Indexer Motor 1 is diconnected", AlertType.kError);
+  private final Alert motorAlert2 = new Alert("Indexer Motor 2 is diconnected", AlertType.kError);
+  private final Alert motorAlert3 = new Alert("Indexer Motor 3 is diconnected", AlertType.kError);
 
   public Indexer(DumbMotorIO motor1, DumbMotorIO motor2, DumbMotorIO motor3) {
     this.motor1 = motor1;
@@ -29,38 +34,56 @@ public class Indexer extends SubsystemBase {
     this.motor3 = motor3;
     setName("Indexer");
 
-    setDefaultCommand(run(() -> motor1.runVoltage(0.0))); 
-    setDefaultCommand(run(() -> motor2.runVoltage(0.0)));
-    setDefaultCommand(run(() -> motor3.runVoltage(0.0)));
+    setDefaultCommand(
+        run(
+            () -> {
+              motor1.runVoltage(0.0);
+              motor2.runVoltage(0.0);
+              motor3.runVoltage(0.0);
+            }));
   }
 
   @Override
   public void periodic() {
-    motor1.updateInputs(inputs);
-    motor2.updateInputs(inputs);
-    motor3.updateInputs(inputs);
-    Logger.processInputs("Indexer", inputs);
+    motor1.updateInputs(motor1Inputs);
+    motor2.updateInputs(motor2Inputs);
+    motor3.updateInputs(motor3Inputs);
+    Logger.processInputs("Indexer/Motor1", motor1Inputs);
+    Logger.processInputs("Indexer/Motor2", motor2Inputs);
+    Logger.processInputs("Indexer/Motor3", motor3Inputs);
 
-    motorAlert.set(!inputs.connected);
+    motorAlert1.set(!motor1Inputs.connected);
+    motorAlert2.set(!motor2Inputs.connected);
+    motorAlert3.set(!motor3Inputs.connected);
 
     ExecutionLogger.log("Indexer");
   }
 
-  public Command out() { 
-    //return run(() -> motor1.runVoltage(10.0), motor2.runVoltage(10.0), motor3.runVoltage(10.0)).withName("Indexer Out");
-    return run(() -> {motor1.runVoltage(10.0); motor2.runVoltage(10.0); motor3.runVoltage(10.0);}).withName("Indexer Out");
-
-    
-
+  public Command out() {
+    return run(() -> {
+          motor1.runVoltage(IndexerConstants.RUN_VOLTAGE);
+          motor2.runVoltage(IndexerConstants.RUN_VOLTAGE);
+          motor3.runVoltage(IndexerConstants.RUN_VOLTAGE);
+        })
+        .withName("Indexer Out");
   }
 
   public Command in() {
-    return run(() -> {motor1.runVoltage(-10.0); motor2.runVoltage(-10.0); motor3.runVoltage(-10.0);}).withName("Indexer In");
+    return run(() -> {
+          motor1.runVoltage(-IndexerConstants.RUN_VOLTAGE);
+          motor2.runVoltage(-IndexerConstants.RUN_VOLTAGE);
+          motor3.runVoltage(-IndexerConstants.RUN_VOLTAGE);
+        })
+        .withName("Indexer In");
   }
 
   public Command stop() {
-    return runOnce(() -> {motor1.runVoltage(0.0); motor2.runVoltage(0.0); motor3.runVoltage(0.0);}).withName("Indexer Stop");
+    return runOnce(
+            () -> {
+              motor1.runVoltage(0.0);
+              motor2.runVoltage(0.0);
+              motor3.runVoltage(0.0);
+            })
+        .withName("Indexer Stop");
   }
 }
-
-

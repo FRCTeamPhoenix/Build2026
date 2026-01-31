@@ -105,6 +105,10 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
+  public static final class IndexerConstants {
+    public static final double RUN_VOLTAGE = 10.0;
+  }
+
   public static final class CANConstants {
     public static final int PIGEON_ID = 13;
     public static final int[] FL_IDS = {1, 5, 9};
