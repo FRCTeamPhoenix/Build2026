@@ -109,6 +109,10 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
+  public static final class IntakeConstants {
+    public static final double RUN_VOLTAGE = 10.0;
+  }
+
   public static final class CANConstants {
     public static final int PDH_ID = 14;
 
