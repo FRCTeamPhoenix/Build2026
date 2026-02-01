@@ -111,8 +111,8 @@ public final class Constants {
     public static final int[] FR_IDS = {2, 6, 10};
     public static final int[] BL_IDS = {3, 7, 11};
     public static final int[] BR_IDS = {4, 8, 12};
-    public static final int SHOOTER_WHEEL_ID = 14;
-    public static final int SHOOTER_ANGLE_ID = 15;
+    public static final int SHOOTER_WHEELS_MOTOR_ID = 14;
+    public static final int SHOOTER_HOOD_MOTOR_ID = 15;
     public static final int PDH_ID = 62;
   }
 }
