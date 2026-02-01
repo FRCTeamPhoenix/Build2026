@@ -35,7 +35,7 @@ import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
 import org.team2342.frc.subsystems.drive.ModuleIO;
 import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
-import org.team2342.frc.subsystems.shooter.Shooter;
+import org.team2342.frc.subsystems.shooter.Flywheel;
 import org.team2342.frc.subsystems.vision.Vision;
 import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
@@ -47,7 +47,7 @@ import org.team2342.lib.util.EnhancedXboxController;
 public class RobotContainer {
   @Getter private final Drive drive;
   @Getter private final Vision vision;
-  @Getter private final Shooter shooter;
+  @Getter private final Flywheel shooter;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -70,7 +70,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(CANConstants.BR_IDS, DriveConstants.ENCODER_OFFSETS[3]));
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         shooter =
-            new Shooter(
+            new Flywheel(
                 new SmartMotorIOTalonFX(
                     CANConstants.SHOOTER_WHEEL_MOTOR_ID,
                     ShooterConstants.SHOOTER_WHEEL_MOTOR_CONFIG));
@@ -97,7 +97,7 @@ public class RobotContainer {
                     VisionConstants.LEFT_CAMERA_NAME,
                     VisionConstants.FRONT_LEFT_TRANSFORM,
                     drive::getRawOdometryPose));
-        shooter = new Shooter(new SmartMotorIO() {});
+        shooter = new Flywheel(new SmartMotorIO() {});
 
         break;
 
@@ -110,7 +110,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        shooter = new Shooter(new SmartMotorIO() {});
+        shooter = new Flywheel(new SmartMotorIO() {});
 
         break;
     }
@@ -163,7 +163,7 @@ public class RobotContainer {
                 () -> -driverController.getLeftY(),
                 () -> -driverController.getLeftX()));
 
-    driverController.rightTrigger().whileTrue(shooter.shoot(35)).onFalse(shooter.stop());
+    driverController.rightTrigger().whileTrue(shooter.shoot(27)).onFalse(shooter.stop());
   }
 
   public Command getAutonomousCommand() {

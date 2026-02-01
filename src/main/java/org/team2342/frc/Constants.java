@@ -114,14 +114,17 @@ public final class Constants {
   }
 
   public static final class ShooterConstants {
+    public static final double GEAR_RATIO = 1.0;
     public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
-    public static final PIDFFConfigs SHOOTER_WHEEL_MOTOR_PID_CONFIGS = new PIDFFConfigs().withKP(1);
+    public static final PIDFFConfigs SHOOTER_WHEEL_MOTOR_PID_CONFIGS =
+        new PIDFFConfigs().withKP(0.3);
     public static final SmartMotorConfig SHOOTER_WHEEL_MOTOR_CONFIG =
         new SmartMotorConfig()
             .withControlType(ControlType.PROFILED_VELOCITY)
+            .withGearRatio(GEAR_RATIO)
             .withPIDFFConfigs(SHOOTER_WHEEL_MOTOR_PID_CONFIGS)
-            .withMotorInverted(true)
+            .withMotorInverted(false)
             .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000))
             .withSupplyCurrentLimit(40)
             .withStatorCurrentLimit(50);
