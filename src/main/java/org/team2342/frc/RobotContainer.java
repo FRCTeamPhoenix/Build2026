@@ -25,6 +25,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.team2342.frc.Constants.CANConstants;
 import org.team2342.frc.Constants.DriveConstants;
+import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.commands.DriveCommands;
 import org.team2342.frc.commands.DriveToPose;
@@ -35,16 +36,20 @@ import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
 import org.team2342.frc.subsystems.drive.ModuleIO;
 import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
+import org.team2342.frc.subsystems.shooter.Flywheel;
 import org.team2342.frc.subsystems.vision.Vision;
 import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
+import org.team2342.lib.motors.smart.SmartMotorIO;
+import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
 import org.team2342.lib.util.AllianceUtils;
 import org.team2342.lib.util.EnhancedXboxController;
 
 public class RobotContainer {
   @Getter private final Drive drive;
   @Getter private final Vision vision;
+  @Getter private final Flywheel shooter;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -73,6 +78,11 @@ public class RobotContainer {
                     VisionConstants.LEFT_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
+        shooter =
+            new Flywheel(
+                new SmartMotorIOTalonFX(
+                    CANConstants.SHOOTER_WHEEL_MOTOR_ID,
+                    ShooterConstants.SHOOTER_WHEEL_MOTOR_CONFIG));
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
@@ -94,6 +104,7 @@ public class RobotContainer {
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose));
+        shooter = new Flywheel(new SmartMotorIO() {});
 
         break;
 
@@ -111,6 +122,7 @@ public class RobotContainer {
                 drive::getTimestampedHeading,
                 new VisionIO() {},
                 new VisionIO() {});
+        shooter = new Flywheel(new SmartMotorIO() {});
 
         break;
     }
@@ -168,6 +180,8 @@ public class RobotContainer {
                 drive::getPose,
                 () -> -driverController.getLeftY(),
                 () -> -driverController.getLeftX()));
+
+    driverController.rightTrigger().whileTrue(shooter.shoot(27)).onFalse(shooter.stop());
   }
 
   public Command getAutonomousCommand() {
