@@ -33,8 +33,8 @@ public final class Constants {
     public static final Transform3d CAMERA_TRANSFORM =
         new Transform3d(
             new Translation3d(
-                Units.inchesToMeters(7.883 + 0.5),
-                Units.inchesToMeters(-10.895 - 0.5),
+                Units.inchesToMeters(7.883),
+                Units.inchesToMeters(-10.895),
                 Units.inchesToMeters(8)),
             new Rotation3d(0, Units.degreesToRadians(-22.0), Units.degreesToRadians(90 - 61.475)));
 
@@ -70,7 +70,7 @@ public final class Constants {
     public static final double CONTROLLER_DEADBAND = 0.1;
     public static final double ROTATION_LOCK_TIME = 0.25;
 
-    public static final double MAX_LINEAR_SPEED = Units.feetToMeters(15.5);
+    public static final double MAX_LINEAR_SPEED = Units.feetToMeters(15.0);
     public static final double MAX_LINEAR_ACCELERATION = 20.0;
     public static final double DRIVE_GEARING = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
     public static final double TURN_GEARING = 150.0 / 7.0;
@@ -79,12 +79,13 @@ public final class Constants {
     public static final double WHEEL_RADIUS = Units.inchesToMeters(2.0);
     public static final double WHEEL_COF = 1.2;
 
-    public static final double TRACK_WIDTH_X = Units.inchesToMeters(28.0 - (2.625 * 2));
-    public static final double TRACK_WIDTH_Y = Units.inchesToMeters(28.0 - (2.625 * 2));
+    public static final double TRACK_WIDTH_X = Units.inchesToMeters(27.0 - (2.625 * 2));
+    public static final double TRACK_WIDTH_Y = Units.inchesToMeters(27.0 - (2.625 * 2));
     public static final double DRIVE_BASE_RADIUS =
         Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0);
     public static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;
 
+    // TODO: New Mass & MOI
     public static final double ROBOT_MASS_KG = Units.lbsToKilograms(112);
     public static final double ROBOT_MOI = 5.278;
 
@@ -95,7 +96,7 @@ public final class Constants {
 
     // TODO: Find new offsets for season modules
     public static final double[] ENCODER_OFFSETS = {
-      0.229 + 0.5, 0.2834 + 0.5, 0.2009 + 0.5, 0.1563 + 0.5
+      0.12109375 + 0.5, -0.142333984375 + 0.5, -0.3896484375 + 0.5, -0.150146484375 + 0.5,
     };
 
     // Pitch, Roll, Yaw
