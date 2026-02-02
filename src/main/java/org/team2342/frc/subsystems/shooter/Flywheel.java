@@ -8,7 +8,6 @@ package org.team2342.frc.subsystems.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.ShooterConstants;
@@ -37,6 +36,7 @@ public class Flywheel extends SubsystemBase {
     Logger.recordOutput("Shooter/Flywheel/SetpointMetersPerSec", metersPerSec);
     wheelMotor.runVelocity(radPerSec);
   }
+
   public Command shoot(double metersPerSec) {
     return run(() -> runVelocity(metersPerSec)).withName("Run Shooter");
   }

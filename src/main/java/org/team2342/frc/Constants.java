@@ -14,10 +14,9 @@ import edu.wpi.first.math.util.Units;
 import org.team2342.lib.motors.MotorConfig.IdleMode;
 import org.team2342.lib.motors.smart.SmartMotorConfig;
 import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
-import org.team2342.lib.util.CameraParameters;
-import org.team2342.lib.motors.smart.SmartMotorConfig;
-import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
+import org.team2342.lib.motors.smart.SmartMotorConfig.FeedbackConfig;
 import org.team2342.lib.pidff.PIDFFConfigs;
+import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
   public static final Mode CURRENT_MODE = Mode.REAL;
@@ -101,7 +100,6 @@ public final class Constants {
     public static final double DRIVE_SUPPLY_LIMIT = 40.0;
     public static final double MAX_MODULE_VELOCITY_RAD = Units.degreesToRadians(1080.0);
 
-    // TODO: Find new offsets for season modules
     public static final double[] ENCODER_OFFSETS = {
       0.12109375 + 0.5, -0.142333984375 + 0.5, -0.3896484375 + 0.5, -0.150146484375 + 0.5,
     };
@@ -114,22 +112,25 @@ public final class Constants {
   }
 
   public static final class HoodConstants {
-    public static final double GEAR_RATIO = 208;
-    public static final double MIN_ANGLE = Units.degreesToRadians(33.5);
-    public static final double MAX_ANGLE = Units.degreesToRadians(51.6);
+    public static final double KRAKEN_TO_ENCODER = (64.0 / 14.0) * (44.0 / 22.0);
+    public static final double ENCODER_TO_HOOD = 344.0 / 22.0;
+    public static final double MAX_ANGLE = Units.degreesToRadians(51.6 - 33.5);
     public static final double TARGET_TOLERANCE = 0.01;
 
     public static final SmartMotorConfig HOOD_MOTOR_CONFIG =
         new SmartMotorConfig()
-            .withGearRatio(GEAR_RATIO)
+            .withGearRatio(ENCODER_TO_HOOD)
             .withControlType(ControlType.PROFILED_POSITION)
             .withIdleMode(IdleMode.BRAKE)
             .withSupplyCurrentLimit(40)
+            .withFeedbackConfig(
+                FeedbackConfig.fused(
+                    CANConstants.SHOOTER_HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.0, false))
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1260), Units.degreesToRadians(1080)));
   }
-  
+
   public static final class ShooterConstants {
     public static final double GEAR_RATIO = 1.0;
     public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
@@ -153,10 +154,10 @@ public final class Constants {
     public static final int[] FR_IDS = {2, 6, 10};
     public static final int[] BL_IDS = {3, 7, 11};
     public static final int[] BR_IDS = {4, 8, 12};
-    
+
     public static final int SHOOTER_WHEEL_MOTOR_ID = 14;
     public static final int SHOOTER_HOOD_MOTOR_ID = 15;
-    public static final int SHOOTER_HOOD_ENCODER_ID = 15;
+    public static final int SHOOTER_HOOD_ENCODER_ID = 16;
 
     public static final int PDH_ID = 62;
   }

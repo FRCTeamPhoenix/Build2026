@@ -43,8 +43,7 @@ public class Hood extends SubsystemBase {
   }
 
   public void runAngle(double targetAngle) {
-    double clampedAngle =
-        MathUtil.clamp(targetAngle, HoodConstants.MIN_ANGLE, HoodConstants.MAX_ANGLE);
+    double clampedAngle = MathUtil.clamp(targetAngle, 0.0, HoodConstants.MAX_ANGLE);
     Logger.recordOutput("Shooter/Hood/Setpoint", clampedAngle);
 
     motor.runPosition(clampedAngle);
