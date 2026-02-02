@@ -42,6 +42,7 @@ import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIO;
+import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
 import org.team2342.lib.util.AllianceUtils;
 import org.team2342.lib.util.EnhancedXboxController;
@@ -49,7 +50,7 @@ import org.team2342.lib.util.EnhancedXboxController;
 public class RobotContainer {
   @Getter private final Drive drive;
   @Getter private final Vision vision;
-  @Getter private final Flywheel shooter;
+  @Getter private final Flywheel flywheel;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -78,11 +79,10 @@ public class RobotContainer {
                     VisionConstants.LEFT_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
-        shooter =
+        flywheel =
             new Flywheel(
                 new SmartMotorIOTalonFX(
-                    CANConstants.SHOOTER_WHEEL_MOTOR_ID,
-                    ShooterConstants.SHOOTER_WHEEL_MOTOR_CONFIG));
+                    CANConstants.FLYWHEEL_MOTOR_ID, ShooterConstants.FLYWHEEL_CONFIG));
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
@@ -104,7 +104,13 @@ public class RobotContainer {
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose));
-        shooter = new Flywheel(new SmartMotorIO() {});
+        flywheel =
+            new Flywheel(
+                new SmartMotorIOSim(
+                    ShooterConstants.FLYWHEEL_CONFIG,
+                    ShooterConstants.FLYWHEEL_SIM_MOTOR,
+                    ShooterConstants.FLYWHEEL_SIM,
+                    1));
 
         break;
 
@@ -122,7 +128,7 @@ public class RobotContainer {
                 drive::getTimestampedHeading,
                 new VisionIO() {},
                 new VisionIO() {});
-        shooter = new Flywheel(new SmartMotorIO() {});
+        flywheel = new Flywheel(new SmartMotorIO() {});
 
         break;
     }
@@ -181,7 +187,7 @@ public class RobotContainer {
                 () -> -driverController.getLeftY(),
                 () -> -driverController.getLeftX()));
 
-    driverController.rightTrigger().whileTrue(shooter.shoot(27)).onFalse(shooter.stop());
+    driverController.rightTrigger().whileTrue(flywheel.shoot(27)).onFalse(flywheel.stop());
   }
 
   public Command getAutonomousCommand() {

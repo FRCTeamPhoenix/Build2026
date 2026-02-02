@@ -26,7 +26,7 @@ public class Flywheel extends SubsystemBase {
 
   public Flywheel(SmartMotorIO motor) {
     this.motor = motor;
-    
+
     setName("Shooter/Flywheel");
     setDefaultCommand(run(() -> motor.runVoltage(0.0)));
   }
@@ -42,7 +42,7 @@ public class Flywheel extends SubsystemBase {
   }
 
   public void runVelocity(double metersPerSec) {
-    double radPerSec = metersPerSec / ShooterConstants.WHEEL_RADIUS_METERS;
+    double radPerSec = metersPerSec / ShooterConstants.FLYWHEEL_RADIUS_METERS;
     Logger.recordOutput("Shooter/Flywheel/SetpointMetersPerSec", metersPerSec);
     motor.runVelocity(radPerSec);
   }
@@ -57,6 +57,6 @@ public class Flywheel extends SubsystemBase {
 
   @AutoLogOutput(key = "Shooter/Flywheel/VelocityMetersPerSec")
   public double getVelocityMetersPerSec() {
-    return motorInputs.velocityRadPerSec * ShooterConstants.WHEEL_RADIUS_METERS;
+    return motorInputs.velocityRadPerSec * ShooterConstants.FLYWHEEL_RADIUS_METERS;
   }
 }

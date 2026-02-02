@@ -41,6 +41,10 @@ public class Hood extends SubsystemBase {
     ExecutionLogger.log("Shooter/Hood");
   }
 
+  public double getHoodAngle() {
+    return motorInputs.positionRad;
+  }
+
   public void runAngle(double targetAngle) {
     double clampedAngle = MathUtil.clamp(targetAngle, 0.0, ShooterConstants.MAX_ANGLE);
     Logger.recordOutput("Shooter/Hood/Setpoint", clampedAngle);
@@ -51,7 +55,9 @@ public class Hood extends SubsystemBase {
   public Command goToAngle(double targetAngle) {
     return run(() -> runAngle(targetAngle))
         .until(
-            () -> Math.abs(targetAngle - motorInputs.positionRad) <= ShooterConstants.TARGET_TOLERANCE)
+            () ->
+                Math.abs(targetAngle - motorInputs.positionRad)
+                    <= ShooterConstants.TARGET_TOLERANCE)
         .withName("Hood GoToAngle");
   }
 

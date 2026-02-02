@@ -9,8 +9,11 @@ package org.team2342.frc;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import org.team2342.lib.motors.MotorConfig.IdleMode;
 import org.team2342.lib.motors.smart.SmartMotorConfig;
 import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
@@ -112,20 +115,23 @@ public final class Constants {
   }
 
   public static final class ShooterConstants {
-    public static final double WHEEL_GEAR_RATIO = 1.0;
-    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
+    public static final double FLYWHEEL_GEAR_RATIO = 1.0;
+    public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
-    public static final PIDFFConfigs SHOOTER_WHEEL_MOTOR_PID_CONFIGS =
-        new PIDFFConfigs().withKP(0.3);
-    public static final SmartMotorConfig SHOOTER_WHEEL_MOTOR_CONFIG =
+    public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS = new PIDFFConfigs().withKP(0.3);
+    public static final SmartMotorConfig FLYWHEEL_CONFIG =
         new SmartMotorConfig()
-            .withControlType(ControlType.PROFILED_VELOCITY)
-            .withGearRatio(WHEEL_GEAR_RATIO)
-            .withPIDFFConfigs(SHOOTER_WHEEL_MOTOR_PID_CONFIGS)
+            .withControlType(ControlType.VELOCITY)
+            .withGearRatio(FLYWHEEL_GEAR_RATIO)
+            .withPIDFFConfigs(FLYWHEEL_PID_CONFIGS)
             .withMotorInverted(false)
-            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000))
             .withSupplyCurrentLimit(40)
             .withStatorCurrentLimit(50);
+    public static final DCMotor FLYWHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim FLYWHEEL_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(FLYWHEEL_SIM_MOTOR, 0.03, FLYWHEEL_GEAR_RATIO),
+            FLYWHEEL_SIM_MOTOR);
 
     public static final double KRAKEN_TO_ENCODER = (64.0 / 14.0) * (44.0 / 22.0);
     public static final double ENCODER_TO_HOOD = 344.0 / 22.0;
@@ -139,12 +145,10 @@ public final class Constants {
             .withIdleMode(IdleMode.BRAKE)
             .withSupplyCurrentLimit(40)
             .withFeedbackConfig(
-                FeedbackConfig.fused(
-                    CANConstants.SHOOTER_HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.0, false))
+                FeedbackConfig.fused(CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.0, false))
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1260), Units.degreesToRadians(1080)));
-
   }
 
   public static final class CANConstants {
@@ -154,9 +158,9 @@ public final class Constants {
     public static final int[] BL_IDS = {3, 7, 11};
     public static final int[] BR_IDS = {4, 8, 12};
 
-    public static final int SHOOTER_WHEEL_MOTOR_ID = 14;
-    public static final int SHOOTER_HOOD_MOTOR_ID = 15;
-    public static final int SHOOTER_HOOD_ENCODER_ID = 16;
+    public static final int FLYWHEEL_MOTOR_ID = 14;
+    public static final int HOOD_MOTOR_ID = 15;
+    public static final int HOOD_ENCODER_ID = 16;
 
     public static final int PDH_ID = 62;
   }
