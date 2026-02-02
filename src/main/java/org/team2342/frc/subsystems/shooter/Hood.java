@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
-import org.team2342.frc.Constants.HoodConstants;
+import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOInputsAutoLogged;
@@ -34,16 +34,15 @@ public class Hood extends SubsystemBase {
   @Override
   public void periodic() {
     motor.updateInputs(motorInputs);
+    Logger.processInputs("Shooter/Hood", motorInputs);
 
     motorAlert.set(!motorInputs.motorsConnected[0]);
-
-    Logger.processInputs("Shooter/Hood", motorInputs);
 
     ExecutionLogger.log("Shooter/Hood");
   }
 
   public void runAngle(double targetAngle) {
-    double clampedAngle = MathUtil.clamp(targetAngle, 0.0, HoodConstants.MAX_ANGLE);
+    double clampedAngle = MathUtil.clamp(targetAngle, 0.0, ShooterConstants.MAX_ANGLE);
     Logger.recordOutput("Shooter/Hood/Setpoint", clampedAngle);
 
     motor.runPosition(clampedAngle);
@@ -52,7 +51,7 @@ public class Hood extends SubsystemBase {
   public Command goToAngle(double targetAngle) {
     return run(() -> runAngle(targetAngle))
         .until(
-            () -> Math.abs(targetAngle - motorInputs.positionRad) <= HoodConstants.TARGET_TOLERANCE)
+            () -> Math.abs(targetAngle - motorInputs.positionRad) <= ShooterConstants.TARGET_TOLERANCE)
         .withName("Hood GoToAngle");
   }
 

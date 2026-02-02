@@ -111,7 +111,22 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
-  public static final class HoodConstants {
+  public static final class ShooterConstants {
+    public static final double WHEEL_GEAR_RATIO = 1.0;
+    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
+
+    public static final PIDFFConfigs SHOOTER_WHEEL_MOTOR_PID_CONFIGS =
+        new PIDFFConfigs().withKP(0.3);
+    public static final SmartMotorConfig SHOOTER_WHEEL_MOTOR_CONFIG =
+        new SmartMotorConfig()
+            .withControlType(ControlType.PROFILED_VELOCITY)
+            .withGearRatio(WHEEL_GEAR_RATIO)
+            .withPIDFFConfigs(SHOOTER_WHEEL_MOTOR_PID_CONFIGS)
+            .withMotorInverted(false)
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000))
+            .withSupplyCurrentLimit(40)
+            .withStatorCurrentLimit(50);
+
     public static final double KRAKEN_TO_ENCODER = (64.0 / 14.0) * (44.0 / 22.0);
     public static final double ENCODER_TO_HOOD = 344.0 / 22.0;
     public static final double MAX_ANGLE = Units.degreesToRadians(51.6 - 33.5);
@@ -129,23 +144,7 @@ public final class Constants {
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1260), Units.degreesToRadians(1080)));
-  }
 
-  public static final class ShooterConstants {
-    public static final double GEAR_RATIO = 1.0;
-    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
-
-    public static final PIDFFConfigs SHOOTER_WHEEL_MOTOR_PID_CONFIGS =
-        new PIDFFConfigs().withKP(0.3);
-    public static final SmartMotorConfig SHOOTER_WHEEL_MOTOR_CONFIG =
-        new SmartMotorConfig()
-            .withControlType(ControlType.PROFILED_VELOCITY)
-            .withGearRatio(GEAR_RATIO)
-            .withPIDFFConfigs(SHOOTER_WHEEL_MOTOR_PID_CONFIGS)
-            .withMotorInverted(false)
-            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000))
-            .withSupplyCurrentLimit(40)
-            .withStatorCurrentLimit(50);
   }
 
   public static final class CANConstants {
