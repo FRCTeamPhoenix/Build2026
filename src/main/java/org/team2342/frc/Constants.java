@@ -149,6 +149,13 @@ public final class Constants {
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1260), Units.degreesToRadians(1080)));
+
+    public static final DCMotor HOOD_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim HOOD_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(
+                HOOD_SIM_MOTOR, 0.01, (KRAKEN_TO_ENCODER * ENCODER_TO_HOOD)),
+            HOOD_SIM_MOTOR);
   }
 
   public static final class CANConstants {

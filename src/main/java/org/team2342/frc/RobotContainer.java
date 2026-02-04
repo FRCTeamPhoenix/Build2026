@@ -37,6 +37,7 @@ import org.team2342.frc.subsystems.drive.ModuleIO;
 import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
 import org.team2342.frc.subsystems.shooter.Flywheel;
+import org.team2342.frc.subsystems.shooter.Hood;
 import org.team2342.frc.subsystems.vision.Vision;
 import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
@@ -44,6 +45,9 @@ import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
+import org.team2342.lib.sensors.absolute.AbsoluteEncoderIO;
+import org.team2342.lib.sensors.absolute.AbsoluteEncoderIORedux;
+import org.team2342.lib.sensors.absolute.AbsoluteEncoderIOSim;
 import org.team2342.lib.util.AllianceUtils;
 import org.team2342.lib.util.EnhancedXboxController;
 
@@ -51,6 +55,7 @@ public class RobotContainer {
   @Getter private final Drive drive;
   @Getter private final Vision vision;
   @Getter private final Flywheel flywheel;
+  @Getter private final Hood hood;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -83,7 +88,11 @@ public class RobotContainer {
             new Flywheel(
                 new SmartMotorIOTalonFX(
                     CANConstants.FLYWHEEL_MOTOR_ID, ShooterConstants.FLYWHEEL_CONFIG));
-
+        hood = 
+            new Hood(
+                new SmartMotorIOTalonFX(
+                    CANConstants.HOOD_MOTOR_ID, ShooterConstants.HOOD_MOTOR_CONFIG), 
+                    new AbsoluteEncoderIORedux(0, null, false));
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
 
@@ -111,7 +120,14 @@ public class RobotContainer {
                     ShooterConstants.FLYWHEEL_SIM_MOTOR,
                     ShooterConstants.FLYWHEEL_SIM,
                     1));
-
+        hood =
+            new Hood(
+                new SmartMotorIOSim(
+                    ShooterConstants.HOOD_MOTOR_CONFIG,
+                    ShooterConstants.HOOD_SIM_MOTOR,
+                    ShooterConstants.HOOD_SIM,
+                    1),
+                new AbsoluteEncoderIOSim(null));
         break;
 
       default:
@@ -129,7 +145,7 @@ public class RobotContainer {
                 new VisionIO() {},
                 new VisionIO() {});
         flywheel = new Flywheel(new SmartMotorIO() {});
-
+        hood = new Hood(new SmartMotorIO() {}, new AbsoluteEncoderIO() {});
         break;
     }
 
