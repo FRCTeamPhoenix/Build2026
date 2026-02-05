@@ -11,12 +11,12 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOInputsAutoLogged;
-import org.team2342.lib.sensors.absolute.AbsoluteEncoderIO;
 
 public class Hood extends SubsystemBase {
   private final SmartMotorIO motor;
@@ -24,7 +24,7 @@ public class Hood extends SubsystemBase {
 
   private final Alert motorAlert = new Alert("Hood motor is disconnected!", AlertType.kError);
 
-  public Hood(SmartMotorIO motor, AbsoluteEncoderIO encoder) {
+  public Hood(SmartMotorIO motor) {
     this.motor = motor;
 
     setName("Shooter/Hood");
@@ -52,6 +52,14 @@ public class Hood extends SubsystemBase {
     motor.runPosition(clampedAngle);
   }
 
+  public void runAngle(DoubleSupplier targetAngle) {
+    double clampedAngle =
+        MathUtil.clamp(targetAngle.getAsDouble(), 0.0, ShooterConstants.MAX_ANGLE);
+    Logger.recordOutput("Shooter/Hood/Setpoint", clampedAngle);
+
+    motor.runPosition(clampedAngle);
+  }
+
   public Command goToAngle(double targetAngle) {
     return run(() -> runAngle(targetAngle))
         .until(
@@ -62,6 +70,10 @@ public class Hood extends SubsystemBase {
   }
 
   public Command holdAngle(double targetAngle) {
+    return run(() -> runAngle(targetAngle)).withName("Hood HoldAngle");
+  }
+
+  public Command holdAngle(DoubleSupplier targetAngle) {
     return run(() -> runAngle(targetAngle)).withName("Hood HoldAngle");
   }
 

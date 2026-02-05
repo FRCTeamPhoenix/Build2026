@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.ShooterConstants;
@@ -47,7 +48,17 @@ public class Flywheel extends SubsystemBase {
     motor.runVelocity(radPerSec);
   }
 
+  public void runVelocity(DoubleSupplier metersPerSec) {
+    double radPerSec = metersPerSec.getAsDouble() / ShooterConstants.FLYWHEEL_RADIUS_METERS;
+    Logger.recordOutput("Shooter/Flywheel/SetpointMetersPerSec", metersPerSec);
+    motor.runVelocity(radPerSec);
+  }
+
   public Command shoot(double metersPerSec) {
+    return run(() -> runVelocity(metersPerSec)).withName("Run Shooter");
+  }
+
+  public Command shoot(DoubleSupplier metersPerSec) {
     return run(() -> runVelocity(metersPerSec)).withName("Run Shooter");
   }
 

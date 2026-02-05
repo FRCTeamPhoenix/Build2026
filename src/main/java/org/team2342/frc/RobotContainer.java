@@ -9,9 +9,7 @@ package org.team2342.frc;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -28,8 +26,6 @@ import org.team2342.frc.Constants.DriveConstants;
 import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.commands.DriveCommands;
-import org.team2342.frc.commands.DriveToPose;
-import org.team2342.frc.commands.RotationLockedDrive;
 import org.team2342.frc.subsystems.drive.Drive;
 import org.team2342.frc.subsystems.drive.GyroIO;
 import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
@@ -45,10 +41,6 @@ import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
-import org.team2342.lib.sensors.absolute.AbsoluteEncoderIO;
-import org.team2342.lib.sensors.absolute.AbsoluteEncoderIORedux;
-import org.team2342.lib.sensors.absolute.AbsoluteEncoderIOSim;
-import org.team2342.lib.util.AllianceUtils;
 import org.team2342.lib.util.EnhancedXboxController;
 
 public class RobotContainer {
@@ -87,12 +79,16 @@ public class RobotContainer {
         flywheel =
             new Flywheel(
                 new SmartMotorIOTalonFX(
-                    CANConstants.FLYWHEEL_MOTOR_ID, ShooterConstants.FLYWHEEL_CONFIG));
-        hood = 
+                    CANConstants.FLYWHEEL_MOTOR_ID,
+                    ShooterConstants.FLYWHEEL_CONFIG.withPIDFFConfigs(
+                        ShooterConstants.FLYWHEEL_PID_CONFIGS)));
+        hood =
             new Hood(
                 new SmartMotorIOTalonFX(
-                    CANConstants.HOOD_MOTOR_ID, ShooterConstants.HOOD_MOTOR_CONFIG), 
-                    new AbsoluteEncoderIORedux(0, null, false));
+                    CANConstants.HOOD_MOTOR_ID,
+                    ShooterConstants.HOOD_MOTOR_CONFIG.withPIDFFConfigs(
+                        ShooterConstants.HOOD_MOTOR_PID_CONFIGS)));
+
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
 
@@ -126,8 +122,7 @@ public class RobotContainer {
                     ShooterConstants.HOOD_MOTOR_CONFIG,
                     ShooterConstants.HOOD_SIM_MOTOR,
                     ShooterConstants.HOOD_SIM,
-                    1),
-                new AbsoluteEncoderIOSim(null));
+                    1));
         break;
 
       default:
@@ -145,7 +140,8 @@ public class RobotContainer {
                 new VisionIO() {},
                 new VisionIO() {});
         flywheel = new Flywheel(new SmartMotorIO() {});
-        hood = new Hood(new SmartMotorIO() {}, new AbsoluteEncoderIO() {});
+        hood = new Hood(new SmartMotorIO() {});
+
         break;
     }
 
@@ -171,12 +167,13 @@ public class RobotContainer {
 
   private void configureBindings() {
     // Basic drive controls
-    drive.setDefaultCommand(
-        new RotationLockedDrive(
-            drive,
-            () -> -driverController.getLeftY(),
-            () -> -driverController.getLeftX(),
-            () -> -driverController.getRightX()));
+    // drive.setDefaultCommand(
+    //     new RotationLockedDrive(
+    //         drive,
+    //         () -> -driverController.getLeftY(),
+    //         () -> -driverController.getLeftX(),
+    //         () -> -driverController.getRightX()));
+    hood.setDefaultCommand(hood.holdAngle(() -> driverController.getLeftY() * -1 / 0.273));
 
     driverController
         .b()
@@ -187,23 +184,11 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
-    driverController
-        .a()
-        .whileTrue(
-            new DriveToPose(
-                drive,
-                AllianceUtils.getFieldLayout()
-                    .getTagPose(7)
-                    .orElse(new Pose3d())
-                    .toPose2d()
-                    .plus(
-                        new Transform2d(
-                            DriveConstants.DRIVE_BASE_RADIUS + 0.45, 0, Rotation2d.k180deg)),
-                drive::getPose,
-                () -> -driverController.getLeftY(),
-                () -> -driverController.getLeftX()));
 
-    driverController.rightTrigger().whileTrue(flywheel.shoot(27)).onFalse(flywheel.stop());
+    driverController
+        .rightTrigger()
+        .whileTrue(flywheel.shoot(() -> 22.4 - (driverController.getRightY() * 10)))
+        .onFalse(flywheel.stop());
   }
 
   public Command getAutonomousCommand() {

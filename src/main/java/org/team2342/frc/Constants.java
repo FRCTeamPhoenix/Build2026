@@ -115,29 +115,31 @@ public final class Constants {
   }
 
   public static final class ShooterConstants {
-    public static final double FLYWHEEL_GEAR_RATIO = 1.0;
+    public static final double FLYWHEEL_GEAR_RATIO = 23.0 / 24.0;
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
-    public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS = new PIDFFConfigs().withKP(0.3);
+    public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS = new PIDFFConfigs().withKP(2.2);
     public static final SmartMotorConfig FLYWHEEL_CONFIG =
         new SmartMotorConfig()
-            .withControlType(ControlType.VELOCITY)
+            .withControlType(ControlType.PROFILED_VELOCITY)
             .withGearRatio(FLYWHEEL_GEAR_RATIO)
-            .withPIDFFConfigs(FLYWHEEL_PID_CONFIGS)
             .withMotorInverted(false)
-            .withSupplyCurrentLimit(40)
-            .withStatorCurrentLimit(50);
+            .withSupplyCurrentLimit(50)
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000))
+            .withStatorCurrentLimit(70);
     public static final DCMotor FLYWHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim FLYWHEEL_SIM =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(FLYWHEEL_SIM_MOTOR, 0.03, FLYWHEEL_GEAR_RATIO),
             FLYWHEEL_SIM_MOTOR);
 
-    public static final double KRAKEN_TO_ENCODER = (64.0 / 14.0) * (44.0 / 22.0);
+    public static final double KRAKEN_TO_ENCODER = (64.0 / 14.0) * (46.0 / 20.0);
     public static final double ENCODER_TO_HOOD = 344.0 / 22.0;
-    public static final double MAX_ANGLE = Units.degreesToRadians(51.6 - 33.5);
+    public static final double MAX_ANGLE = 0.273;
     public static final double TARGET_TOLERANCE = 0.01;
 
+    public static final PIDFFConfigs HOOD_MOTOR_PID_CONFIGS =
+        new PIDFFConfigs().withKP(400).withKI(100).withKD(30);
     public static final SmartMotorConfig HOOD_MOTOR_CONFIG =
         new SmartMotorConfig()
             .withGearRatio(ENCODER_TO_HOOD)
@@ -145,10 +147,11 @@ public final class Constants {
             .withIdleMode(IdleMode.BRAKE)
             .withSupplyCurrentLimit(40)
             .withFeedbackConfig(
-                FeedbackConfig.fused(CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.0, false))
+                FeedbackConfig.fused(
+                    CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.3155, false))
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
-                    Units.degreesToRadians(1260), Units.degreesToRadians(1080)));
+                    Units.degreesToRadians(1800), Units.degreesToRadians(1800)));
 
     public static final DCMotor HOOD_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim HOOD_SIM =
