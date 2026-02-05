@@ -9,9 +9,7 @@ package org.team2342.frc;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -25,26 +23,31 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.team2342.frc.Constants.CANConstants;
 import org.team2342.frc.Constants.DriveConstants;
+import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.commands.DriveCommands;
-import org.team2342.frc.commands.DriveToPose;
-import org.team2342.frc.commands.RotationLockedDrive;
 import org.team2342.frc.subsystems.drive.Drive;
 import org.team2342.frc.subsystems.drive.GyroIO;
 import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
 import org.team2342.frc.subsystems.drive.ModuleIO;
 import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
+import org.team2342.frc.subsystems.shooter.Flywheel;
+import org.team2342.frc.subsystems.shooter.Hood;
 import org.team2342.frc.subsystems.vision.Vision;
 import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
-import org.team2342.lib.util.AllianceUtils;
+import org.team2342.lib.motors.smart.SmartMotorIO;
+import org.team2342.lib.motors.smart.SmartMotorIOSim;
+import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
 import org.team2342.lib.util.EnhancedXboxController;
 
 public class RobotContainer {
   @Getter private final Drive drive;
   @Getter private final Vision vision;
+  @Getter private final Flywheel flywheel;
+  @Getter private final Hood hood;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -73,6 +76,18 @@ public class RobotContainer {
                     VisionConstants.LEFT_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
+        flywheel =
+            new Flywheel(
+                new SmartMotorIOTalonFX(
+                    CANConstants.FLYWHEEL_MOTOR_ID,
+                    ShooterConstants.FLYWHEEL_CONFIG.withPIDFFConfigs(
+                        ShooterConstants.FLYWHEEL_PID_CONFIGS)));
+        hood =
+            new Hood(
+                new SmartMotorIOTalonFX(
+                    CANConstants.HOOD_MOTOR_ID,
+                    ShooterConstants.HOOD_MOTOR_CONFIG.withPIDFFConfigs(
+                        ShooterConstants.HOOD_MOTOR_PID_CONFIGS)));
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
@@ -94,7 +109,20 @@ public class RobotContainer {
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose));
-
+        flywheel =
+            new Flywheel(
+                new SmartMotorIOSim(
+                    ShooterConstants.FLYWHEEL_CONFIG,
+                    ShooterConstants.FLYWHEEL_SIM_MOTOR,
+                    ShooterConstants.FLYWHEEL_SIM,
+                    1));
+        hood =
+            new Hood(
+                new SmartMotorIOSim(
+                    ShooterConstants.HOOD_MOTOR_CONFIG,
+                    ShooterConstants.HOOD_SIM_MOTOR,
+                    ShooterConstants.HOOD_SIM,
+                    1));
         break;
 
       default:
@@ -111,6 +139,8 @@ public class RobotContainer {
                 drive::getTimestampedHeading,
                 new VisionIO() {},
                 new VisionIO() {});
+        flywheel = new Flywheel(new SmartMotorIO() {});
+        hood = new Hood(new SmartMotorIO() {});
 
         break;
     }
@@ -137,12 +167,13 @@ public class RobotContainer {
 
   private void configureBindings() {
     // Basic drive controls
-    drive.setDefaultCommand(
-        new RotationLockedDrive(
-            drive,
-            () -> -driverController.getLeftY(),
-            () -> -driverController.getLeftX(),
-            () -> -driverController.getRightX()));
+    // drive.setDefaultCommand(
+    //     new RotationLockedDrive(
+    //         drive,
+    //         () -> -driverController.getLeftY(),
+    //         () -> -driverController.getLeftX(),
+    //         () -> -driverController.getRightX()));
+    hood.setDefaultCommand(hood.holdAngle(() -> driverController.getLeftY() * -1 / 0.273));
 
     driverController
         .b()
@@ -153,21 +184,11 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
     driverController
-        .a()
-        .whileTrue(
-            new DriveToPose(
-                drive,
-                AllianceUtils.getFieldLayout()
-                    .getTagPose(7)
-                    .orElse(new Pose3d())
-                    .toPose2d()
-                    .plus(
-                        new Transform2d(
-                            DriveConstants.DRIVE_BASE_RADIUS + 0.45, 0, Rotation2d.k180deg)),
-                drive::getPose,
-                () -> -driverController.getLeftY(),
-                () -> -driverController.getLeftX()));
+        .rightTrigger()
+        .whileTrue(flywheel.shoot(() -> 22.4 - (driverController.getRightY() * 10)))
+        .onFalse(flywheel.stop());
   }
 
   public Command getAutonomousCommand() {

@@ -9,7 +9,16 @@ package org.team2342.frc;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import org.team2342.lib.motors.MotorConfig.IdleMode;
+import org.team2342.lib.motors.smart.SmartMotorConfig;
+import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
+import org.team2342.lib.motors.smart.SmartMotorConfig.FeedbackConfig;
+import org.team2342.lib.pidff.PIDFFConfigs;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
@@ -94,7 +103,6 @@ public final class Constants {
     public static final double DRIVE_SUPPLY_LIMIT = 40.0;
     public static final double MAX_MODULE_VELOCITY_RAD = Units.degreesToRadians(1080.0);
 
-    // TODO: Find new offsets for season modules
     public static final double[] ENCODER_OFFSETS = {
       0.12109375 + 0.5, -0.142333984375 + 0.5, -0.3896484375 + 0.5, -0.150146484375 + 0.5,
     };
@@ -106,14 +114,64 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
+  public static final class ShooterConstants {
+    public static final double FLYWHEEL_GEAR_RATIO = 23.0 / 24.0;
+    public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
+
+    public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS = new PIDFFConfigs().withKP(2.2);
+    public static final SmartMotorConfig FLYWHEEL_CONFIG =
+        new SmartMotorConfig()
+            .withControlType(ControlType.PROFILED_VELOCITY)
+            .withGearRatio(FLYWHEEL_GEAR_RATIO)
+            .withMotorInverted(false)
+            .withSupplyCurrentLimit(50)
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000))
+            .withStatorCurrentLimit(70);
+    public static final DCMotor FLYWHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim FLYWHEEL_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(FLYWHEEL_SIM_MOTOR, 0.03, FLYWHEEL_GEAR_RATIO),
+            FLYWHEEL_SIM_MOTOR);
+
+    public static final double KRAKEN_TO_ENCODER = (64.0 / 14.0) * (46.0 / 20.0);
+    public static final double ENCODER_TO_HOOD = 344.0 / 22.0;
+    public static final double MAX_ANGLE = 0.273;
+    public static final double TARGET_TOLERANCE = 0.01;
+
+    public static final PIDFFConfigs HOOD_MOTOR_PID_CONFIGS =
+        new PIDFFConfigs().withKP(400).withKI(100).withKD(30);
+    public static final SmartMotorConfig HOOD_MOTOR_CONFIG =
+        new SmartMotorConfig()
+            .withGearRatio(ENCODER_TO_HOOD)
+            .withControlType(ControlType.PROFILED_POSITION)
+            .withIdleMode(IdleMode.BRAKE)
+            .withSupplyCurrentLimit(40)
+            .withFeedbackConfig(
+                FeedbackConfig.fused(
+                    CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.3155, false))
+            .withProfileConstraintsRad(
+                new TrapezoidProfile.Constraints(
+                    Units.degreesToRadians(1800), Units.degreesToRadians(1800)));
+
+    public static final DCMotor HOOD_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim HOOD_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(
+                HOOD_SIM_MOTOR, 0.01, (KRAKEN_TO_ENCODER * ENCODER_TO_HOOD)),
+            HOOD_SIM_MOTOR);
+  }
+
   public static final class CANConstants {
     public static final int PIGEON_ID = 13;
     public static final int[] FL_IDS = {1, 5, 9};
     public static final int[] FR_IDS = {2, 6, 10};
     public static final int[] BL_IDS = {3, 7, 11};
     public static final int[] BR_IDS = {4, 8, 12};
-    public static final int SHOOTER_WHEELS_MOTOR_ID = 14;
-    public static final int SHOOTER_HOOD_MOTOR_ID = 15;
+
+    public static final int FLYWHEEL_MOTOR_ID = 14;
+    public static final int HOOD_MOTOR_ID = 15;
+    public static final int HOOD_ENCODER_ID = 16;
+
     public static final int PDH_ID = 62;
   }
 }
