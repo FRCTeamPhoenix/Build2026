@@ -13,7 +13,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-
 import org.team2342.lib.motors.MotorConfig;
 import org.team2342.lib.motors.MotorConfig.IdleMode;
 
@@ -116,21 +115,21 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final double RUN_VOLTAGE = 10.0;
-    public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG = 
-      new MotorConfig()
-        .withMotorInverted(false)
-        .withSupplyCurrentLimit(40.0)
-        .withStatorCurrentLimit(50.0)
-        .withIdleMode(IdleMode.COAST);
+    public static final double RUN_VOLTAGE = 5.0;
+    public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(true)
+            .withSupplyCurrentLimit(40.0)
+            .withStatorCurrentLimit(50.0)
+            .withIdleMode(IdleMode.BRAKE);
 
     public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim INTAKE_WHEEL_SIM =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(INTAKE_WHEELS_SIM_MOTOR, 0.003, 1), INTAKE_WHEELS_SIM_MOTOR);
+            LinearSystemId.createDCMotorSystem(INTAKE_WHEELS_SIM_MOTOR, 0.003, 1),
+            INTAKE_WHEELS_SIM_MOTOR);
   }
 
-  
   public static final class CANConstants {
     public static final int PDH_ID = 14;
 
@@ -139,6 +138,9 @@ public final class Constants {
     public static final int[] FR_IDS = {2, 6, 10};
     public static final int[] BL_IDS = {3, 7, 11};
     public static final int[] BR_IDS = {4, 8, 12};
-    public static final int INTAKE_WHEELS_ID = 0;
+
+    public static final int INTAKE_WHEEL_MOTOR_ID = 17;
+    public static final int INTAKE_PIVOT_MOTOR_ID = 18;
+    public static final int INTAKE_PIVOT_ENCODER_ID = 19;
   }
 }
