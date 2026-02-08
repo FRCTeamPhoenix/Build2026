@@ -17,72 +17,74 @@ import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOInputsAutoLogged;
 
 public class Indexer extends SubsystemBase {
-  private final DumbMotorIO motor1;
-  private final DumbMotorIO motor2;
-  private final DumbMotorIO motor3;
-  private final DumbMotorIOInputsAutoLogged motor1Inputs = new DumbMotorIOInputsAutoLogged();
-  private final DumbMotorIOInputsAutoLogged motor2Inputs = new DumbMotorIOInputsAutoLogged();
-  private final DumbMotorIOInputsAutoLogged motor3Inputs = new DumbMotorIOInputsAutoLogged();
+  private final DumbMotorIO wheelMotor;
+  private final DumbMotorIO beltMotor;
+  private final DumbMotorIO feederMotor;
+  private final DumbMotorIOInputsAutoLogged wheelMotorInputs = new DumbMotorIOInputsAutoLogged();
+  private final DumbMotorIOInputsAutoLogged beltMotorInputs = new DumbMotorIOInputsAutoLogged();
+  private final DumbMotorIOInputsAutoLogged feederMotorInputs = new DumbMotorIOInputsAutoLogged();
 
-  private final Alert motorAlert1 = new Alert("Indexer Motor 1 is diconnected", AlertType.kError);
-  private final Alert motorAlert2 = new Alert("Indexer Motor 2 is diconnected", AlertType.kError);
-  private final Alert motorAlert3 = new Alert("Indexer Motor 3 is diconnected", AlertType.kError);
+  private final Alert wheelMotorAlert =
+      new Alert("Indexer Wheel Motor is diconnected", AlertType.kError);
+  private final Alert beltMotorAlert =
+      new Alert("Indexer Belt Motor is diconnected", AlertType.kError);
+  private final Alert feederMotorAlert =
+      new Alert("Indexer Feeder Motor is diconnected", AlertType.kError);
 
-  public Indexer(DumbMotorIO motor1, DumbMotorIO motor2, DumbMotorIO motor3) {
-    this.motor1 = motor1;
-    this.motor2 = motor2;
-    this.motor3 = motor3;
+  public Indexer(DumbMotorIO wheelMotor, DumbMotorIO beltMotor, DumbMotorIO feederMotor) {
+    this.wheelMotor = wheelMotor;
+    this.beltMotor = beltMotor;
+    this.feederMotor = feederMotor;
     setName("Indexer");
 
     setDefaultCommand(
         run(
             () -> {
-              motor1.runVoltage(0.0);
-              motor2.runVoltage(0.0);
-              motor3.runVoltage(0.0);
+              wheelMotor.runVoltage(0.0);
+              beltMotor.runVoltage(0.0);
+              feederMotor.runVoltage(0.0);
             }));
   }
 
   @Override
   public void periodic() {
-    motor1.updateInputs(motor1Inputs);
-    motor2.updateInputs(motor2Inputs);
-    motor3.updateInputs(motor3Inputs);
-    Logger.processInputs("Indexer/Motor1", motor1Inputs);
-    Logger.processInputs("Indexer/Motor2", motor2Inputs);
-    Logger.processInputs("Indexer/Motor3", motor3Inputs);
+    wheelMotor.updateInputs(wheelMotorInputs);
+    beltMotor.updateInputs(beltMotorInputs);
+    feederMotor.updateInputs(feederMotorInputs);
 
-    motorAlert1.set(!motor1Inputs.connected);
-    motorAlert2.set(!motor2Inputs.connected);
-    motorAlert3.set(!motor3Inputs.connected);
+    Logger.processInputs("Indexer/WheelMotor", wheelMotorInputs);
+    Logger.processInputs("Indexer/BeltMotor", beltMotorInputs);
+    Logger.processInputs("Indexer/FeederMotor", feederMotorInputs);
+
+    wheelMotorAlert.set(!wheelMotorInputs.connected);
+    beltMotorAlert.set(!beltMotorInputs.connected);
+    feederMotorAlert.set(!feederMotorInputs.connected);
 
     ExecutionLogger.log("Indexer");
   }
 
-  public Command out() {
+  public Command load() {
     return run(() -> {
-          motor1.runVoltage(IndexerConstants.RUN_VOLTAGE);
-          motor2.runVoltage(IndexerConstants.RUN_VOLTAGE);
-          motor3.runVoltage(IndexerConstants.RUN_VOLTAGE);
+          wheelMotor.runVoltage(IndexerConstants.RUN_VOLTAGE);
         })
-        .withName("Indexer Out");
+        .withName("Indexer Load");
   }
 
-  public Command in() {
+  public Command feed() {
     return run(() -> {
-          motor1.runVoltage(-IndexerConstants.RUN_VOLTAGE);
-          motor2.runVoltage(-IndexerConstants.RUN_VOLTAGE);
-          motor3.runVoltage(-IndexerConstants.RUN_VOLTAGE);
+          wheelMotor.runVoltage(IndexerConstants.RUN_VOLTAGE);
+          beltMotor.runVoltage(IndexerConstants.RUN_VOLTAGE);
+          feederMotor.runVoltage(IndexerConstants.RUN_VOLTAGE);
         })
-        .withName("Indexer In");
+        .withName("Indexer Feed");
   }
 
   public Command stop() {
     return runOnce(
             () -> {
-              motor1.runVoltage(0.0);
-              motor2.runVoltage(0.0);
-              motor3.runVoltage(0.0);
+              wheelMotor.runVoltage(0.0);
+              beltMotor.runVoltage(0.0);
+              feederMotor.runVoltage(0.0);
             })
         .withName("Indexer Stop");
   }
