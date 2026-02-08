@@ -14,6 +14,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import org.team2342.lib.motors.MotorConfig;
 import org.team2342.lib.motors.MotorConfig.IdleMode;
 import org.team2342.lib.motors.smart.SmartMotorConfig;
 import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
@@ -114,6 +115,22 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
+  public static final class IntakeConstants {
+    public static final double RUN_VOLTAGE = 5.0;
+    public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(true)
+            .withSupplyCurrentLimit(40.0)
+            .withStatorCurrentLimit(50.0)
+            .withIdleMode(IdleMode.BRAKE);
+
+    public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim INTAKE_WHEEL_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(INTAKE_WHEELS_SIM_MOTOR, 0.003, 1),
+            INTAKE_WHEELS_SIM_MOTOR);
+  }
+
   public static final class ShooterConstants {
     public static final double FLYWHEEL_GEAR_RATIO = 23.0 / 24.0;
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
@@ -171,6 +188,10 @@ public final class Constants {
     public static final int FLYWHEEL_MOTOR_ID = 14;
     public static final int HOOD_MOTOR_ID = 15;
     public static final int HOOD_ENCODER_ID = 16;
+
+    public static final int INTAKE_WHEEL_MOTOR_ID = 17;
+    public static final int INTAKE_PIVOT_MOTOR_ID = 18;
+    public static final int INTAKE_PIVOT_ENCODER_ID = 19;
 
     public static final int PDH_ID = 62;
   }
