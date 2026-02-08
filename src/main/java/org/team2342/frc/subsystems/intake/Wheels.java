@@ -6,6 +6,8 @@
 
 package org.team2342.frc.subsystems.intake;
 
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -15,38 +17,38 @@ import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOInputsAutoLogged;
 
 public class Wheels extends SubsystemBase {
-  private final DumbMotorIO intakeMotor;
-  private final DumbMotorIOInputsAutoLogged intakeMotorInputs = new DumbMotorIOInputsAutoLogged();
+  private final DumbMotorIO motor;
+  private final DumbMotorIOInputsAutoLogged motorInputs = new DumbMotorIOInputsAutoLogged();
 
-  private final Alert intakeMotorAlert = new Alert("Wheels are disconnected!", AlertType.kError);
+  private final Alert motorAlert = new Alert("Wheels are disconnected!", AlertType.kError);
 
-  public Wheels(DumbMotorIO intakeMotor) {
-    this.intakeMotor = intakeMotor;
+  public Wheels(DumbMotorIO motor) {
+    this.motor = motor;
     setName("Intake/Wheels");
-    setDefaultCommand(run(() -> intakeMotor.runVoltage(0.0)));
+    setDefaultCommand(run(() -> motor.runVoltage(0.0)));
   }
 
   @Override
   public void periodic() {
-    intakeMotor.updateInputs(intakeMotorInputs);
-    Logger.processInputs("Intake/Wheels", intakeMotorInputs);
-    intakeMotorAlert.set(!intakeMotorInputs.motorsConnected[0]);
+    motor.updateInputs(motorInputs);
+    Logger.processInputs("Intake/Wheels", motorInputs);
+    motorAlert.set(!motorInputs.connected);
     ExecutionLogger.log("Intake/Wheels");
   }
 
   public Command runIntake(double voltage) {
-    return run(() -> intakeMotor.runVoltage(voltage)).withName("Run Intake Wheels");
+    return run(() -> motor.runVoltage(voltage)).withName("Intake Wheels Run");
   }
 
   public Command in() {
-    return runIntake(IntakeConstants.RUN_VOLTAGE);
+    return runIntake(IntakeConstants.RUN_VOLTAGE).withName("Intake Wheels In");
   }
 
   public Command out() {
-    return runIntake(-IntakeConstants.RUN_VOLTAGE);
+    return runIntake(-IntakeConstants.RUN_VOLTAGE).withName("Intake Wheels Out");
   }
 
-  public Command stopIntake() {
-    return runOnce(() -> intakeMotor.runVoltage(0)).withName("Stop Intake Wheels");
+  public Command stop() {
+    return runOnce(() -> motor.runVoltage(0)).withName("Intake Wheels Stop");
   }
 }

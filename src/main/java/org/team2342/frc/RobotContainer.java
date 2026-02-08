@@ -29,6 +29,11 @@ import org.team2342.frc.commands.DriveCommands;
 import org.team2342.frc.commands.DriveToPose;
 import org.team2342.frc.commands.RotationLockedDrive;
 import org.team2342.frc.subsystems.drive.Drive;
+import org.team2342.frc.subsystems.intake.Wheels;
+import org.team2342.frc.Constants.IntakeConstants;
+import org.team2342.lib.motors.dumb.DumbMotorIO;
+import org.team2342.lib.motors.dumb.DumbMotorIOSim;
+import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
 import org.team2342.frc.subsystems.drive.GyroIO;
 import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
 import org.team2342.frc.subsystems.drive.ModuleIO;
@@ -43,6 +48,7 @@ import org.team2342.lib.util.EnhancedXboxController;
 public class RobotContainer {
   @Getter private final Drive drive;
   @Getter private final Vision vision;
+  @Getter private final Wheels wheels;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -64,6 +70,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(CANConstants.BL_IDS, DriveConstants.ENCODER_OFFSETS[2]),
                 new ModuleIOTalonFX(CANConstants.BR_IDS, DriveConstants.ENCODER_OFFSETS[3]));
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+        wheels = new Wheels(
+            new DumbMotorIOTalonFX(
+                CANConstants.INTAKE_WHEELS_ID, 
+                IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
@@ -87,7 +97,8 @@ public class RobotContainer {
                     VisionConstants.LEFT_CAMERA_NAME,
                     VisionConstants.FRONT_LEFT_TRANSFORM,
                     drive::getRawOdometryPose));
-
+        wheels = 
+            new Wheels(new DumbMotorIOSim(IntakeConstants.INTAKE_WHEELS_SIM_MOTOR, IntakeConstants.INTAKE_WHEEL_SIM));
         break;
 
       default:
@@ -99,6 +110,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        wheels = new Wheels(new DumbMotorIO() {});
 
         break;
     }
@@ -150,6 +162,8 @@ public class RobotContainer {
                 drive::getPose,
                 () -> -driverController.getLeftY(),
                 () -> -driverController.getLeftX()));
+
+    driverController.leftTrigger().whileTrue(wheels.runIntake(IntakeConstants.RUN_VOLTAGE)).onFalse(wheels.stop());
   }
 
   public Command getAutonomousCommand() {
