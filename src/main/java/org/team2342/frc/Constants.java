@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import org.team2342.lib.motors.MotorConfig;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
@@ -107,6 +108,12 @@ public final class Constants {
 
   public static final class IndexerConstants {
     public static final double RUN_VOLTAGE = 10.0;
+    public static final MotorConfig INDEX_WHEEL_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(false)
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(40.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
   }
 
   public static final class CANConstants {
@@ -117,5 +124,6 @@ public final class Constants {
     public static final int[] BR_IDS = {4, 8, 12};
 
     public static final int PDH_ID = 62;
+    public static final int INDEXER_WHEEL_ID = 20;
   }
 }
