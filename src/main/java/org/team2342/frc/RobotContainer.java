@@ -43,7 +43,6 @@ import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
-import org.team2342.lib.util.AllianceUtils;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
@@ -75,7 +74,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(CANConstants.FR_IDS, DriveConstants.ENCODER_OFFSETS[1]),
                 new ModuleIOTalonFX(CANConstants.BL_IDS, DriveConstants.ENCODER_OFFSETS[2]),
                 new ModuleIOTalonFX(CANConstants.BR_IDS, DriveConstants.ENCODER_OFFSETS[3]));
-                vision =
+        vision =
             new Vision(
                 drive::addVisionMeasurement,
                 drive::getTimestampedHeading,
@@ -204,8 +203,9 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
-        
-    driverController.rightTrigger()
+
+    driverController
+        .rightTrigger()
         .whileTrue(flywheel.shoot(() -> 22.4 - (driverController.getRightY() * 10)))
         .onFalse(flywheel.stop());
   }

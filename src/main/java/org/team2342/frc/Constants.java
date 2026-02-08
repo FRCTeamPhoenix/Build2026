@@ -11,13 +11,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import org.team2342.lib.motors.MotorConfig;
-import org.team2342.lib.motors.MotorConfig.IdleMode;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import org.team2342.lib.motors.MotorConfig;
 import org.team2342.lib.motors.MotorConfig.IdleMode;
 import org.team2342.lib.motors.smart.SmartMotorConfig;
 import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
@@ -188,11 +185,10 @@ public final class Constants {
     public static final int[] BL_IDS = {3, 7, 11};
     public static final int[] BR_IDS = {4, 8, 12};
 
-        
     public static final int FLYWHEEL_MOTOR_ID = 14;
     public static final int HOOD_MOTOR_ID = 15;
     public static final int HOOD_ENCODER_ID = 16;
-    
+
     public static final int INTAKE_WHEEL_MOTOR_ID = 17;
     public static final int INTAKE_PIVOT_MOTOR_ID = 18;
     public static final int INTAKE_PIVOT_ENCODER_ID = 19;
