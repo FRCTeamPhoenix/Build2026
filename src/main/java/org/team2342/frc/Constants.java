@@ -115,6 +115,29 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
+  public static final class IndexerConstants {
+    public static final double RUN_VOLTAGE = 7.0;
+    public static final MotorConfig INDEXER_WHEEL_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(false)
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(40.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+
+    public static final MotorConfig INDEXER_BELT_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(false)
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(40.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+    public static final MotorConfig INDEXER_FEEDER_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(true)
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(40.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+  }
+
   public static final class IntakeConstants {
     public static final double RUN_VOLTAGE = 5.0;
     public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG =
@@ -192,6 +215,10 @@ public final class Constants {
     public static final int INTAKE_WHEEL_MOTOR_ID = 17;
     public static final int INTAKE_PIVOT_MOTOR_ID = 18;
     public static final int INTAKE_PIVOT_ENCODER_ID = 19;
+
+    public static final int INDEXER_WHEEL_ID = 20;
+    public static final int INDEXER_BELT_ID = 21;
+    public static final int INDEXER_FEEDER_ID = 22;
 
     public static final int PDH_ID = 62;
   }

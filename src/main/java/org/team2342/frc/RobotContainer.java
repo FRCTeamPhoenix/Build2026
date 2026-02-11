@@ -23,6 +23,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.team2342.frc.Constants.CANConstants;
 import org.team2342.frc.Constants.DriveConstants;
+import org.team2342.frc.Constants.IndexerConstants;
 import org.team2342.frc.Constants.IntakeConstants;
 import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.frc.Constants.VisionConstants;
@@ -33,6 +34,7 @@ import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
 import org.team2342.frc.subsystems.drive.ModuleIO;
 import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
+import org.team2342.frc.subsystems.indexer.Indexer;
 import org.team2342.frc.subsystems.intake.Wheels;
 import org.team2342.frc.subsystems.shooter.Flywheel;
 import org.team2342.frc.subsystems.shooter.Hood;
@@ -51,6 +53,7 @@ import org.team2342.lib.util.EnhancedXboxController;
 public class RobotContainer {
   @Getter private final Drive drive;
   @Getter private final Vision vision;
+  @Getter private final Indexer indexer;
   @Getter private final Wheels wheels;
   @Getter private final Flywheel flywheel;
   @Getter private final Hood hood;
@@ -82,6 +85,14 @@ public class RobotContainer {
                     VisionConstants.LEFT_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
+        indexer =
+            new Indexer(
+                new DumbMotorIOTalonFX(
+                    CANConstants.INDEXER_WHEEL_ID, IndexerConstants.INDEXER_WHEEL_CONFIG),
+                new DumbMotorIOTalonFX(
+                    CANConstants.INDEXER_BELT_ID, IndexerConstants.INDEXER_BELT_CONFIG),
+                new DumbMotorIOTalonFX(
+                    CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_WHEEL_CONFIG));
 
         wheels =
             new Wheels(
@@ -121,6 +132,8 @@ public class RobotContainer {
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose));
+        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {}, new DumbMotorIO() {});
+
         wheels =
             new Wheels(
                 new DumbMotorIOSim(
@@ -155,6 +168,7 @@ public class RobotContainer {
                 drive::getTimestampedHeading,
                 new VisionIO() {},
                 new VisionIO() {});
+        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {}, new DumbMotorIO() {});
         wheels = new Wheels(new DumbMotorIO() {});
         flywheel = new Flywheel(new SmartMotorIO() {});
         hood = new Hood(new SmartMotorIO() {});
@@ -202,12 +216,10 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
-
     driverController
-        .rightTrigger()
-        .whileTrue(flywheel.shoot(() -> 22.4 - (driverController.getRightY() * 10)))
-        .onFalse(flywheel.stop());
+        .leftTrigger()
+        .whileTrue(wheels.in().alongWith(indexer.feed()))
+        .onFalse(wheels.stop().alongWith(indexer.stop()));
   }
 
   public Command getAutonomousCommand() {
