@@ -13,7 +13,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import org.team2342.lib.motors.MotorConfig;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import org.team2342.lib.motors.MotorConfig;
 import org.team2342.lib.motors.MotorConfig.IdleMode;
@@ -138,6 +137,7 @@ public final class Constants {
             .withStatorCurrentLimit(40.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
   }
+
   public static final class IntakeConstants {
     public static final double RUN_VOLTAGE = 5.0;
     public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG =
@@ -219,7 +219,7 @@ public final class Constants {
     public static final int INDEXER_WHEEL_ID = 20;
     public static final int INDEXER_BELT_ID = 21;
     public static final int INDEXER_FEEDER_ID = 22;
-    
-        public static final int PDH_ID = 62;
+
+    public static final int PDH_ID = 62;
   }
 }

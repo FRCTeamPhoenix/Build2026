@@ -43,8 +43,6 @@ import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
-import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
-import org.team2342.lib.util.AllianceUtils;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
 import org.team2342.lib.motors.smart.SmartMotorIO;
@@ -218,7 +216,10 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driverController.leftTrigger().whileTrue(wheels.in().alongWith(indexer.feed())).onFalse(wheels.stop().alongWith(indexer.stop()));
+    driverController
+        .leftTrigger()
+        .whileTrue(wheels.in().alongWith(indexer.feed()))
+        .onFalse(wheels.stop().alongWith(indexer.stop()));
   }
 
   public Command getAutonomousCommand() {
