@@ -107,10 +107,23 @@ public final class Constants {
   }
 
   public static final class IndexerConstants {
-    public static final double RUN_VOLTAGE = 10.0;
-    public static final MotorConfig INDEX_WHEEL_CONFIG =
+    public static final double RUN_VOLTAGE = 7.0;
+    public static final MotorConfig INDEXER_WHEEL_CONFIG =
         new MotorConfig()
             .withMotorInverted(false)
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(40.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+
+    public static final MotorConfig INDEXER_BELT_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(false)
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(40.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+    public static final MotorConfig INDEXER_FEEDER_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(true)
             .withSupplyCurrentLimit(30.0)
             .withStatorCurrentLimit(40.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
@@ -125,5 +138,7 @@ public final class Constants {
 
     public static final int PDH_ID = 62;
     public static final int INDEXER_WHEEL_ID = 20;
+    public static final int INDEXER_BELT_ID = 21;
+    public static final int INDEXER_FEEDER_ID = 22;
   }
 }
