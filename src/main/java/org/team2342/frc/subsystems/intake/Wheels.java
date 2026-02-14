@@ -40,8 +40,16 @@ public class Wheels extends SubsystemBase {
     return run(() -> motor.runVoltage(voltage)).withName("Intake Wheels Run");
   }
 
+  public Command runIntakeAmps(double amps) {
+    return run(() -> motor.runTorqueCurrent(amps)).withName("Intake Wheels Run Amps");
+  }
+
   public Command in() {
     return runIntake(IntakeConstants.RUN_VOLTAGE).withName("Intake Wheels In");
+  }
+
+  public Command inAmps() {
+    return runIntakeAmps(IntakeConstants.RUN_CURRENT).withName("Intake Wheels In Amps");
   }
 
   public Command out() {

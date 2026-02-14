@@ -117,6 +117,11 @@ public final class Constants {
 
   public static final class IndexerConstants {
     public static final double RUN_VOLTAGE = 7.0;
+    public static final double FEEDER_VOLTAGE = 7.0;
+
+    public static final double RUN_CURRENT = 40.0;
+    public static final double FEEDER_CURRENT = 40.0;
+
     public static final MotorConfig INDEXER_WHEEL_CONFIG =
         new MotorConfig()
             .withMotorInverted(false)
@@ -139,7 +144,9 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final double RUN_VOLTAGE = 5.0;
+    public static final double RUN_VOLTAGE = 8.0;
+    public static final double RUN_CURRENT = 40.0;
+
     public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG =
         new MotorConfig()
             .withMotorInverted(true)

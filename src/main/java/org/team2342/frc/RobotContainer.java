@@ -44,7 +44,7 @@ import org.team2342.frc.subsystems.vision.VisionIOPhoton;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
-import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
+import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
@@ -87,16 +87,16 @@ public class RobotContainer {
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
         indexer =
             new Indexer(
-                new DumbMotorIOTalonFX(
+                new DumbMotorIOTalonFXFOC(
                     CANConstants.INDEXER_WHEEL_ID, IndexerConstants.INDEXER_WHEEL_CONFIG),
-                new DumbMotorIOTalonFX(
+                new DumbMotorIOTalonFXFOC(
                     CANConstants.INDEXER_BELT_ID, IndexerConstants.INDEXER_BELT_CONFIG),
-                new DumbMotorIOTalonFX(
+                new DumbMotorIOTalonFXFOC(
                     CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_WHEEL_CONFIG));
 
         wheels =
             new Wheels(
-                new DumbMotorIOTalonFX(
+                new DumbMotorIOTalonFXFOC(
                     CANConstants.INTAKE_WHEEL_MOTOR_ID,
                     IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
         flywheel =
@@ -218,8 +218,8 @@ public class RobotContainer {
 
     driverController
         .leftTrigger()
-        .whileTrue(wheels.in().alongWith(indexer.feed()))
-        .onFalse(wheels.stop().alongWith(indexer.stop()));
+        .whileTrue(indexer.feed().alongWith(wheels.inAmps()).alongWith(flywheel.shoot(20)))
+        .onFalse(indexer.stop().alongWith(wheels.stop()).alongWith(flywheel.stop()));
   }
 
   public Command getAutonomousCommand() {
