@@ -29,6 +29,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.team2342.frc.util.FiringSolver;
 import org.team2342.frc.util.PhoenixUtils;
 import org.team2342.lib.logging.ExecutionLogger;
 
@@ -158,6 +159,7 @@ public class Robot extends LoggedRobot {
     ExecutionLogger.log("Commands");
 
     robotContainer.updateAlerts();
+    FiringSolver.getInstance().clearCachedSolution();
 
     ExecutionLogger.log("RobotPeriodic");
   }

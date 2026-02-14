@@ -12,20 +12,23 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
-import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.lib.util.AllianceUtils;
 
 public class FiringSolver {
+  private static FiringSolver instance;
+
   private static final int ITERATIONS = 5;
+
+  public static final FiringSolution BUMPERSHOT = new FiringSolution(new Rotation2d(), 1.0, 1.0);
+
+  private FiringSolution lastSolution = null;
 
   // TODO: Replace with real transform
   private Transform3d turretTransform = new Transform3d();
 
-  private static final InterpolatingTreeMap<Double, Rotation2d> angleMap =
-      new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), Rotation2d::interpolate);
+  private static final InterpolatingDoubleTreeMap angleMap = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap speedMap = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap tofMap = new InterpolatingDoubleTreeMap();
 
@@ -33,7 +36,18 @@ public class FiringSolver {
     // Add to tables here
   }
 
+  public static FiringSolver getInstance() {
+    if (instance == null) {
+      instance = new FiringSolver();
+    }
+    return instance;
+  }
+
   public FiringSolution calculate(ChassisSpeeds velocity, Pose2d position) {
+    if (lastSolution != null) {
+      return lastSolution;
+    }
+
     Translation2d hub =
         AllianceUtils.flipToAlliance(FieldConstants.Hub.topCenterPoint).toTranslation2d();
     Pose2d turretPose = new Pose3d(position).transformBy(turretTransform).toPose2d();
@@ -65,11 +79,17 @@ public class FiringSolver {
     Logger.recordOutput("FiringSolver/PredictedDistance", predictedDistance);
 
     Rotation2d turretAngle = hub.minus(predictedPose.getTranslation()).getAngle();
-    Rotation2d hoodAngle = angleMap.get(predictedDistance);
+    double hoodAngle = angleMap.get(predictedDistance);
     double wheelSpeed = speedMap.get(predictedDistance);
 
-    return new FiringSolution(turretAngle, wheelSpeed, hoodAngle);
+    lastSolution = new FiringSolution(turretAngle, wheelSpeed, hoodAngle);
+
+    return lastSolution;
   }
 
-  private record FiringSolution(Rotation2d turretAngle, double wheelSpeed, Rotation2d hoodAngle) {}
+  public void clearCachedSolution() {
+    lastSolution = null;
+  }
+
+  public record FiringSolution(Rotation2d turretAngle, double wheelSpeed, double hoodAngle) {}
 }

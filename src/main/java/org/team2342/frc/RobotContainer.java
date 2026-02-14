@@ -28,6 +28,9 @@ import org.team2342.frc.Constants.IntakeConstants;
 import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.commands.DriveCommands;
+import org.team2342.frc.commands.RotationLockedDrive;
+import org.team2342.frc.subsystems.Superstructure;
+import org.team2342.frc.subsystems.Superstructure.SuperstructureState;
 import org.team2342.frc.subsystems.drive.Drive;
 import org.team2342.frc.subsystems.drive.GyroIO;
 import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
@@ -42,6 +45,7 @@ import org.team2342.frc.subsystems.vision.Vision;
 import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
+import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
@@ -57,6 +61,8 @@ public class RobotContainer {
   @Getter private final Wheels wheels;
   @Getter private final Flywheel flywheel;
   @Getter private final Hood hood;
+
+  @Getter private final Superstructure superstructure;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -188,6 +194,8 @@ public class RobotContainer {
         break;
     }
 
+    superstructure = new Superstructure(flywheel, hood);
+
     configureNamedCommands();
 
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -210,13 +218,13 @@ public class RobotContainer {
 
   private void configureBindings() {
     // Basic drive controls
-    // drive.setDefaultCommand(
-    //     new RotationLockedDrive(
-    //         drive,
-    //         () -> -driverController.getLeftY(),
-    //         () -> -driverController.getLeftX(),
-    //         () -> -driverController.getRightX()));
-    hood.setDefaultCommand(hood.holdAngle(() -> driverController.getLeftY() * -1 / 0.273));
+    drive.setDefaultCommand(
+        new RotationLockedDrive(
+            drive,
+            () -> -driverController.getLeftY(),
+            () -> -driverController.getLeftX(),
+            () -> -driverController.getRightX()));
+    superstructure.setDefaultCommand(superstructure.goToState(SuperstructureState.TRACKING));
 
     driverController
         .b()
@@ -228,6 +236,7 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
+    // Shooter Commands
     driverController
         .leftTrigger()
         .whileTrue(indexer.feed().alongWith(wheels.inAmps()))
