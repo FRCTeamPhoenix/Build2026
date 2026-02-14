@@ -79,6 +79,15 @@ public class Indexer extends SubsystemBase {
         .withName("Indexer Feed");
   }
 
+  public Command out() {
+    return run(() -> {
+          wheelMotor.runTorqueCurrent(-IndexerConstants.RUN_CURRENT);
+          beltMotor.runTorqueCurrent(-IndexerConstants.RUN_CURRENT);
+          feederMotor.runTorqueCurrent(-IndexerConstants.RUN_CURRENT);
+        })
+        .withName("Indexer Out");
+  }
+
   public Command stop() {
     return runOnce(
             () -> {

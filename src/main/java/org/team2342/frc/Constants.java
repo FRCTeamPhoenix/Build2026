@@ -141,6 +141,24 @@ public final class Constants {
             .withSupplyCurrentLimit(30.0)
             .withStatorCurrentLimit(40.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
+
+    public static final DCMotor INDEXER_WHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim INDEXER_WHEEL_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(INDEXER_WHEEL_SIM_MOTOR, 0.003, 1),
+            INDEXER_WHEEL_SIM_MOTOR);
+    
+    public static final DCMotor INDEXER_BELT_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim INDEXER_BELT_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(INDEXER_BELT_SIM_MOTOR, 0.003, 1),
+            INDEXER_BELT_SIM_MOTOR);
+
+    public static final DCMotor INDEXER_FEEDER_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim INDEXER_FEEDER_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(INDEXER_FEEDER_SIM_MOTOR, 0.0025, 1),
+            INDEXER_FEEDER_SIM_MOTOR);
   }
 
   public static final class IntakeConstants {
@@ -172,8 +190,8 @@ public final class Constants {
             .withGearRatio(FLYWHEEL_GEAR_RATIO)
             .withMotorInverted(false)
             .withSupplyCurrentLimit(50)
-            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000))
-            .withStatorCurrentLimit(70);
+            .withStatorCurrentLimit(70)
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000));
     public static final DCMotor FLYWHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim FLYWHEEL_SIM =
         new DCMotorSim(
@@ -192,7 +210,7 @@ public final class Constants {
             .withGearRatio(ENCODER_TO_HOOD)
             .withControlType(ControlType.PROFILED_POSITION)
             .withIdleMode(IdleMode.BRAKE)
-            .withSupplyCurrentLimit(40)
+            .withSupplyCurrentLimit(40.0)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
                     CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.3155, false))

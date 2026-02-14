@@ -132,7 +132,18 @@ public class RobotContainer {
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose));
-        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {}, new DumbMotorIO() {});
+        indexer = 
+            new Indexer(
+                new DumbMotorIOSim(
+                    IndexerConstants.INDEXER_WHEEL_SIM_MOTOR, 
+                    IndexerConstants.INDEXER_WHEEL_SIM), 
+                new DumbMotorIOSim(
+                    IndexerConstants.INDEXER_BELT_SIM_MOTOR, 
+                    IndexerConstants.INDEXER_BELT_SIM), 
+                new DumbMotorIOSim(
+                    IndexerConstants.INDEXER_FEEDER_SIM_MOTOR, 
+                    IndexerConstants.INDEXER_FEEDER_SIM)
+            );
 
         wheels =
             new Wheels(
@@ -152,6 +163,7 @@ public class RobotContainer {
                     ShooterConstants.HOOD_SIM_MOTOR,
                     ShooterConstants.HOOD_SIM,
                     1));
+        
         break;
 
       default:
@@ -218,8 +230,11 @@ public class RobotContainer {
 
     driverController
         .leftTrigger()
-        .whileTrue(indexer.feed().alongWith(wheels.inAmps()).alongWith(flywheel.shoot(20)))
-        .onFalse(indexer.stop().alongWith(wheels.stop()).alongWith(flywheel.stop()));
+        .whileTrue(indexer.feed().alongWith(wheels.inAmps()))
+        .onFalse(indexer.stop().alongWith(wheels.stop()));
+
+    driverController.povRight().whileTrue(indexer.load()).onFalse(indexer.stop());
+    driverController.povLeft().whileTrue(indexer.out()).onFalse(indexer.stop());
   }
 
   public Command getAutonomousCommand() {
