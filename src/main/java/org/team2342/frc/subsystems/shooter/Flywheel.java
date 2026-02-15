@@ -54,12 +54,28 @@ public class Flywheel extends SubsystemBase {
     motor.runVelocity(radPerSec);
   }
 
+  private void warmUp(double idleSpeed) {
+    if (getVelocityMetersPerSec() > idleSpeed) {
+      motor.runVoltage(0.0);
+    } else {
+      motor.runVoltage(idleSpeed);
+    }
+  }
+
   public Command shoot(double metersPerSec) {
     return run(() -> runVelocity(metersPerSec)).withName("Run Shooter");
   }
 
   public Command shoot(DoubleSupplier metersPerSec) {
     return run(() -> runVelocity(metersPerSec)).withName("Run Shooter");
+  }
+
+  public Command warmUp() {
+    return run(() -> warmUp(ShooterConstants.IDLE_SPEED)).withName("Warm Up Shooter");
+  }
+
+  public Command runVoltage(double volts) {
+    return run(() -> runVoltage(volts)).withName("Run Shooter Volts");
   }
 
   public Command stop() {

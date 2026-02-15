@@ -16,12 +16,14 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import lombok.Getter;
 import org.littletonrobotics.junction.LoggedPowerDistribution;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.team2342.frc.Constants.CANConstants;
+import org.team2342.frc.Constants.ConductorConstants;
 import org.team2342.frc.Constants.DriveConstants;
 import org.team2342.frc.Constants.IndexerConstants;
 import org.team2342.frc.Constants.IntakeConstants;
@@ -29,8 +31,8 @@ import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.commands.DriveCommands;
 import org.team2342.frc.commands.RotationLockedDrive;
-import org.team2342.frc.subsystems.Superstructure;
-import org.team2342.frc.subsystems.Superstructure.SuperstructureState;
+import org.team2342.frc.subsystems.Conductor;
+import org.team2342.frc.subsystems.Conductor.ConductorState;
 import org.team2342.frc.subsystems.drive.Drive;
 import org.team2342.frc.subsystems.drive.GyroIO;
 import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
@@ -45,6 +47,7 @@ import org.team2342.frc.subsystems.vision.Vision;
 import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
+import org.team2342.frc.util.FieldConstants;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
@@ -52,6 +55,8 @@ import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
+import org.team2342.lib.pidff.PIDFFConfigs;
+import org.team2342.lib.util.AllianceUtils;
 import org.team2342.lib.util.EnhancedXboxController;
 
 public class RobotContainer {
@@ -62,7 +67,7 @@ public class RobotContainer {
   @Getter private final Flywheel flywheel;
   @Getter private final Hood hood;
 
-  @Getter private final Superstructure superstructure;
+  @Getter private final Conductor conductor;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -72,6 +77,9 @@ public class RobotContainer {
 
   private final Alert driverControllerAlert =
       new Alert("Driver controller is disconnected!", AlertType.kError);
+
+  private final Trigger trenchTrigger;
+  private final Trigger allianceZoneTrigger;
 
   public RobotContainer() {
     switch (Constants.CURRENT_MODE) {
@@ -138,18 +146,15 @@ public class RobotContainer {
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose));
-        indexer = 
+        indexer =
             new Indexer(
                 new DumbMotorIOSim(
-                    IndexerConstants.INDEXER_WHEEL_SIM_MOTOR, 
-                    IndexerConstants.INDEXER_WHEEL_SIM), 
+                    IndexerConstants.INDEXER_WHEEL_SIM_MOTOR, IndexerConstants.INDEXER_WHEEL_SIM),
                 new DumbMotorIOSim(
-                    IndexerConstants.INDEXER_BELT_SIM_MOTOR, 
-                    IndexerConstants.INDEXER_BELT_SIM), 
+                    IndexerConstants.INDEXER_BELT_SIM_MOTOR, IndexerConstants.INDEXER_BELT_SIM),
                 new DumbMotorIOSim(
-                    IndexerConstants.INDEXER_FEEDER_SIM_MOTOR, 
-                    IndexerConstants.INDEXER_FEEDER_SIM)
-            );
+                    IndexerConstants.INDEXER_FEEDER_SIM_MOTOR,
+                    IndexerConstants.INDEXER_FEEDER_SIM));
 
         wheels =
             new Wheels(
@@ -158,18 +163,18 @@ public class RobotContainer {
         flywheel =
             new Flywheel(
                 new SmartMotorIOSim(
-                    ShooterConstants.FLYWHEEL_CONFIG,
+                    ShooterConstants.FLYWHEEL_CONFIG.withPIDFFConfigs(new PIDFFConfigs().withKP(1)),
                     ShooterConstants.FLYWHEEL_SIM_MOTOR,
                     ShooterConstants.FLYWHEEL_SIM,
                     1));
         hood =
             new Hood(
                 new SmartMotorIOSim(
-                    ShooterConstants.HOOD_MOTOR_CONFIG,
+                    ShooterConstants.HOOD_MOTOR_CONFIG.withPIDFFConfigs(new PIDFFConfigs().withKP(1)),
                     ShooterConstants.HOOD_SIM_MOTOR,
                     ShooterConstants.HOOD_SIM,
                     1));
-        
+
         break;
 
       default:
@@ -194,7 +199,7 @@ public class RobotContainer {
         break;
     }
 
-    superstructure = new Superstructure(flywheel, hood);
+    conductor = new Conductor(flywheel, hood, drive::getPose, drive::getChassisSpeeds);
 
     configureNamedCommands();
 
@@ -208,6 +213,24 @@ public class RobotContainer {
         Commands.runOnce(() -> drive.calculateVisionHeadingOffset())
             .alongWith(Commands.print("Calculated Vision Offset"))
             .ignoringDisable(true));
+
+    trenchTrigger =
+        new Trigger(
+            () ->
+                withinBounds(
+                    drive.getPose().getX(),
+                    AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner).getX()
+                        + ConductorConstants.TRENCH_BUFFER,
+                    AllianceUtils.flipToAlliance(FieldConstants.LeftBump.farLeftCorner).getX()
+                        - ConductorConstants.TRENCH_BUFFER));
+    allianceZoneTrigger =
+        new Trigger(
+            () ->
+                withinBounds(
+                    drive.getPose().getX(),
+                    AllianceUtils.flipToAlliance(Pose2d.kZero).getX(),
+                    AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner).getX()
+                        + ConductorConstants.TRENCH_BUFFER));
 
     configureBindings();
   }
@@ -224,7 +247,6 @@ public class RobotContainer {
             () -> -driverController.getLeftY(),
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
-    superstructure.setDefaultCommand(superstructure.goToState(SuperstructureState.TRACKING));
 
     driverController
         .b()
@@ -236,14 +258,46 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Shooter Commands
     driverController
         .leftTrigger()
         .whileTrue(indexer.feed().alongWith(wheels.inAmps()))
         .onFalse(indexer.stop().alongWith(wheels.stop()));
 
+    // Shooting Controls
+    driverController
+        .rightBumper()
+        .whileTrue(
+            conductor
+                .goToState(ConductorState.BUMPER_SHOT)
+                .andThen(conductor.runState(ConductorState.BUMPER_SHOT).alongWith(indexer.feed())));
+
+    driverController
+        .rightTrigger()
+        .whileTrue(
+            conductor
+                .goToState(ConductorState.TRACKED_FIRING)
+                .andThen(
+                    conductor.runState(ConductorState.TRACKED_FIRING).alongWith(indexer.feed()))
+                .alongWith(
+                    DriveCommands.joystickDriveAtAngle(
+                        drive,
+                        () -> -driverController.getLeftY(),
+                        () -> -driverController.getLeftX(),
+                        () ->
+                            FiringSolver.getInstance()
+                                .calculate(drive.getChassisSpeeds(), drive.getPose())
+                                .turretAngle())));
+
     driverController.povRight().whileTrue(indexer.load()).onFalse(indexer.stop());
     driverController.povLeft().whileTrue(indexer.out()).onFalse(indexer.stop());
+
+    // Location Triggers
+    trenchTrigger
+        .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
+        .whileTrue(conductor.runState(ConductorState.TRENCH));
+    allianceZoneTrigger
+        .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
+        .whileTrue(conductor.runState(ConductorState.WARM_UP));
   }
 
   public Command getAutonomousCommand() {
@@ -273,5 +327,9 @@ public class RobotContainer {
 
   public void updateAlerts() {
     driverControllerAlert.set(!driverController.isConnected());
+  }
+
+  private boolean withinBounds(double value, double bound1, double bound2) {
+    return value <= Math.max(bound1, bound2) && value >= Math.min(bound1, bound2);
   }
 }

@@ -21,7 +21,7 @@ public class FiringSolver {
 
   private static final int ITERATIONS = 5;
 
-  public static final FiringSolution BUMPERSHOT = new FiringSolution(new Rotation2d(), 1.0, 1.0);
+  public static final FiringSolution BUMPER_SHOT = new FiringSolution(new Rotation2d(), 1.0, 1.0);
 
   private FiringSolution lastSolution = null;
 
@@ -32,8 +32,11 @@ public class FiringSolver {
   private static final InterpolatingDoubleTreeMap speedMap = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap tofMap = new InterpolatingDoubleTreeMap();
 
+  // TODO: tune real maps
   static {
-    // Add to tables here
+    angleMap.put(1.0, 1.0);
+    speedMap.put(1.0, 1.0);
+    tofMap.put(1.0, 1.0);
   }
 
   public static FiringSolver getInstance() {

@@ -23,7 +23,7 @@ import org.team2342.lib.pidff.PIDFFConfigs;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
-  public static final Mode CURRENT_MODE = Mode.REAL;
+  public static final Mode CURRENT_MODE = Mode.SIM;
   public static final boolean TUNING = true;
 
   public static enum Mode {
@@ -115,6 +115,10 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
+  public static final class ConductorConstants {
+    public static final double TRENCH_BUFFER = 0.1;
+  }
+
   public static final class IndexerConstants {
     public static final double RUN_VOLTAGE = 7.0;
     public static final double FEEDER_VOLTAGE = 7.0;
@@ -147,7 +151,7 @@ public final class Constants {
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(INDEXER_WHEEL_SIM_MOTOR, 0.003, 1),
             INDEXER_WHEEL_SIM_MOTOR);
-    
+
     public static final DCMotor INDEXER_BELT_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim INDEXER_BELT_SIM =
         new DCMotorSim(
@@ -182,6 +186,8 @@ public final class Constants {
   public static final class ShooterConstants {
     public static final double FLYWHEEL_GEAR_RATIO = 23.0 / 24.0;
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
+
+    public static final double IDLE_SPEED = 10.0;
 
     public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS = new PIDFFConfigs().withKP(2.2);
     public static final SmartMotorConfig FLYWHEEL_CONFIG =
