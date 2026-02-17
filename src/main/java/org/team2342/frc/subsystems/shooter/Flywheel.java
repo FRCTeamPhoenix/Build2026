@@ -6,10 +6,13 @@
 
 package org.team2342.frc.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -25,8 +28,23 @@ public class Flywheel extends SubsystemBase {
 
   private final Alert motorAlert = new Alert("Flywheel motor is disconnected!", AlertType.kError);
 
+  private final SysIdRoutine sysId;
+
   public Flywheel(SmartMotorIO motor) {
     this.motor = motor;
+
+    sysId =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                (state) -> Logger.recordOutput("Shooter/Flywheel/SysIdState", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> motor.runVoltage(voltage.in(Volts)),
+                (log) ->
+                    Logger.recordOutput("Shooter/Flywheel/Voltage", motorInputs.appliedVolts[0]),
+                this));
 
     setName("Shooter/Flywheel");
     setDefaultCommand(run(() -> motor.runVoltage(0.0)));
@@ -80,6 +98,22 @@ public class Flywheel extends SubsystemBase {
 
   public Command stop() {
     return runOnce(() -> motor.runVoltage(0.0)).withName("Shooter Stop");
+  }
+
+  /** Returns a command to run a quasistatic test in the specified direction. */
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return run(() -> runVoltage(0.0))
+        .withTimeout(1.0)
+        .andThen(sysId.quasistatic(direction))
+        .withName("Flywheel Quasistatic");
+  }
+
+  /** Returns a command to run a dynamic test in the specified direction. */
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return run(() -> runVoltage(0.0))
+        .withTimeout(1.0)
+        .andThen(sysId.dynamic(direction))
+        .withName("Flywheel Dynamic");
   }
 
   @AutoLogOutput(key = "Shooter/Flywheel/VelocityMetersPerSec")

@@ -43,10 +43,11 @@ public final class Constants {
     public static final Transform3d CAMERA_TRANSFORM =
         new Transform3d(
             new Translation3d(
-                Units.inchesToMeters(7.883),
-                Units.inchesToMeters(-10.895),
+                Units.inchesToMeters(-7.883),
+                Units.inchesToMeters(10.895),
                 Units.inchesToMeters(8)),
-            new Rotation3d(0, Units.degreesToRadians(-22.0), Units.degreesToRadians(90 - 61.475)));
+            new Rotation3d(
+                0, Units.degreesToRadians(-22.0), Units.degreesToRadians(-(90 + 61.475))));
 
     public static final CameraParameters LEFT_PARAMETERS =
         CameraParameters.loadFromName(CAMERA_NAME, 800, 600).withTransform(CAMERA_TRANSFORM);
@@ -187,12 +188,18 @@ public final class Constants {
     public static final double FLYWHEEL_GEAR_RATIO = 23.0 / 24.0;
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
-    public static final double IDLE_SPEED = 10.0;
+    public static final double IDLE_SPEED = 15.0;
 
-    public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS = new PIDFFConfigs().withKP(2.2);
+    public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS =
+        new PIDFFConfigs()
+            .withKP(0.5)
+            .withKI(0.0)
+            .withKS(Units.radiansToRotations(0.1824))
+            .withKV(Units.radiansToRotations(0.020077))
+            .withKA(Units.radiansToRotations(0.0037398));
     public static final SmartMotorConfig FLYWHEEL_CONFIG =
         new SmartMotorConfig()
-            .withControlType(ControlType.PROFILED_VELOCITY)
+            .withControlType(ControlType.VELOCITY)
             .withGearRatio(FLYWHEEL_GEAR_RATIO)
             .withMotorInverted(false)
             .withSupplyCurrentLimit(50)
@@ -219,7 +226,7 @@ public final class Constants {
             .withSupplyCurrentLimit(40.0)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
-                    CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.3155, false))
+                    CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.662 / 2, false))
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1800), Units.degreesToRadians(1800)));

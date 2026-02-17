@@ -101,18 +101,27 @@ public class RobotContainer {
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
         indexer =
             new Indexer(
-                new DumbMotorIOTalonFXFOC(
-                    CANConstants.INDEXER_WHEEL_ID, IndexerConstants.INDEXER_WHEEL_CONFIG),
-                new DumbMotorIOTalonFXFOC(
-                    CANConstants.INDEXER_BELT_ID, IndexerConstants.INDEXER_BELT_CONFIG),
+                new DumbMotorIO() {},
+                new DumbMotorIO() {},
                 new DumbMotorIOTalonFXFOC(
                     CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_WHEEL_CONFIG));
 
-        wheels =
-            new Wheels(
-                new DumbMotorIOTalonFXFOC(
-                    CANConstants.INTAKE_WHEEL_MOTOR_ID,
-                    IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
+        wheels = new Wheels(new DumbMotorIO() {});
+
+        // indexer =
+        //     new Indexer(
+        //         new DumbMotorIOTalonFXFOC(
+        //             CANConstants.INDEXER_WHEEL_ID, IndexerConstants.INDEXER_WHEEL_CONFIG),
+        //         new DumbMotorIOTalonFXFOC(
+        //             CANConstants.INDEXER_BELT_ID, IndexerConstants.INDEXER_BELT_CONFIG),
+        //         new DumbMotorIOTalonFXFOC(
+        //             CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_WHEEL_CONFIG));
+
+        // wheels =
+        //     new Wheels(
+        //         new DumbMotorIOTalonFXFOC(
+        //             CANConstants.INTAKE_WHEEL_MOTOR_ID,
+        //             IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
         flywheel =
             new Flywheel(
                 new SmartMotorIOTalonFX(
@@ -170,7 +179,8 @@ public class RobotContainer {
         hood =
             new Hood(
                 new SmartMotorIOSim(
-                    ShooterConstants.HOOD_MOTOR_CONFIG.withPIDFFConfigs(new PIDFFConfigs().withKP(1)),
+                    ShooterConstants.HOOD_MOTOR_CONFIG.withPIDFFConfigs(
+                        new PIDFFConfigs().withKP(1)),
                     ShooterConstants.HOOD_SIM_MOTOR,
                     ShooterConstants.HOOD_SIM,
                     1));
@@ -258,6 +268,8 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
+    driverController.x().whileTrue(indexer.feed()).onFalse(indexer.stop());
+
     driverController
         .leftTrigger()
         .whileTrue(indexer.feed().alongWith(wheels.inAmps()))
@@ -319,6 +331,17 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    autoChooser.addOption(
+        "Flywheel SysId (Quasistatic Forward)",
+        flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Flywheel SysId (Quasistatic Reverse)",
+        flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Flywheel SysId (Dynamic Forward)", flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Flywheel SysId (Dynamic Reverse)", flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     SmartDashboard.putData(
         "Print Encoder Zeros",

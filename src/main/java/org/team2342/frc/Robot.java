@@ -13,6 +13,9 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUsageId;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -29,9 +32,11 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.team2342.frc.util.FieldConstants;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.frc.util.PhoenixUtils;
 import org.team2342.lib.logging.ExecutionLogger;
+import org.team2342.lib.util.AllianceUtils;
 
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
@@ -157,6 +162,16 @@ public class Robot extends LoggedRobot {
 
     CommandScheduler.getInstance().run();
     ExecutionLogger.log("Commands");
+
+    Translation2d hub =
+        AllianceUtils.flipToAlliance(FieldConstants.Hub.topCenterPoint).toTranslation2d();
+
+    Pose2d turretPose =
+        new Pose3d(robotContainer.getDrive().getPose())
+            .transformBy(FiringSolver.TURRET_TRANSFORM)
+            .toPose2d();
+    double predictedDistance = hub.getDistance(turretPose.getTranslation());
+    Logger.recordOutput("Distance", predictedDistance);
 
     robotContainer.updateAlerts();
     FiringSolver.getInstance().clearCachedSolution();
