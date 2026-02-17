@@ -127,13 +127,6 @@ public final class Constants {
     public static final double RUN_CURRENT = 40.0;
     public static final double FEEDER_CURRENT = 40.0;
 
-    public static final MotorConfig INDEXER_WHEEL_CONFIG =
-        new MotorConfig()
-            .withMotorInverted(false)
-            .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(40.0)
-            .withIdleMode(MotorConfig.IdleMode.BRAKE);
-
     public static final MotorConfig INDEXER_BELT_CONFIG =
         new MotorConfig()
             .withMotorInverted(false)
@@ -146,12 +139,6 @@ public final class Constants {
             .withSupplyCurrentLimit(30.0)
             .withStatorCurrentLimit(40.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
-
-    public static final DCMotor INDEXER_WHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
-    public static final DCMotorSim INDEXER_WHEEL_SIM =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(INDEXER_WHEEL_SIM_MOTOR, 0.003, 1),
-            INDEXER_WHEEL_SIM_MOTOR);
 
     public static final DCMotor INDEXER_BELT_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim INDEXER_BELT_SIM =

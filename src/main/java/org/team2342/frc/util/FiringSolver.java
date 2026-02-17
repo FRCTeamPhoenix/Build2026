@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -29,7 +28,6 @@ public class FiringSolver {
 
   private FiringSolution lastSolution = null;
 
-  // TODO: Replace with real transform
   public static Transform3d TURRET_TRANSFORM =
       new Transform3d(
           new Translation3d(
@@ -47,7 +45,6 @@ public class FiringSolver {
     angleMap.put(1.859, 0.0);
     angleMap.put(2.203, 0.0);
     angleMap.put(2.510, 0.0);
-    angleMap.put(2.510, 0.0);
     angleMap.put(2.844, 0.0);
     angleMap.put(3.046, 0.0);
     angleMap.put(3.315, 0.0);
@@ -63,7 +60,7 @@ public class FiringSolver {
     speedMap.put(3.973, 25.5);
     speedMap.put(5.042, 30.0);
 
-    tofMap.put(1.0, 0.0);
+    tofMap.put(1.859, 1.0);
   }
 
   public static FiringSolver getInstance() {
@@ -81,7 +78,7 @@ public class FiringSolver {
     Translation2d hub =
         AllianceUtils.flipToAlliance(FieldConstants.Hub.topCenterPoint).toTranslation2d();
     Pose2d turretPose = new Pose3d(position).transformBy(TURRET_TRANSFORM).toPose2d();
-    double robotAngle = turretPose.getRotation().getRadians();
+    double robotAngle = position.getRotation().getRadians();
 
     double velX =
         velocity.vxMetersPerSecond
@@ -96,6 +93,7 @@ public class FiringSolver {
 
     double tof;
     Pose2d predictedPose = turretPose;
+
     double predictedDistance = hub.getDistance(turretPose.getTranslation());
     for (int i = 0; i < ITERATIONS; i++) {
       tof = tofMap.get(predictedDistance);
@@ -103,15 +101,13 @@ public class FiringSolver {
           new Pose2d(
               turretPose.getTranslation().plus(new Translation2d(velX * tof, velY * tof)),
               turretPose.getRotation());
-      predictedDistance = hub.getDistance(turretPose.getTranslation());
+      predictedDistance = hub.getDistance(predictedPose.getTranslation());
     }
     Logger.recordOutput("FiringSolver/PredictedPose", predictedPose);
     Logger.recordOutput("FiringSolver/PredictedDistance", predictedDistance);
 
     Rotation2d turretAngle =
-        hub.minus(predictedPose.transformBy(to2d(TURRET_TRANSFORM.inverse())).getTranslation())
-            .getAngle()
-            .plus(Rotation2d.k180deg);
+        hub.minus(predictedPose.getTranslation()).getAngle().plus(Rotation2d.k180deg);
     double hoodAngle = angleMap.get(predictedDistance);
     double wheelSpeed = speedMap.get(predictedDistance);
 
@@ -122,12 +118,6 @@ public class FiringSolver {
 
   public void clearCachedSolution() {
     lastSolution = null;
-  }
-
-  private Transform2d to2d(Transform3d transform) {
-    return new Transform2d(
-        new Translation2d(transform.getX(), transform.getY()),
-        transform.getRotation().toRotation2d());
   }
 
   public record FiringSolution(Rotation2d turretAngle, double wheelSpeed, double hoodAngle) {}

@@ -102,9 +102,8 @@ public class RobotContainer {
         indexer =
             new Indexer(
                 new DumbMotorIO() {},
-                new DumbMotorIO() {},
                 new DumbMotorIOTalonFXFOC(
-                    CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_WHEEL_CONFIG));
+                    CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_FEEDER_CONFIG));
 
         wheels = new Wheels(new DumbMotorIO() {});
 
@@ -158,8 +157,6 @@ public class RobotContainer {
         indexer =
             new Indexer(
                 new DumbMotorIOSim(
-                    IndexerConstants.INDEXER_WHEEL_SIM_MOTOR, IndexerConstants.INDEXER_WHEEL_SIM),
-                new DumbMotorIOSim(
                     IndexerConstants.INDEXER_BELT_SIM_MOTOR, IndexerConstants.INDEXER_BELT_SIM),
                 new DumbMotorIOSim(
                     IndexerConstants.INDEXER_FEEDER_SIM_MOTOR,
@@ -201,7 +198,7 @@ public class RobotContainer {
                 drive::getTimestampedHeading,
                 new VisionIO() {},
                 new VisionIO() {});
-        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {}, new DumbMotorIO() {});
+        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {});
         wheels = new Wheels(new DumbMotorIO() {});
         flywheel = new Flywheel(new SmartMotorIO() {});
         hood = new Hood(new SmartMotorIO() {});
@@ -268,8 +265,6 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driverController.x().whileTrue(indexer.feed()).onFalse(indexer.stop());
-
     driverController
         .leftTrigger()
         .whileTrue(indexer.feed().alongWith(wheels.inAmps()))
@@ -284,7 +279,7 @@ public class RobotContainer {
                 .andThen(conductor.runState(ConductorState.BUMPER_SHOT).alongWith(indexer.feed())));
 
     driverController
-        .rightTrigger()
+        .x()
         .whileTrue(
             conductor
                 .goToState(ConductorState.TRACKED_FIRING)
@@ -300,7 +295,7 @@ public class RobotContainer {
                                 .calculate(drive.getChassisSpeeds(), drive.getPose())
                                 .turretAngle())));
 
-    driverController.povRight().whileTrue(indexer.load()).onFalse(indexer.stop());
+    driverController.povRight().whileTrue(indexer.feed()).onFalse(indexer.stop());
     driverController.povLeft().whileTrue(indexer.out()).onFalse(indexer.stop());
 
     // Location Triggers
