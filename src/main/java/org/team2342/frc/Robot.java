@@ -169,7 +169,9 @@ public class Robot extends LoggedRobot {
   public void disabledPeriodic() {}
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+    CommandScheduler.getInstance().schedule(robotContainer.getPivot().out());
+  }
 
   @Override
   public void autonomousInit() {
