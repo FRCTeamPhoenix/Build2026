@@ -23,9 +23,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.team2342.frc.Constants.CANConstants;
 import org.team2342.frc.Constants.DriveConstants;
-import org.team2342.frc.Constants.PivotConstants;
 import org.team2342.frc.Constants.IndexerConstants;
 import org.team2342.frc.Constants.IntakeConstants;
+import org.team2342.frc.Constants.PivotConstants;
 import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.commands.DriveCommands;
@@ -35,8 +35,8 @@ import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
 import org.team2342.frc.subsystems.drive.ModuleIO;
 import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
-import org.team2342.frc.subsystems.intake.Pivot;
 import org.team2342.frc.subsystems.indexer.Indexer;
+import org.team2342.frc.subsystems.intake.Pivot;
 import org.team2342.frc.subsystems.intake.Wheels;
 import org.team2342.frc.subsystems.shooter.Flywheel;
 import org.team2342.frc.subsystems.shooter.Hood;
@@ -47,7 +47,6 @@ import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
-import org.team2342.lib.util.AllianceUtils;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
@@ -91,7 +90,9 @@ public class RobotContainer {
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
         pivot =
-            new Pivot(new DumbMotorIOTalonFX(CANConstants.INTAKE_PIVOT_MOTOR_ID, PivotConstants.PIVOT_CONFIG));
+            new Pivot(
+                new DumbMotorIOTalonFX(
+                    CANConstants.INTAKE_PIVOT_MOTOR_ID, PivotConstants.PIVOT_CONFIG));
         indexer =
             new Indexer(
                 new DumbMotorIOTalonFXFOC(
