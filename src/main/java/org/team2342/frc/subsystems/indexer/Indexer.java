@@ -54,18 +54,25 @@ public class Indexer extends SubsystemBase {
     ExecutionLogger.log("Indexer");
   }
 
+  public Command load() {
+    return run(() -> {
+          beltMotor.runVoltage(IndexerConstants.RUN_VOLTAGE);
+        })
+        .withName("Indexer Feed");
+  }
+
   public Command feed() {
     return run(() -> {
-          beltMotor.runTorqueCurrent(IndexerConstants.RUN_CURRENT);
-          feederMotor.runTorqueCurrent(IndexerConstants.RUN_CURRENT);
+          beltMotor.runVoltage(IndexerConstants.RUN_VOLTAGE);
+          feederMotor.runVoltage(IndexerConstants.FEEDER_VOLTAGE);
         })
         .withName("Indexer Feed");
   }
 
   public Command out() {
     return run(() -> {
-          beltMotor.runTorqueCurrent(-IndexerConstants.RUN_CURRENT);
-          feederMotor.runTorqueCurrent(-IndexerConstants.RUN_CURRENT);
+          beltMotor.runVoltage(-IndexerConstants.RUN_VOLTAGE);
+          feederMotor.runVoltage(-IndexerConstants.FEEDER_VOLTAGE);
         })
         .withName("Indexer Out");
   }

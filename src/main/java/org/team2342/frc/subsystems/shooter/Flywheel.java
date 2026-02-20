@@ -76,7 +76,7 @@ public class Flywheel extends SubsystemBase {
     if (getVelocityMetersPerSec() > idleSpeed) {
       motor.runVoltage(0.0);
     } else {
-      motor.runVoltage(idleSpeed);
+      runVelocity(idleSpeed);
     }
   }
 

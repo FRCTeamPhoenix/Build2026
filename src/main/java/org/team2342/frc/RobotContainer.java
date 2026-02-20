@@ -96,31 +96,21 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 drive::getTimestampedHeading,
                 new VisionIOPhoton(
-                    VisionConstants.LEFT_PARAMETERS,
+                    VisionConstants.SWERVE_CAMERA_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
         indexer =
             new Indexer(
-                new DumbMotorIO() {},
+                new DumbMotorIOTalonFXFOC(
+                    CANConstants.INDEXER_BELT_ID, IndexerConstants.INDEXER_BELT_CONFIG),
                 new DumbMotorIOTalonFXFOC(
                     CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_FEEDER_CONFIG));
 
-        wheels = new Wheels(new DumbMotorIO() {});
-
-        // indexer =
-        //     new Indexer(
-        //         new DumbMotorIOTalonFXFOC(
-        //             CANConstants.INDEXER_WHEEL_ID, IndexerConstants.INDEXER_WHEEL_CONFIG),
-        //         new DumbMotorIOTalonFXFOC(
-        //             CANConstants.INDEXER_BELT_ID, IndexerConstants.INDEXER_BELT_CONFIG),
-        //         new DumbMotorIOTalonFXFOC(
-        //             CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_WHEEL_CONFIG));
-
-        // wheels =
-        //     new Wheels(
-        //         new DumbMotorIOTalonFXFOC(
-        //             CANConstants.INTAKE_WHEEL_MOTOR_ID,
-        //             IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
+        wheels =
+            new Wheels(
+                new DumbMotorIOTalonFXFOC(
+                    CANConstants.INTAKE_WHEEL_MOTOR_ID,
+                    IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
         flywheel =
             new Flywheel(
                 new SmartMotorIOTalonFX(
@@ -150,7 +140,12 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 drive::getTimestampedHeading,
                 new VisionIOSim(
-                    VisionConstants.LEFT_PARAMETERS,
+                    VisionConstants.SWERVE_CAMERA_PARAMETERS,
+                    PoseStrategy.CONSTRAINED_SOLVEPNP,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    drive::getRawOdometryPose),
+                new VisionIOSim(
+                    VisionConstants.SHOOTER_CAMERA_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose));
@@ -265,10 +260,7 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driverController
-        .leftTrigger()
-        .whileTrue(indexer.feed().alongWith(wheels.inAmps()))
-        .onFalse(indexer.stop().alongWith(wheels.stop()));
+    driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
 
     // Shooting Controls
     driverController
@@ -279,7 +271,7 @@ public class RobotContainer {
                 .andThen(conductor.runState(ConductorState.BUMPER_SHOT).alongWith(indexer.feed())));
 
     driverController
-        .x()
+        .rightTrigger()
         .whileTrue(
             conductor
                 .goToState(ConductorState.TRACKED_FIRING)
@@ -294,9 +286,6 @@ public class RobotContainer {
                             FiringSolver.getInstance()
                                 .calculate(drive.getChassisSpeeds(), drive.getPose())
                                 .turretAngle())));
-
-    driverController.povRight().whileTrue(indexer.feed()).onFalse(indexer.stop());
-    driverController.povLeft().whileTrue(indexer.out()).onFalse(indexer.stop());
 
     // Location Triggers
     trenchTrigger

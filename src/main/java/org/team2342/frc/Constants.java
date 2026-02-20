@@ -23,7 +23,7 @@ import org.team2342.lib.pidff.PIDFFConfigs;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
-  public static final Mode CURRENT_MODE = Mode.SIM;
+  public static final Mode CURRENT_MODE = Mode.REAL;
   public static final boolean TUNING = true;
 
   public static enum Mode {
@@ -38,9 +38,10 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final String CAMERA_NAME = "left_arducam";
+    public static final String SWERVE_CAMERA_NAME = "swerve_arducam";
+    public static final String SHOOTER_CAMERA_NAME = "shooter_arducam";
 
-    public static final Transform3d CAMERA_TRANSFORM =
+    public static final Transform3d SWERVE_CAMERA_TRANSFORM =
         new Transform3d(
             new Translation3d(
                 Units.inchesToMeters(-7.883),
@@ -49,8 +50,24 @@ public final class Constants {
             new Rotation3d(
                 0, Units.degreesToRadians(-22.0), Units.degreesToRadians(-(90 + 61.475))));
 
-    public static final CameraParameters LEFT_PARAMETERS =
-        CameraParameters.loadFromName(CAMERA_NAME, 800, 600).withTransform(CAMERA_TRANSFORM);
+    public static final Transform3d SHOOTER_CAMERA_TRANSFORM =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(-13.255),
+                Units.inchesToMeters(11.9),
+                Units.inchesToMeters(14.755)),
+            new Rotation3d(
+                0,
+                Units.degreesToRadians((90 - 63.435 + 180)),
+                Units.degreesToRadians(-119.745 + 90)));
+
+    public static final CameraParameters SWERVE_CAMERA_PARAMETERS =
+        CameraParameters.loadFromName(SWERVE_CAMERA_NAME, 800, 600)
+            .withTransform(SWERVE_CAMERA_TRANSFORM);
+
+    public static final CameraParameters SHOOTER_CAMERA_PARAMETERS =
+        CameraParameters.loadFromName(SHOOTER_CAMERA_NAME, 800, 600)
+            .withTransform(SHOOTER_CAMERA_TRANSFORM);
 
     // Basic filtering thresholds
     public static final double MAX_AMBIGUITY = 0.1;
@@ -122,10 +139,10 @@ public final class Constants {
 
   public static final class IndexerConstants {
     public static final double RUN_VOLTAGE = 7.0;
-    public static final double FEEDER_VOLTAGE = 7.0;
+    public static final double FEEDER_VOLTAGE = 10.0;
 
-    public static final double RUN_CURRENT = 40.0;
-    public static final double FEEDER_CURRENT = 40.0;
+    public static final double RUN_CURRENT = 30.0;
+    public static final double FEEDER_CURRENT = 30.0;
 
     public static final MotorConfig INDEXER_BELT_CONFIG =
         new MotorConfig()
@@ -135,7 +152,7 @@ public final class Constants {
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
     public static final MotorConfig INDEXER_FEEDER_CONFIG =
         new MotorConfig()
-            .withMotorInverted(true)
+            .withMotorInverted(false)
             .withSupplyCurrentLimit(30.0)
             .withStatorCurrentLimit(40.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
@@ -154,13 +171,13 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final double RUN_VOLTAGE = 8.0;
-    public static final double RUN_CURRENT = 40.0;
+    public static final double RUN_VOLTAGE = 7.0;
+    public static final double RUN_CURRENT = 10.0;
 
     public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG =
         new MotorConfig()
             .withMotorInverted(true)
-            .withSupplyCurrentLimit(40.0)
+            .withSupplyCurrentLimit(30.0)
             .withStatorCurrentLimit(50.0)
             .withIdleMode(IdleMode.BRAKE);
 
@@ -189,7 +206,7 @@ public final class Constants {
             .withControlType(ControlType.VELOCITY)
             .withGearRatio(FLYWHEEL_GEAR_RATIO)
             .withMotorInverted(false)
-            .withSupplyCurrentLimit(50)
+            .withSupplyCurrentLimit(40)
             .withStatorCurrentLimit(70)
             .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000));
     public static final DCMotor FLYWHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
@@ -210,7 +227,7 @@ public final class Constants {
             .withGearRatio(ENCODER_TO_HOOD)
             .withControlType(ControlType.PROFILED_POSITION)
             .withIdleMode(IdleMode.BRAKE)
-            .withSupplyCurrentLimit(40.0)
+            .withSupplyCurrentLimit(30.0)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
                     CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.662 / 2, false))
