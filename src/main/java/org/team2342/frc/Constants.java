@@ -171,7 +171,7 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final double RUN_VOLTAGE = 8.0;
+    public static final double RUN_VOLTAGE = 7.0;
     public static final double RUN_CURRENT = 10.0;
 
     public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG =
