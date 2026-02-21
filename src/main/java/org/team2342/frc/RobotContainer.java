@@ -231,6 +231,7 @@ public class RobotContainer {
                     .goToState(ConductorState.TRACKED_FIRING)
                     .andThen(
                         conductor.runState(ConductorState.TRACKED_FIRING).alongWith(indexer.feed()))
+                    .alongWith(indexer.feed())
                     .alongWith(
                         DriveCommands.joystickDriveAtAngle(
                             drive,
@@ -260,6 +261,7 @@ public class RobotContainer {
                     .goToState(ConductorState.TRACKED_FIRING)
                     .andThen(
                         conductor.runState(ConductorState.TRACKED_FIRING).alongWith(indexer.feed()))
+                    .alongWith(indexer.feed())
                     .alongWith(
                         DriveCommands.joystickDriveAtAngle(
                             drive,
