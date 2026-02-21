@@ -286,7 +286,7 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driverController.leftTrigger().whileTrue(wheels.out()).onFalse(wheels.stop());
+    driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
 
     // Shooting Controls
     driverController
