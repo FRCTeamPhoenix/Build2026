@@ -115,14 +115,10 @@ public class Conductor extends SubsystemBase {
                         FiringSolver.getInstance()
                             .calculate(velocitySupplier.get(), poseSupplier.get())
                             .wheelSpeed())));
-    
-    fsm.addStateCommand(
-      ConductorState.OVERRIDE_25,
-      flywheel.shoot(25.0));
 
-    fsm.addStateCommand(
-      ConductorState.OVERRIDE_23,
-      flywheel.shoot(23.0));
+    fsm.addStateCommand(ConductorState.OVERRIDE_25, flywheel.shoot(25.0));
+
+    fsm.addStateCommand(ConductorState.OVERRIDE_23, flywheel.shoot(23.0));
   }
 
   private void setupTransitions() {
@@ -166,9 +162,7 @@ public class Conductor extends SubsystemBase {
                         .hoodAngle())
             .deadlineFor(flywheel.shoot(25.0)));
 
-    fsm.addOmniTransition(
-        ConductorState.OVERRIDE_23,
-        flywheel.shoot(23.0));
+    fsm.addOmniTransition(ConductorState.OVERRIDE_23, flywheel.shoot(23.0));
   }
 
   public Command makeShooterCommand(double flywheelMetersPerSec, double hoodAngle) {
