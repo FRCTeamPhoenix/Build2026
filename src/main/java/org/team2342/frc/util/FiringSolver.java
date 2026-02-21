@@ -24,7 +24,7 @@ public class FiringSolver {
 
   private static final int ITERATIONS = 5;
 
-  public static final FiringSolution BUMPER_SHOT = new FiringSolution(new Rotation2d(), 0.0, 0.0);
+  public static final FiringSolution BUMPER_SHOT = new FiringSolution(new Rotation2d(), 23.5, 0.0);
 
   private FiringSolution lastSolution = null;
 
