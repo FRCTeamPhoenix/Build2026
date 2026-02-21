@@ -74,9 +74,14 @@ public class RobotContainer {
   @Getter
   private final EnhancedXboxController driverController =
       new EnhancedXboxController(0, DriveConstants.CONTROLLER_DEADBAND);
+  @Getter
+  private final EnhancedXboxController operatorController =
+      new EnhancedXboxController(1, DriveConstants.CONTROLLER_DEADBAND);
 
   private final Alert driverControllerAlert =
       new Alert("Driver controller is disconnected!", AlertType.kError);
+  private final Alert operatorControllerAlert =
+      new Alert("Operator controller is disconnected!", AlertType.kError);
 
   private final Trigger trenchTrigger;
   private final Trigger allianceZoneTrigger;
@@ -287,6 +292,18 @@ public class RobotContainer {
                                 .calculate(drive.getChassisSpeeds(), drive.getPose())
                                 .turretAngle())));
 
+    //Operator Overrides
+    operatorController.povRight().whileTrue(indexer.feed()).onFalse(indexer.stop());
+    operatorController.povLeft().whileTrue(indexer.out()).onFalse(indexer.stop());
+
+    operatorController.leftBumper().whileTrue(wheels.out()).onFalse(wheels.stop());
+    operatorController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
+
+    operatorController.rightTrigger()
+        .whileTrue(conductor.runState(ConductorState.OVERRIDE_25));
+
+    operatorController.rightBumper()
+        .whileTrue(conductor.runState(ConductorState.OVERRIDE_23));
     // Location Triggers
     trenchTrigger
         .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
@@ -334,6 +351,7 @@ public class RobotContainer {
 
   public void updateAlerts() {
     driverControllerAlert.set(!driverController.isConnected());
+    operatorControllerAlert.set(!operatorController.isConnected());
   }
 
   private boolean withinBounds(double value, double bound1, double bound2) {
