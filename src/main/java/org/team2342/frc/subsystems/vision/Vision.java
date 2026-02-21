@@ -121,32 +121,32 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > AllianceUtils.getFieldLayout().getFieldWidth();
 
-        // Add pose to log
-        robotPoses.add(observation.pose());
-        if (rejectPose) {
-          robotPosesRejected.add(observation.pose());
-          // Skip if rejected
-          continue;
-        } else {
-          robotPosesAccepted.add(observation.pose());
-        }
-
-        // Calculate standard deviations
-        double stdDevFactor =
-            Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
-        double linearStdDev = VisionConstants.LINEAR_STD_DEV_BASELINE * stdDevFactor;
-        double angularStdDev = VisionConstants.ANGULAR_STD_DEV_BASELINE * stdDevFactor;
-        if (observation.type() == PoseObservationType.MEGATAG_2
-            || observation.type() == PoseObservationType.PHOTONVISION_CONSTRAINED) {
-          linearStdDev *= VisionConstants.LINEAR_STD_DEV_CONSTRAINED_FACTOR;
-          angularStdDev *= VisionConstants.ANGULAR_STD_DEV_CONSTRAINED_FACTOR;
-        }
-        if (cameraIndex < VisionConstants.CAMERA_STD_DEV_FACTORS.length) {
-          linearStdDev *= VisionConstants.CAMERA_STD_DEV_FACTORS[cameraIndex];
-          angularStdDev *= VisionConstants.CAMERA_STD_DEV_FACTORS[cameraIndex];
-        }
-
         if (cameraIndex < 1) {
+          // Add pose to log
+          robotPoses.add(observation.pose());
+          if (rejectPose) {
+            robotPosesRejected.add(observation.pose());
+            // Skip if rejected
+            continue;
+          } else {
+            robotPosesAccepted.add(observation.pose());
+          }
+
+          // Calculate standard deviations
+          double stdDevFactor =
+              Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
+          double linearStdDev = VisionConstants.LINEAR_STD_DEV_BASELINE * stdDevFactor;
+          double angularStdDev = VisionConstants.ANGULAR_STD_DEV_BASELINE * stdDevFactor;
+          if (observation.type() == PoseObservationType.MEGATAG_2
+              || observation.type() == PoseObservationType.PHOTONVISION_CONSTRAINED) {
+            linearStdDev *= VisionConstants.LINEAR_STD_DEV_CONSTRAINED_FACTOR;
+            angularStdDev *= VisionConstants.ANGULAR_STD_DEV_CONSTRAINED_FACTOR;
+          }
+          if (cameraIndex < VisionConstants.CAMERA_STD_DEV_FACTORS.length) {
+            linearStdDev *= VisionConstants.CAMERA_STD_DEV_FACTORS[cameraIndex];
+            angularStdDev *= VisionConstants.CAMERA_STD_DEV_FACTORS[cameraIndex];
+          }
+
           // Send vision observation
           consumer.accept(
               observation.pose().toPose2d(),
