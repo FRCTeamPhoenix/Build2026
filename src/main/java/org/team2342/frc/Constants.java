@@ -24,7 +24,7 @@ import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
   public static final Mode CURRENT_MODE = Mode.REAL;
-  public static final boolean TUNING = true;
+  public static final boolean TUNING = false;
 
   public static enum Mode {
     /** Running on a real robot. */

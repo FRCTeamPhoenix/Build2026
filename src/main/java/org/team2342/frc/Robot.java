@@ -177,6 +177,8 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     robotContainer.getDrive().calculateVisionHeadingOffset();
 
+    CommandScheduler.getInstance().schedule(robotContainer.getWheels().out().withTimeout(0.5));
+
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (autonomousCommand != null) {

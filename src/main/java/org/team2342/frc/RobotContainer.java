@@ -216,10 +216,40 @@ public class RobotContainer {
     autoChooser.get();
 
     if (Constants.TUNING) setupDevelopmentRoutines();
+
     autoChooser.addOption(
         "scuffed wall",
         Commands.run(() -> drive.runVelocity(new ChassisSpeeds(1, 0, 0)), drive)
             .alongWith(conductor.runState(ConductorState.WARM_UP))
+            .withTimeout(1)
+            .andThen(
+                conductor
+                    .goToState(ConductorState.TRACKED_FIRING)
+                    .andThen(
+                        conductor.runState(ConductorState.TRACKED_FIRING).alongWith(indexer.feed()))
+                    .alongWith(
+                        DriveCommands.joystickDriveAtAngle(
+                            drive,
+                            () -> 0,
+                            () -> 0,
+                            () ->
+                                FiringSolver.getInstance()
+                                    .calculate(drive.getChassisSpeeds(), drive.getPose())
+                                    .turretAngle()))));
+
+    autoChooser.addOption(
+        "wait n fire",
+        conductor
+            .runState(ConductorState.WARM_UP)
+            .alongWith(
+                DriveCommands.joystickDriveAtAngle(
+                    drive,
+                    () -> 0,
+                    () -> 0,
+                    () ->
+                        FiringSolver.getInstance()
+                            .calculate(drive.getChassisSpeeds(), drive.getPose())
+                            .turretAngle()))
             .withTimeout(1)
             .andThen(
                 conductor
