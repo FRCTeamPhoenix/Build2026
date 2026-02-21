@@ -179,7 +179,7 @@ public final class Constants {
             .withMotorInverted(true)
             .withSupplyCurrentLimit(30.0)
             .withStatorCurrentLimit(50.0)
-            .withIdleMode(IdleMode.BRAKE);
+            .withIdleMode(IdleMode.COAST);
 
     public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim INTAKE_WHEEL_SIM =

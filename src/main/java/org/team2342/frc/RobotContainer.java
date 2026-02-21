@@ -217,7 +217,7 @@ public class RobotContainer {
 
     if (Constants.TUNING) setupDevelopmentRoutines();
     autoChooser.addOption(
-        "scuffed",
+        "scuffed wall",
         Commands.run(() -> drive.runVelocity(new ChassisSpeeds(1, 0, 0)), drive)
             .alongWith(conductor.runState(ConductorState.WARM_UP))
             .withTimeout(1)
