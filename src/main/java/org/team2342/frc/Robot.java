@@ -13,6 +13,7 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUsageId;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -29,6 +30,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.team2342.frc.Constants.VisionConstants;
+import org.team2342.frc.util.FiringSolver;
 import org.team2342.frc.util.PhoenixUtils;
 import org.team2342.lib.logging.ExecutionLogger;
 
@@ -157,7 +160,11 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
     ExecutionLogger.log("Commands");
 
+    Logger.recordOutput("odk", Pose3d.kZero);
+    Logger.recordOutput("oddwk", Pose3d.kZero.plus(VisionConstants.SHOOTER_CAMERA_TRANSFORM));
+
     robotContainer.updateAlerts();
+    FiringSolver.getInstance().clearCachedSolution();
 
     ExecutionLogger.log("RobotPeriodic");
   }
@@ -173,6 +180,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
+    robotContainer.getDrive().calculateVisionHeadingOffset();
+
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (autonomousCommand != null) {

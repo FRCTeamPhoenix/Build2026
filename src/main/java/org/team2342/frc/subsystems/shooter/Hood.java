@@ -69,6 +69,15 @@ public class Hood extends SubsystemBase {
         .withName("Hood GoToAngle");
   }
 
+  public Command goToAngle(DoubleSupplier targetAngle) {
+    return run(() -> runAngle(targetAngle.getAsDouble()))
+        .until(
+            () ->
+                Math.abs(targetAngle.getAsDouble() - motorInputs.positionRad)
+                    <= ShooterConstants.TARGET_TOLERANCE)
+        .withName("Hood GoToAngle");
+  }
+
   public Command holdAngle(double targetAngle) {
     return run(() -> runAngle(targetAngle)).withName("Hood HoldAngle");
   }
