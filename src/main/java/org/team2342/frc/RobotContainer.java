@@ -310,6 +310,8 @@ public class RobotContainer {
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
 
+    driverController.x().whileTrue(Commands.run(drive::stopWithX, drive));
+
     driverController
         .b()
         .onTrue(

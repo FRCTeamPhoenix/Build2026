@@ -51,13 +51,13 @@ public class FiringSolver {
     angleMap.put(3.973, 0.0);
     angleMap.put(5.042, 0.0);
 
-    speedMap.put(1.859, 21.0);
-    speedMap.put(2.203, 21.0);
-    speedMap.put(2.510, 22.0);
-    speedMap.put(2.844, 22.5);
-    speedMap.put(3.046, 23.0);
-    speedMap.put(3.315, 23.5);
-    speedMap.put(3.973, 25.5);
+    speedMap.put(1.859, 23.0);
+    speedMap.put(2.203, 23.0);
+    speedMap.put(2.510, 25.0);
+    speedMap.put(2.844, 25.5);
+    speedMap.put(3.046, 26.0);
+    speedMap.put(3.315, 26.5);
+    speedMap.put(3.973, 28.5);
     speedMap.put(5.042, 30.0);
 
     tofMap.put(1.859, 1.0);
