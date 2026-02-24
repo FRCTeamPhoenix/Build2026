@@ -24,7 +24,7 @@ import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
   public static final Mode CURRENT_MODE = Mode.REAL;
-  public static final boolean TUNING = true;
+  public static final boolean TUNING = false;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -138,7 +138,7 @@ public final class Constants {
   }
 
   public static final class IndexerConstants {
-    public static final double RUN_VOLTAGE = 7.0;
+    public static final double RUN_VOLTAGE = 8.0;
     public static final double FEEDER_VOLTAGE = 10.0;
 
     public static final double RUN_CURRENT = 30.0;
@@ -148,13 +148,13 @@ public final class Constants {
         new MotorConfig()
             .withMotorInverted(false)
             .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(40.0)
+            .withStatorCurrentLimit(70.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
     public static final MotorConfig INDEXER_FEEDER_CONFIG =
         new MotorConfig()
             .withMotorInverted(false)
             .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(40.0)
+            .withStatorCurrentLimit(70.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
 
     public static final DCMotor INDEXER_BELT_SIM_MOTOR = DCMotor.getKrakenX60(1);
@@ -178,8 +178,8 @@ public final class Constants {
         new MotorConfig()
             .withMotorInverted(true)
             .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(50.0)
-            .withIdleMode(IdleMode.BRAKE);
+            .withStatorCurrentLimit(70.0)
+            .withIdleMode(IdleMode.COAST);
 
     public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim INTAKE_WHEEL_SIM =

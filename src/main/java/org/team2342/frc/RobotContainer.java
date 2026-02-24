@@ -10,6 +10,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -103,6 +104,10 @@ public class RobotContainer {
                 drive::getTimestampedHeading,
                 new VisionIOPhoton(
                     VisionConstants.SWERVE_CAMERA_PARAMETERS,
+                    PoseStrategy.CONSTRAINED_SOLVEPNP,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR),
+                new VisionIOPhoton(
+                    VisionConstants.SHOOTER_CAMERA_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
         indexer =
@@ -216,6 +221,55 @@ public class RobotContainer {
 
     if (Constants.TUNING) setupDevelopmentRoutines();
 
+    autoChooser.addOption(
+        "scuffed wall",
+        Commands.run(() -> drive.runVelocity(new ChassisSpeeds(1, 0, 0)), drive)
+            .alongWith(conductor.runState(ConductorState.WARM_UP))
+            .withTimeout(1)
+            .andThen(
+                conductor
+                    .goToState(ConductorState.TRACKED_FIRING)
+                    .andThen(conductor.runState(ConductorState.TRACKED_FIRING))
+                    .alongWith(indexer.feed())
+                    .alongWith(
+                        DriveCommands.joystickDriveAtAngle(
+                            drive,
+                            () -> 0,
+                            () -> 0,
+                            () ->
+                                FiringSolver.getInstance()
+                                    .calculate(drive.getChassisSpeeds(), drive.getPose())
+                                    .turretAngle()))));
+
+    autoChooser.addOption(
+        "wait n fire",
+        conductor
+            .runState(ConductorState.WARM_UP)
+            .alongWith(
+                DriveCommands.joystickDriveAtAngle(
+                    drive,
+                    () -> 0,
+                    () -> 0,
+                    () ->
+                        FiringSolver.getInstance()
+                            .calculate(drive.getChassisSpeeds(), drive.getPose())
+                            .turretAngle()))
+            .withTimeout(1)
+            .andThen(
+                conductor
+                    .goToState(ConductorState.TRACKED_FIRING)
+                    .andThen(conductor.runState(ConductorState.TRACKED_FIRING))
+                    .alongWith(indexer.feed())
+                    .alongWith(
+                        DriveCommands.joystickDriveAtAngle(
+                            drive,
+                            () -> 0,
+                            () -> 0,
+                            () ->
+                                FiringSolver.getInstance()
+                                    .calculate(drive.getChassisSpeeds(), drive.getPose())
+                                    .turretAngle()))));
+
     SmartDashboard.putData(
         "Calculate Vision Heading Offset",
         Commands.runOnce(() -> drive.calculateVisionHeadingOffset())
@@ -256,6 +310,8 @@ public class RobotContainer {
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
 
+    driverController.x().whileTrue(Commands.run(drive::stopWithX, drive));
+
     driverController
         .b()
         .onTrue(
@@ -274,7 +330,8 @@ public class RobotContainer {
         .whileTrue(
             conductor
                 .goToState(ConductorState.BUMPER_SHOT)
-                .andThen(conductor.runState(ConductorState.BUMPER_SHOT).alongWith(indexer.feed())));
+                .andThen(conductor.runState(ConductorState.BUMPER_SHOT).alongWith(indexer.feed())))
+        .onFalse(indexer.stop());
 
     driverController
         .rightTrigger()
@@ -291,7 +348,8 @@ public class RobotContainer {
                         () ->
                             FiringSolver.getInstance()
                                 .calculate(drive.getChassisSpeeds(), drive.getPose())
-                                .turretAngle())));
+                                .turretAngle())))
+        .onFalse(indexer.stop());
 
     // Operator Overrides
     operatorController.povRight().whileTrue(indexer.feed()).onFalse(indexer.stop());
@@ -303,6 +361,7 @@ public class RobotContainer {
     operatorController.rightTrigger().whileTrue(conductor.runState(ConductorState.OVERRIDE_25));
 
     operatorController.rightBumper().whileTrue(conductor.runState(ConductorState.OVERRIDE_23));
+
     // Location Triggers
     trenchTrigger
         .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))

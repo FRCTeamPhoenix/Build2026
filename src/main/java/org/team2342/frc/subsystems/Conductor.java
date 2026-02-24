@@ -128,25 +128,28 @@ public class Conductor extends SubsystemBase {
 
     fsm.addOmniTransition(
         ConductorState.BUMPER_SHOT,
-        hood.goToAngle(FiringSolver.BUMPER_SHOT.hoodAngle())
+        hood.holdAngle(FiringSolver.BUMPER_SHOT.hoodAngle())
+            .withTimeout(0.5)
             .deadlineFor(flywheel.shoot(FiringSolver.BUMPER_SHOT.wheelSpeed())));
 
     fsm.addOmniTransition(
         ConductorState.WARM_UP,
-        hood.goToAngle(
+        hood.holdAngle(
                 () ->
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .hoodAngle())
+            .withTimeout(0.5)
             .deadlineFor(flywheel.warmUp()));
 
     fsm.addOmniTransition(
         ConductorState.TRACKED_FIRING,
-        hood.goToAngle(
+        hood.holdAngle(
                 () ->
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .hoodAngle())
+            .withTimeout(0.5)
             .deadlineFor(
                 flywheel.shoot(
                     () ->
@@ -155,11 +158,12 @@ public class Conductor extends SubsystemBase {
                             .wheelSpeed())));
     fsm.addOmniTransition(
         ConductorState.OVERRIDE_25,
-        hood.goToAngle(
+        hood.holdAngle(
                 () ->
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .hoodAngle())
+            .withTimeout(0.5)
             .deadlineFor(flywheel.shoot(25.0)));
 
     fsm.addOmniTransition(ConductorState.OVERRIDE_23, flywheel.shoot(23.0));
