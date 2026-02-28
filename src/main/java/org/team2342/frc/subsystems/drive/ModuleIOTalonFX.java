@@ -12,7 +12,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -65,7 +65,7 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final Queue<Double> turnPositionQueue;
 
   private final VoltageOut voltageRequest = new VoltageOut(0);
-  private final VelocityVoltage driveRequest = new VelocityVoltage(0);
+  private final VelocityTorqueCurrentFOC driveRequest = new VelocityTorqueCurrentFOC(0);
   private final PositionVoltage turnRequest = new PositionVoltage(0);
 
   private final boolean driveInverted = true;
@@ -89,8 +89,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Configure Drive
     driveConfig = new TalonFXConfiguration();
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    driveConfig.Slot0 =
-        new Slot0Configs().withKP(1.5).withKI(0.0).withKD(0.0).withKS(0.16).withKV(0.84);
+    driveConfig.Slot0 = new Slot0Configs().withKP(50).withKI(0.0).withKD(0.0);
     driveConfig.Feedback.SensorToMechanismRatio = DriveConstants.DRIVE_GEARING;
     driveConfig.MotorOutput.Inverted =
         driveInverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
@@ -111,7 +110,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     // Set up CANcoder as feedback device for turn motor
     turnConfig.Feedback.FeedbackRemoteSensorID = canIDArray[2];
-    turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     turnConfig.Feedback.RotorToSensorRatio = DriveConstants.TURN_GEARING;
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
     turnConfig.MotorOutput.Inverted =
@@ -131,13 +130,13 @@ public class ModuleIOTalonFX implements ModuleIO {
     drivePosition = driveTalon.getPosition();
     driveVelocity = driveTalon.getVelocity();
     driveAppliedVolts = driveTalon.getMotorVoltage();
-    driveCurrent = driveTalon.getStatorCurrent();
+    driveCurrent = driveTalon.getTorqueCurrent();
 
     turnAbsolutePosition = cancoder.getAbsolutePosition();
     turnPosition = turnTalon.getPosition();
     turnVelocity = turnTalon.getVelocity();
     turnAppliedVolts = turnTalon.getMotorVoltage();
-    turnCurrent = turnTalon.getStatorCurrent();
+    turnCurrent = turnTalon.getTorqueCurrent();
 
     // Want position signals to run at higher frequency for odometry
     BaseStatusSignal.setUpdateFrequencyForAll(
