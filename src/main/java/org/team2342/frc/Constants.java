@@ -21,9 +21,6 @@ import org.team2342.lib.motors.smart.SmartMotorConfig;
 import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
 import org.team2342.lib.motors.smart.SmartMotorConfig.FeedbackConfig;
 import org.team2342.lib.pidff.PIDFFConfigs;
-import org.team2342.lib.motors.MotorConfig.IdleMode;
-import org.team2342.lib.motors.smart.SmartMotorConfig;
-import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
@@ -246,7 +243,7 @@ public final class Constants {
                 HOOD_SIM_MOTOR, 0.01, (KRAKEN_TO_ENCODER * ENCODER_TO_HOOD)),
             HOOD_SIM_MOTOR);
   }
-  
+
   public static final class TurretConstants {
     public static final double AT_POSITION_THRESHOLD = 0.01;
     public static final Rotation2d MIN_TURRET_ANGLE =
