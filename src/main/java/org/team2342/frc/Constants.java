@@ -246,10 +246,10 @@ public final class Constants {
 
   public static final class TurretConstants {
     public static final double AT_POSITION_THRESHOLD = 0.01;
-    public static final Rotation2d MIN_TURRET_ANGLE =
-        Rotation2d.fromDegrees(60).minus(Rotation2d.kZero);
-    public static final Rotation2d MAX_TURRET_ANGLE =
-        Rotation2d.fromDegrees(300).minus(Rotation2d.kZero);
+    
+    public static final double STARTING_ANGLE = Units.degreesToRadians(0);
+    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(60);
+    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(300);
 
     public static final SmartMotorConfig TURRET_CONFIG =
         new SmartMotorConfig()
