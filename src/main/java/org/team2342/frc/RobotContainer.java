@@ -29,6 +29,7 @@ import org.team2342.frc.Constants.DriveConstants;
 import org.team2342.frc.Constants.IndexerConstants;
 import org.team2342.frc.Constants.IntakeConstants;
 import org.team2342.frc.Constants.ShooterConstants;
+import org.team2342.frc.Constants.TurretConstants;
 import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.commands.DriveCommands;
 import org.team2342.frc.commands.RotationLockedDrive;
@@ -44,6 +45,7 @@ import org.team2342.frc.subsystems.indexer.Indexer;
 import org.team2342.frc.subsystems.intake.Wheels;
 import org.team2342.frc.subsystems.shooter.Flywheel;
 import org.team2342.frc.subsystems.shooter.Hood;
+import org.team2342.frc.subsystems.turret.Turret;
 import org.team2342.frc.subsystems.vision.Vision;
 import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
@@ -52,7 +54,6 @@ import org.team2342.frc.util.FieldConstants;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
-import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
@@ -67,6 +68,7 @@ public class RobotContainer {
   @Getter private final Wheels wheels;
   @Getter private final Flywheel flywheel;
   @Getter private final Hood hood;
+  @Getter private final Turret turret;
 
   @Getter private final Conductor conductor;
 
@@ -110,30 +112,40 @@ public class RobotContainer {
                     VisionConstants.SHOOTER_CAMERA_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
-        indexer =
-            new Indexer(
-                new DumbMotorIOTalonFXFOC(
-                    CANConstants.INDEXER_BELT_ID, IndexerConstants.INDEXER_BELT_CONFIG),
-                new DumbMotorIOTalonFXFOC(
-                    CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_FEEDER_CONFIG));
+        // indexer =
+        //     new Indexer(
+        //         new DumbMotorIOTalonFXFOC(
+        //             CANConstants.INDEXER_BELT_ID, IndexerConstants.INDEXER_BELT_CONFIG),
+        //         new DumbMotorIOTalonFXFOC(
+        //             CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_FEEDER_CONFIG));
 
-        wheels =
-            new Wheels(
-                new DumbMotorIOTalonFXFOC(
-                    CANConstants.INTAKE_WHEEL_MOTOR_ID,
-                    IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
-        flywheel =
-            new Flywheel(
+        // wheels =
+        //     new Wheels(
+        //         new DumbMotorIOTalonFXFOC(
+        //             CANConstants.INTAKE_WHEEL_MOTOR_ID,
+        //             IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
+        // flywheel =
+        //     new Flywheel(
+        //         new SmartMotorIOTalonFX(
+        //             CANConstants.FLYWHEEL_MOTOR_ID,
+        //             ShooterConstants.FLYWHEEL_CONFIG.withPIDFFConfigs(
+        //                 ShooterConstants.FLYWHEEL_PID_CONFIGS)));
+        // hood =
+        //     new Hood(
+        //         new SmartMotorIOTalonFX(
+        //             CANConstants.HOOD_MOTOR_ID,
+        //             ShooterConstants.HOOD_MOTOR_CONFIG.withPIDFFConfigs(
+        //                 ShooterConstants.HOOD_MOTOR_PID_CONFIGS)));
+        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {});
+        wheels = new Wheels(new DumbMotorIO() {});
+        flywheel = new Flywheel(new SmartMotorIO() {});
+        hood = new Hood(new SmartMotorIO() {});
+
+        turret =
+            new Turret(
                 new SmartMotorIOTalonFX(
-                    CANConstants.FLYWHEEL_MOTOR_ID,
-                    ShooterConstants.FLYWHEEL_CONFIG.withPIDFFConfigs(
-                        ShooterConstants.FLYWHEEL_PID_CONFIGS)));
-        hood =
-            new Hood(
-                new SmartMotorIOTalonFX(
-                    CANConstants.HOOD_MOTOR_ID,
-                    ShooterConstants.HOOD_MOTOR_CONFIG.withPIDFFConfigs(
-                        ShooterConstants.HOOD_MOTOR_PID_CONFIGS)));
+                    CANConstants.TURRET_ID,
+                    TurretConstants.TURRET_CONFIG.withPIDFFConfigs(TurretConstants.PID_CONFIG)));
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
@@ -187,6 +199,7 @@ public class RobotContainer {
                     ShooterConstants.HOOD_SIM_MOTOR,
                     ShooterConstants.HOOD_SIM,
                     1));
+        turret = new Turret(new SmartMotorIO() {});
 
         break;
 
@@ -208,6 +221,7 @@ public class RobotContainer {
         wheels = new Wheels(new DumbMotorIO() {});
         flywheel = new Flywheel(new SmartMotorIO() {});
         hood = new Hood(new SmartMotorIO() {});
+        turret = new Turret(new SmartMotorIO() {});
 
         break;
     }
@@ -310,17 +324,37 @@ public class RobotContainer {
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
 
-    driverController.x().whileTrue(Commands.run(drive::stopWithX, drive));
+    // driverController.x().whileTrue(Commands.run(drive::stopWithX, drive));
+
+    driverController
+        .a()
+        .whileTrue(turret.runPositionCommand(Rotation2d.fromDegrees(45)))
+        .onFalse(turret.stop());
 
     driverController
         .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
-                .ignoringDisable(true));
+        .whileTrue(turret.runPositionCommand(Rotation2d.fromDegrees(90)))
+        .onFalse(turret.stop());
+
+    driverController
+        .x()
+        .whileTrue(turret.runPositionCommand(Rotation2d.fromDegrees(405)))
+        .onFalse(turret.stop());
+
+    driverController
+        .y()
+        .whileTrue(turret.runPositionCommand(Rotation2d.fromDegrees(-45)))
+        .onFalse(turret.stop());
+
+    // driverController
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //                 () ->
+    //                     drive.setPose(
+    //                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+    //                 drive)
+    //             .ignoringDisable(true));
 
     driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
 
