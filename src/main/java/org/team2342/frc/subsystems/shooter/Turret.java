@@ -28,17 +28,17 @@ public class Turret extends SubsystemBase {
 
   public Turret(SmartMotorIO turretMotor) {
     this.turretMotor = turretMotor;
-    setName("Turret");
+    setName("Shooter/Turret");
     setDefaultCommand(run(() -> turretMotor.runVoltage(0.0)));
   }
 
   @Override
   public void periodic() {
     turretMotor.updateInputs(inputs);
-    Logger.processInputs("Turret", inputs);
+    Logger.processInputs("Shooter/Turret", inputs);
     motorAlert.set(!inputs.motorsConnected[0]);
-    Logger.processInputs("Shooter/Hood/Motor", inputs);
-    ExecutionLogger.log("Turret");
+    
+    ExecutionLogger.log("Shooter/Turret");
   }
 
   public void runPosition(Rotation2d target) {
@@ -65,7 +65,7 @@ public class Turret extends SubsystemBase {
     return runOnce(() -> turretMotor.runVoltage(0.0));
   }
 
-  @AutoLogOutput(key = "Turret/Position")
+  @AutoLogOutput(key = "Shooter/Turret/Position")
   public Rotation2d getTurretPosition() {
     return Rotation2d.fromRadians(inputs.positionRad);
   }
@@ -74,7 +74,7 @@ public class Turret extends SubsystemBase {
     return inputs.velocityRadPerSec;
   }
 
-  @AutoLogOutput(key = "Turret/Setpoint")
+  @AutoLogOutput(key = "Shooter/Turret/Setpoint")
   public Rotation2d getTurretSetpoint() {
     return new Rotation2d(goal);
   }
