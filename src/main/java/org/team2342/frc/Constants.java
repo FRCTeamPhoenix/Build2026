@@ -6,6 +6,7 @@
 
 package org.team2342.frc;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -244,6 +245,14 @@ public final class Constants {
   }
 
   public static final class TurretConstants {
+    public static final Transform3d TURRET_TRANSFORM =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(-4.960),
+                Units.inchesToMeters(5.997),
+                Units.inchesToMeters(14.823)),
+            new Rotation3d(Rotation2d.k180deg));
+
     public static final double AT_POSITION_THRESHOLD = 0.01;
 
     public static final double STARTING_ANGLE = Units.degreesToRadians(0);

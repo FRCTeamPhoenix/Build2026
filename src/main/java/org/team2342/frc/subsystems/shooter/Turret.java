@@ -4,7 +4,7 @@
 // This source code is licensed under the MIT License.
 // See the LICENSE file in the root directory of this project.
 
-package org.team2342.frc.subsystems.turret;
+package org.team2342.frc.subsystems.shooter;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
