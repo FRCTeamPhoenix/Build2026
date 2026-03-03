@@ -17,7 +17,6 @@ import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOInputsAutoLogged;
 
 public class Indexer extends SubsystemBase {
-  private final DumbMotorIO wheelMotor;
   private final DumbMotorIO beltMotor;
   private final DumbMotorIOInputsAutoLogged wheelMotorInputs = new DumbMotorIOInputsAutoLogged();
   private final DumbMotorIOInputsAutoLogged beltMotorInputs = new DumbMotorIOInputsAutoLogged();
@@ -29,14 +28,12 @@ public class Indexer extends SubsystemBase {
 
 
   public Indexer(DumbMotorIO wheelMotor, DumbMotorIO beltMotor) {
-    this.wheelMotor = wheelMotor;
     this.beltMotor = beltMotor;
     setName("Indexer");
 
     setDefaultCommand(
         run(
             () -> {
-              wheelMotor.runVoltage(0.0);
               beltMotor.runVoltage(0.0);
 
             }));
@@ -44,15 +41,12 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    wheelMotor.updateInputs(wheelMotorInputs);
     beltMotor.updateInputs(beltMotorInputs);
 
 
-    Logger.processInputs("Indexer/WheelMotor", wheelMotorInputs);
     Logger.processInputs("Indexer/BeltMotor", beltMotorInputs);
 
 
-    wheelMotorAlert.set(!wheelMotorInputs.connected);
     beltMotorAlert.set(!beltMotorInputs.connected);
 
 
@@ -61,24 +55,29 @@ public class Indexer extends SubsystemBase {
 
   public Command load() {
     return run(() -> {
-          wheelMotor.runTorqueCurrent(IndexerConstants.RUN_CURRENT);
+          beltMotor.runVoltage(IndexerConstants.RUN_VOLTAGE);
         })
-        .withName("Indexer Load");
+        .withName("Indexer Feed");
   }
 
   public Command feed() {
     return run(() -> {
-          wheelMotor.runTorqueCurrent(IndexerConstants.RUN_CURRENT);
           beltMotor.runTorqueCurrent(IndexerConstants.RUN_CURRENT);
 
         })
         .withName("Indexer Feed");
   }
 
+  public Command out() {
+    return run(() -> {
+          beltMotor.runVoltage(-IndexerConstants.RUN_VOLTAGE);
+        })
+        .withName("Indexer Out");
+  }
+
   public Command stop() {
     return runOnce(
             () -> {
-              wheelMotor.runVoltage(0.0);
               beltMotor.runVoltage(0.0);
 
             })

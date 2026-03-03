@@ -6,6 +6,7 @@
 
 package org.team2342.frc;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -24,7 +25,7 @@ import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
   public static final Mode CURRENT_MODE = Mode.REAL;
-  public static final boolean TUNING = true;
+  public static final boolean TUNING = false;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -38,18 +39,36 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final String CAMERA_NAME = "left_arducam";
+    public static final String SWERVE_CAMERA_NAME = "swerve_arducam";
+    public static final String SHOOTER_CAMERA_NAME = "shooter_arducam";
 
-    public static final Transform3d CAMERA_TRANSFORM =
+    public static final Transform3d SWERVE_CAMERA_TRANSFORM =
         new Transform3d(
             new Translation3d(
-                Units.inchesToMeters(7.883),
-                Units.inchesToMeters(-10.895),
+                Units.inchesToMeters(-7.883),
+                Units.inchesToMeters(10.895),
                 Units.inchesToMeters(8)),
-            new Rotation3d(0, Units.degreesToRadians(-22.0), Units.degreesToRadians(90 - 61.475)));
+            new Rotation3d(
+                0, Units.degreesToRadians(-22.0), Units.degreesToRadians(-(90 + 61.475))));
 
-    public static final CameraParameters LEFT_PARAMETERS =
-        CameraParameters.loadFromName(CAMERA_NAME, 800, 600).withTransform(CAMERA_TRANSFORM);
+    public static final Transform3d SHOOTER_CAMERA_TRANSFORM =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(-13.255),
+                Units.inchesToMeters(11.9),
+                Units.inchesToMeters(14.755)),
+            new Rotation3d(
+                0,
+                Units.degreesToRadians((90 - 63.435 + 180)),
+                Units.degreesToRadians(-119.745 + 90)));
+
+    public static final CameraParameters SWERVE_CAMERA_PARAMETERS =
+        CameraParameters.loadFromName(SWERVE_CAMERA_NAME, 800, 600)
+            .withTransform(SWERVE_CAMERA_TRANSFORM);
+
+    public static final CameraParameters SHOOTER_CAMERA_PARAMETERS =
+        CameraParameters.loadFromName(SHOOTER_CAMERA_NAME, 800, 600)
+            .withTransform(SHOOTER_CAMERA_TRANSFORM);
 
     // Basic filtering thresholds
     public static final double MAX_AMBIGUITY = 0.1;
@@ -125,39 +144,54 @@ public final class Constants {
             .withStatorCurrentLimit(40.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
   }
+  
+  public static final class ConductorConstants {
+    public static final double TRENCH_BUFFER = 0.1;
+  }
 
   public static final class IndexerConstants {
-    public static final double RUN_VOLTAGE = 7.0;
-    public static final double FEEDER_VOLTAGE = 7.0;
+    public static final double RUN_VOLTAGE = 8.0;
+    public static final double FEEDER_VOLTAGE = 10.0;
 
-    public static final double RUN_CURRENT = 40.0;
-    public static final double FEEDER_CURRENT = 40.0;
-
-    public static final MotorConfig INDEXER_WHEEL_CONFIG =
-        new MotorConfig()
-            .withMotorInverted(false)
-            .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(40.0)
-            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+    public static final double RUN_CURRENT = 30.0;
+    public static final double FEEDER_CURRENT = 30.0;
 
     public static final MotorConfig INDEXER_BELT_CONFIG =
         new MotorConfig()
             .withMotorInverted(false)
             .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(40.0)
+            .withStatorCurrentLimit(70.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
+    public static final MotorConfig INDEXER_FEEDER_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(false)
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(70.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+
+    public static final DCMotor INDEXER_BELT_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim INDEXER_BELT_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(INDEXER_BELT_SIM_MOTOR, 0.003, 1),
+            INDEXER_BELT_SIM_MOTOR);
+
+    public static final DCMotor INDEXER_FEEDER_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim INDEXER_FEEDER_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(INDEXER_FEEDER_SIM_MOTOR, 0.0025, 1),
+            INDEXER_FEEDER_SIM_MOTOR);
   }
 
   public static final class IntakeConstants {
-    public static final double RUN_VOLTAGE = 8.0;
-    public static final double RUN_CURRENT = 40.0;
+    public static final double RUN_VOLTAGE = 7.0;
+    public static final double RUN_CURRENT = 10.0;
 
     public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG =
         new MotorConfig()
             .withMotorInverted(true)
-            .withSupplyCurrentLimit(40.0)
-            .withStatorCurrentLimit(50.0)
-            .withIdleMode(IdleMode.BRAKE);
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(70.0)
+            .withIdleMode(IdleMode.COAST);
 
     public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim INTAKE_WHEEL_SIM =
@@ -170,15 +204,23 @@ public final class Constants {
     public static final double FLYWHEEL_GEAR_RATIO = 23.0 / 24.0;
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
-    public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS = new PIDFFConfigs().withKP(2.2);
+    public static final double IDLE_SPEED = 15.0;
+
+    public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS =
+        new PIDFFConfigs()
+            .withKP(0.5)
+            .withKI(0.0)
+            .withKS(Units.radiansToRotations(0.1824))
+            .withKV(Units.radiansToRotations(0.020077))
+            .withKA(Units.radiansToRotations(0.0037398));
     public static final SmartMotorConfig FLYWHEEL_CONFIG =
         new SmartMotorConfig()
-            .withControlType(ControlType.PROFILED_VELOCITY)
+            .withControlType(ControlType.VELOCITY)
             .withGearRatio(FLYWHEEL_GEAR_RATIO)
             .withMotorInverted(false)
-            .withSupplyCurrentLimit(50)
-            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000))
-            .withStatorCurrentLimit(70);
+            .withSupplyCurrentLimit(40)
+            .withStatorCurrentLimit(70)
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000));
     public static final DCMotor FLYWHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim FLYWHEEL_SIM =
         new DCMotorSim(
@@ -197,10 +239,10 @@ public final class Constants {
             .withGearRatio(ENCODER_TO_HOOD)
             .withControlType(ControlType.PROFILED_POSITION)
             .withIdleMode(IdleMode.BRAKE)
-            .withSupplyCurrentLimit(40)
+            .withSupplyCurrentLimit(30.0)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
-                    CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.3155, false))
+                    CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.662 / 2, false))
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1800), Units.degreesToRadians(1800)));
@@ -211,6 +253,40 @@ public final class Constants {
             LinearSystemId.createDCMotorSystem(
                 HOOD_SIM_MOTOR, 0.01, (KRAKEN_TO_ENCODER * ENCODER_TO_HOOD)),
             HOOD_SIM_MOTOR);
+  }
+
+  public static final class TurretConstants {
+    public static final Transform3d TURRET_TRANSFORM =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(-4.960),
+                Units.inchesToMeters(5.997),
+                Units.inchesToMeters(14.823)),
+            new Rotation3d(Rotation2d.k180deg));
+
+    public static final double AT_POSITION_THRESHOLD = 0.01;
+
+    public static final double STARTING_ANGLE = Units.degreesToRadians(0);
+    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(-90);
+    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(90);
+
+    public static final double GEAR_RATIO = (46.0 / 12.0) * (100.0 / 10.0);
+
+    public static final SmartMotorConfig TURRET_CONFIG =
+        new SmartMotorConfig()
+            .withControlType(ControlType.PROFILED_POSITION)
+            .withGearRatio(GEAR_RATIO)
+            .withIdleMode(IdleMode.BRAKE)
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(Math.PI, Math.PI))
+            .withSupplyCurrentLimit(40);
+
+    public static final PIDFFConfigs PID_CONFIG = new PIDFFConfigs().withKP(100).withKI(10);
+
+    public static final DCMotor TURRET_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim TURRET_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(TURRET_SIM_MOTOR, 0.003, 100.0 / 16.0),
+            TURRET_SIM_MOTOR);
   }
 
   public static final class CANConstants {
@@ -232,6 +308,8 @@ public final class Constants {
     public static final int INDEXER_BELT_ID = 21;
 
     public static final int KICKER_ID = 22;
+
+    public static final int TURRET_ID = 23;
 
     public static final int PDH_ID = 62;
   }
