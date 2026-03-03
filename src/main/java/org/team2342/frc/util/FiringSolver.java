@@ -9,6 +9,11 @@ package org.team2342.frc.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import org.littletonrobotics.junction.Logger;
+import org.team2342.frc.Constants.TurretConstants;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -27,14 +32,6 @@ public class FiringSolver {
   public static final FiringSolution BUMPER_SHOT = new FiringSolution(new Rotation2d(), 23.5, 0.0);
 
   private FiringSolution lastSolution = null;
-
-  public static Transform3d TURRET_TRANSFORM =
-      new Transform3d(
-          new Translation3d(
-              Units.inchesToMeters(-4.960),
-              Units.inchesToMeters(5.997),
-              Units.inchesToMeters(14.823)),
-          new Rotation3d(Rotation2d.k180deg));
 
   private static final InterpolatingDoubleTreeMap angleMap = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap speedMap = new InterpolatingDoubleTreeMap();
@@ -77,19 +74,20 @@ public class FiringSolver {
 
     Translation2d hub =
         AllianceUtils.flipToAlliance(FieldConstants.Hub.topCenterPoint).toTranslation2d();
-    Pose2d turretPose = new Pose3d(position).transformBy(TURRET_TRANSFORM).toPose2d();
+    Pose2d turretPose =
+        new Pose3d(position).transformBy(TurretConstants.TURRET_TRANSFORM).toPose2d();
     double robotAngle = position.getRotation().getRadians();
 
     double velX =
         velocity.vxMetersPerSecond
             + velocity.omegaRadiansPerSecond
-                * (TURRET_TRANSFORM.getY() * Math.cos(robotAngle)
-                    - TURRET_TRANSFORM.getX() * Math.sin(robotAngle));
+                * (TurretConstants.TURRET_TRANSFORM.getY() * Math.cos(robotAngle)
+                    - TurretConstants.TURRET_TRANSFORM.getX() * Math.sin(robotAngle));
     double velY =
         velocity.vyMetersPerSecond
             + velocity.omegaRadiansPerSecond
-                * (TURRET_TRANSFORM.getX() * Math.cos(robotAngle)
-                    - TURRET_TRANSFORM.getY() * Math.sin(robotAngle));
+                * (TurretConstants.TURRET_TRANSFORM.getX() * Math.cos(robotAngle)
+                    - TurretConstants.TURRET_TRANSFORM.getY() * Math.sin(robotAngle));
 
     double tof;
     Pose2d predictedPose = turretPose;
@@ -106,8 +104,9 @@ public class FiringSolver {
     Logger.recordOutput("FiringSolver/PredictedPose", predictedPose);
     Logger.recordOutput("FiringSolver/PredictedDistance", predictedDistance);
 
-    Rotation2d turretAngle =
-        hub.minus(predictedPose.getTranslation()).getAngle().plus(Rotation2d.k180deg);
+    Rotation2d turretAngle = hub.minus(predictedPose.getTranslation()).getAngle();
+    turretAngle = turretAngle.minus(position.getRotation()).minus(Rotation2d.k180deg);
+
     double hoodAngle = angleMap.get(predictedDistance);
     double wheelSpeed = speedMap.get(predictedDistance);
 

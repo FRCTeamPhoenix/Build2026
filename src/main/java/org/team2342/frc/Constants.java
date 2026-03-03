@@ -6,6 +6,7 @@
 
 package org.team2342.frc;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -243,6 +244,40 @@ public final class Constants {
             HOOD_SIM_MOTOR);
   }
 
+  public static final class TurretConstants {
+    public static final Transform3d TURRET_TRANSFORM =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(-4.960),
+                Units.inchesToMeters(5.997),
+                Units.inchesToMeters(14.823)),
+            new Rotation3d(Rotation2d.k180deg));
+
+    public static final double AT_POSITION_THRESHOLD = 0.01;
+
+    public static final double STARTING_ANGLE = Units.degreesToRadians(0);
+    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(-90);
+    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(90);
+
+    public static final double GEAR_RATIO = (46.0 / 12.0) * (100.0 / 10.0);
+
+    public static final SmartMotorConfig TURRET_CONFIG =
+        new SmartMotorConfig()
+            .withControlType(ControlType.PROFILED_POSITION)
+            .withGearRatio(GEAR_RATIO)
+            .withIdleMode(IdleMode.BRAKE)
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(Math.PI, Math.PI))
+            .withSupplyCurrentLimit(40);
+
+    public static final PIDFFConfigs PID_CONFIG = new PIDFFConfigs().withKP(100).withKI(10);
+
+    public static final DCMotor TURRET_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim TURRET_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(TURRET_SIM_MOTOR, 0.003, 100.0 / 16.0),
+            TURRET_SIM_MOTOR);
+  }
+
   public static final class CANConstants {
     public static final int PIGEON_ID = 13;
     public static final int[] FL_IDS = {1, 5, 9};
@@ -261,6 +296,8 @@ public final class Constants {
     public static final int INDEXER_WHEEL_ID = 20;
     public static final int INDEXER_BELT_ID = 21;
     public static final int INDEXER_FEEDER_ID = 22;
+
+    public static final int TURRET_ID = 23;
 
     public static final int PDH_ID = 62;
   }
