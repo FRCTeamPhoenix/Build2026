@@ -96,8 +96,7 @@ public class FiringSolver {
     Logger.recordOutput("FiringSolver/PredictedPose", predictedPose);
     Logger.recordOutput("FiringSolver/PredictedDistance", predictedDistance);
 
-    Rotation2d turretAngle =
-        hub.minus(predictedPose.getTranslation()).getAngle();
+    Rotation2d turretAngle = hub.minus(predictedPose.getTranslation()).getAngle();
     turretAngle = turretAngle.minus(position.getRotation()).minus(Rotation2d.k180deg);
 
     double hoodAngle = angleMap.get(predictedDistance);

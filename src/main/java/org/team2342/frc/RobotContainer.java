@@ -9,7 +9,6 @@ package org.team2342.frc;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -106,10 +105,6 @@ public class RobotContainer {
                 drive::getTimestampedHeading,
                 new VisionIOPhoton(
                     VisionConstants.SWERVE_CAMERA_PARAMETERS,
-                    PoseStrategy.CONSTRAINED_SOLVEPNP,
-                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR),
-                new VisionIOPhoton(
-                    VisionConstants.SHOOTER_CAMERA_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
         // indexer =

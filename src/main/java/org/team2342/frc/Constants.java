@@ -256,8 +256,8 @@ public final class Constants {
     public static final double AT_POSITION_THRESHOLD = 0.01;
 
     public static final double STARTING_ANGLE = Units.degreesToRadians(0);
-    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(0);
-    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(360);
+    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(-90);
+    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(90);
 
     public static final double GEAR_RATIO = (46.0 / 12.0) * (100.0 / 10.0);
 
@@ -265,7 +265,7 @@ public final class Constants {
         new SmartMotorConfig()
             .withControlType(ControlType.PROFILED_POSITION)
             .withGearRatio(GEAR_RATIO)
-            .withIdleMode(IdleMode.COAST)
+            .withIdleMode(IdleMode.BRAKE)
             .withProfileConstraintsRad(new TrapezoidProfile.Constraints(Math.PI, Math.PI))
             .withSupplyCurrentLimit(40);
 
