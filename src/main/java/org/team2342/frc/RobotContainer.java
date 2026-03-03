@@ -89,10 +89,9 @@ public class RobotContainer {
             new Indexer(
                 new DumbMotorIOTalonFXFOC(
                     CANConstants.INDEXER_WHEEL_ID, IndexerConstants.INDEXER_WHEEL_CONFIG),
-                new DumbMotorIOTalonFXFOC(
-                    CANConstants.INDEXER_BELT_ID, IndexerConstants.INDEXER_BELT_CONFIG),
-                new DumbMotorIOTalonFXFOC(
-                    CANConstants.INDEXER_FEEDER_ID, IndexerConstants.INDEXER_WHEEL_CONFIG));
+                new DumbMotorIO() {
+                    
+                });
 
         wheels =
             new Wheels(
@@ -132,7 +131,7 @@ public class RobotContainer {
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose));
-        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {}, new DumbMotorIO() {});
+        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {});
 
         wheels =
             new Wheels(
@@ -168,7 +167,7 @@ public class RobotContainer {
                 drive::getTimestampedHeading,
                 new VisionIO() {},
                 new VisionIO() {});
-        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {}, new DumbMotorIO() {});
+        indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {});
         wheels = new Wheels(new DumbMotorIO() {});
         flywheel = new Flywheel(new SmartMotorIO() {});
         hood = new Hood(new SmartMotorIO() {});

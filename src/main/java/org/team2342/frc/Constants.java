@@ -115,6 +115,17 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
+  public static final class KickerConstants {
+    public static final double RUN_VOLTAGE = 7.0;
+    
+    public static final MotorConfig KICKER_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(true)
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(40.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+  }
+
   public static final class IndexerConstants {
     public static final double RUN_VOLTAGE = 7.0;
     public static final double FEEDER_VOLTAGE = 7.0;
@@ -132,12 +143,6 @@ public final class Constants {
     public static final MotorConfig INDEXER_BELT_CONFIG =
         new MotorConfig()
             .withMotorInverted(false)
-            .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(40.0)
-            .withIdleMode(MotorConfig.IdleMode.BRAKE);
-    public static final MotorConfig INDEXER_FEEDER_CONFIG =
-        new MotorConfig()
-            .withMotorInverted(true)
             .withSupplyCurrentLimit(30.0)
             .withStatorCurrentLimit(40.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
@@ -225,7 +230,8 @@ public final class Constants {
 
     public static final int INDEXER_WHEEL_ID = 20;
     public static final int INDEXER_BELT_ID = 21;
-    public static final int INDEXER_FEEDER_ID = 22;
+
+    public static final int KICKER_ID = 22;
 
     public static final int PDH_ID = 62;
   }
