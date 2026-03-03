@@ -54,7 +54,6 @@ import org.team2342.frc.util.FieldConstants;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
-import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
@@ -120,7 +119,7 @@ public class RobotContainer {
                     CANConstants.FLYWHEEL_MOTOR_ID,
                     ShooterConstants.FLYWHEEL_CONFIG.withPIDFFConfigs(
                         ShooterConstants.FLYWHEEL_PID_CONFIGS)));
-        
+
         indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {});
         wheels = new Wheels(new DumbMotorIO() {});
         hood = new Hood(new SmartMotorIO() {});

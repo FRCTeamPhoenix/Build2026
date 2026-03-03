@@ -20,12 +20,11 @@ public class Indexer extends SubsystemBase {
   private final DumbMotorIO beltMotor;
   private final DumbMotorIOInputsAutoLogged wheelMotorInputs = new DumbMotorIOInputsAutoLogged();
   private final DumbMotorIOInputsAutoLogged beltMotorInputs = new DumbMotorIOInputsAutoLogged();
-  
+
   private final Alert wheelMotorAlert =
       new Alert("Indexer Wheel Motor is diconnected", AlertType.kError);
   private final Alert beltMotorAlert =
       new Alert("Indexer Belt Motor is diconnected", AlertType.kError);
-
 
   public Indexer(DumbMotorIO wheelMotor, DumbMotorIO beltMotor) {
     this.beltMotor = beltMotor;
@@ -35,7 +34,6 @@ public class Indexer extends SubsystemBase {
         run(
             () -> {
               beltMotor.runVoltage(0.0);
-
             }));
   }
 
@@ -43,12 +41,9 @@ public class Indexer extends SubsystemBase {
   public void periodic() {
     beltMotor.updateInputs(beltMotorInputs);
 
-
     Logger.processInputs("Indexer/BeltMotor", beltMotorInputs);
 
-
     beltMotorAlert.set(!beltMotorInputs.connected);
-
 
     ExecutionLogger.log("Indexer");
   }
@@ -63,7 +58,6 @@ public class Indexer extends SubsystemBase {
   public Command feed() {
     return run(() -> {
           beltMotor.runTorqueCurrent(IndexerConstants.RUN_CURRENT);
-
         })
         .withName("Indexer Feed");
   }
@@ -79,7 +73,6 @@ public class Indexer extends SubsystemBase {
     return runOnce(
             () -> {
               beltMotor.runVoltage(0.0);
-
             })
         .withName("Indexer Stop");
   }

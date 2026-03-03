@@ -136,7 +136,7 @@ public final class Constants {
 
   public static final class KickerConstants {
     public static final double RUN_VOLTAGE = 7.0;
-    
+
     public static final MotorConfig KICKER_CONFIG =
         new MotorConfig()
             .withMotorInverted(true)
@@ -144,7 +144,7 @@ public final class Constants {
             .withStatorCurrentLimit(40.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
   }
-  
+
   public static final class ConductorConstants {
     public static final double TRENCH_BUFFER = 0.1;
   }
