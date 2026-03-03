@@ -114,12 +114,6 @@ public class RobotContainer {
                 new SmartMotorIOTalonFX(
                     CANConstants.TURRET_ID,
                     TurretConstants.TURRET_CONFIG.withPIDFFConfigs(TurretConstants.PID_CONFIG)));
-                    PoseStrategy.CONSTRAINED_SOLVEPNP,
-                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR),
-                new VisionIOPhoton(
-                    VisionConstants.SHOOTER_CAMERA_PARAMETERS,
-                    PoseStrategy.CONSTRAINED_SOLVEPNP,
-                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
         flywheel =
             new Flywheel(
                 new SmartMotorIOTalonFX(
