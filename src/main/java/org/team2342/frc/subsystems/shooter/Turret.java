@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.TurretConstants;
@@ -46,17 +47,27 @@ public class Turret extends SubsystemBase {
     turretMotor.runPosition(goal);
   }
 
+  public void runPosition(Supplier<Rotation2d> target) {
+    this.goal = calculateTurretAngle(target.get());
+    turretMotor.runPosition(goal);
+  }
+
   public Command runPositionCommand(Rotation2d target) {
     return run(() -> runPosition(target)).withName("Turret RunPosition");
   }
 
-  public void goToPosition(Rotation2d target) {
-    this.goal = calculateTurretAngle(target);
-    turretMotor.runPosition(goal);
+  public Command runPositionCommand(Supplier<Rotation2d> target) {
+    return run(() -> runPosition(target)).withName("Turret RunPosition");
   }
 
   public Command goToPositionCommand(Rotation2d target) {
-    return run(() -> goToPosition(target))
+    return run(() -> runPosition(target))
+        .until(() -> Math.abs(inputs.positionRad - goal) <= TurretConstants.AT_POSITION_THRESHOLD)
+        .withName("Turret GoToPosition");
+  }
+
+  public Command goToPositionCommand(Supplier<Rotation2d> target) {
+    return run(() -> runPosition(target))
         .until(() -> Math.abs(inputs.positionRad - goal) <= TurretConstants.AT_POSITION_THRESHOLD)
         .withName("Turret GoToPosition");
   }

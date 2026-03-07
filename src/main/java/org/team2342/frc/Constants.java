@@ -19,13 +19,12 @@ import org.team2342.lib.motors.MotorConfig;
 import org.team2342.lib.motors.MotorConfig.IdleMode;
 import org.team2342.lib.motors.smart.SmartMotorConfig;
 import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
-import org.team2342.lib.motors.smart.SmartMotorConfig.FeedbackConfig;
 import org.team2342.lib.pidff.PIDFFConfigs;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
   public static final Mode CURRENT_MODE = Mode.REAL;
-  public static final boolean TUNING = false;
+  public static final boolean TUNING = true;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -134,52 +133,25 @@ public final class Constants {
     public static final double ODOMETRY_FREQUENCY = IS_CANFD ? 250.0 : 100.0;
   }
 
-  public static final class KickerConstants {
-    public static final double RUN_VOLTAGE = 7.0;
-
-    public static final MotorConfig KICKER_CONFIG =
-        new MotorConfig()
-            .withMotorInverted(true)
-            .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(40.0)
-            .withIdleMode(MotorConfig.IdleMode.BRAKE);
-  }
-
   public static final class ConductorConstants {
     public static final double TRENCH_BUFFER = 0.1;
   }
 
   public static final class IndexerConstants {
     public static final double RUN_VOLTAGE = 8.0;
-    public static final double FEEDER_VOLTAGE = 10.0;
-
     public static final double RUN_CURRENT = 30.0;
-    public static final double FEEDER_CURRENT = 30.0;
 
-    public static final MotorConfig INDEXER_BELT_CONFIG =
-        new MotorConfig()
-            .withMotorInverted(false)
-            .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(70.0)
-            .withIdleMode(MotorConfig.IdleMode.BRAKE);
-    public static final MotorConfig INDEXER_FEEDER_CONFIG =
+    public static final MotorConfig INDEXER_MOTOR_CONFIG =
         new MotorConfig()
             .withMotorInverted(false)
             .withSupplyCurrentLimit(30.0)
             .withStatorCurrentLimit(70.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
 
-    public static final DCMotor INDEXER_BELT_SIM_MOTOR = DCMotor.getKrakenX60(1);
-    public static final DCMotorSim INDEXER_BELT_SIM =
+    public static final DCMotor INDEXER_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotorSim INDEXER_SIM =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(INDEXER_BELT_SIM_MOTOR, 0.003, 1),
-            INDEXER_BELT_SIM_MOTOR);
-
-    public static final DCMotor INDEXER_FEEDER_SIM_MOTOR = DCMotor.getKrakenX60(1);
-    public static final DCMotorSim INDEXER_FEEDER_SIM =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(INDEXER_FEEDER_SIM_MOTOR, 0.0025, 1),
-            INDEXER_FEEDER_SIM_MOTOR);
+            LinearSystemId.createDCMotorSystem(INDEXER_SIM_MOTOR, 0.003, 1), INDEXER_SIM_MOTOR);
   }
 
   public static final class IntakeConstants {
@@ -221,7 +193,7 @@ public final class Constants {
   }
 
   public static final class ShooterConstants {
-    public static final double FLYWHEEL_GEAR_RATIO = 23.0 / 24.0;
+    public static final double FLYWHEEL_GEAR_RATIO = 1.0;
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
     public static final double IDLE_SPEED = 15.0;
@@ -230,14 +202,15 @@ public final class Constants {
         new PIDFFConfigs()
             .withKP(0.5)
             .withKI(0.0)
-            .withKS(Units.radiansToRotations(0.1824))
-            .withKV(Units.radiansToRotations(0.020077))
-            .withKA(Units.radiansToRotations(0.0037398));
+            .withKS(Units.radiansToRotations(0.10346))
+            .withKV(Units.radiansToRotations(0.057928))
+            .withKA(Units.radiansToRotations(0.0080087));
+
     public static final SmartMotorConfig FLYWHEEL_CONFIG =
         new SmartMotorConfig()
             .withControlType(ControlType.VELOCITY)
             .withGearRatio(FLYWHEEL_GEAR_RATIO)
-            .withMotorInverted(false)
+            .withMotorInverted(true)
             .withSupplyCurrentLimit(40)
             .withStatorCurrentLimit(70)
             .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000));
@@ -251,37 +224,26 @@ public final class Constants {
     public static final double ENCODER_TO_HOOD = 344.0 / 22.0;
     public static final double MAX_ANGLE = 0.273;
     public static final double TARGET_TOLERANCE = 0.01;
+  }
 
-    public static final PIDFFConfigs HOOD_MOTOR_PID_CONFIGS =
-        new PIDFFConfigs().withKP(400).withKI(100).withKD(30);
-    public static final SmartMotorConfig HOOD_MOTOR_CONFIG =
-        new SmartMotorConfig()
-            .withGearRatio(ENCODER_TO_HOOD)
-            .withControlType(ControlType.PROFILED_POSITION)
-            .withIdleMode(IdleMode.BRAKE)
+  public static final class KickerConstants {
+    public static final double RUN_VOLTAGE = 8.0;
+
+    public static final MotorConfig KICKER_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(true)
             .withSupplyCurrentLimit(30.0)
-            .withFeedbackConfig(
-                FeedbackConfig.fused(
-                    CANConstants.HOOD_ENCODER_ID, KRAKEN_TO_ENCODER, 0.662 / 2, false))
-            .withProfileConstraintsRad(
-                new TrapezoidProfile.Constraints(
-                    Units.degreesToRadians(1800), Units.degreesToRadians(1800)));
-
-    public static final DCMotor HOOD_SIM_MOTOR = DCMotor.getKrakenX60(1);
-    public static final DCMotorSim HOOD_SIM =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
-                HOOD_SIM_MOTOR, 0.01, (KRAKEN_TO_ENCODER * ENCODER_TO_HOOD)),
-            HOOD_SIM_MOTOR);
+            .withStatorCurrentLimit(40.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
   }
 
   public static final class TurretConstants {
     public static final Transform3d TURRET_TRANSFORM =
         new Transform3d(
             new Translation3d(
-                Units.inchesToMeters(-4.960),
-                Units.inchesToMeters(5.997),
-                Units.inchesToMeters(14.823)),
+                Units.inchesToMeters(-6),
+                Units.inchesToMeters(0.002),
+                Units.inchesToMeters(14.165)),
             new Rotation3d(Rotation2d.k180deg));
 
     public static final double AT_POSITION_THRESHOLD = 0.01;
@@ -290,7 +252,7 @@ public final class Constants {
     public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(-90);
     public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(90);
 
-    public static final double GEAR_RATIO = (46.0 / 12.0) * (100.0 / 10.0);
+    public static final double GEAR_RATIO = (48.0 / 12.0) * (100.0 / 10.0);
 
     public static final SmartMotorConfig TURRET_CONFIG =
         new SmartMotorConfig()
@@ -317,15 +279,14 @@ public final class Constants {
     public static final int[] BR_IDS = {4, 8, 12};
 
     public static final int FLYWHEEL_MOTOR_ID = 14;
-    public static final int HOOD_MOTOR_ID = 15;
-    public static final int HOOD_ENCODER_ID = 16;
+    public static final int HOOD_MOTOR_ID = 15; // Kicker motor ID
+    public static final int HOOD_ENCODER_ID = 16; // Turret ID
 
     public static final int INTAKE_WHEEL_MOTOR_ID = 18;
     public static final int INTAKE_PIVOT_MOTOR_ID = 19;
     public static final int INTAKE_PIVOT_ENCODER_ID = 20;
 
-    public static final int INDEXER_WHEEL_ID = 20;
-    public static final int INDEXER_BELT_ID = 21;
+    public static final int INDEXER_MOTOR_ID = 20;
 
     public static final int KICKER_ID = 22;
 

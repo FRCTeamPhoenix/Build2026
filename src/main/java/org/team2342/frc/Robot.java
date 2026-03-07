@@ -158,6 +158,8 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
     ExecutionLogger.log("Commands");
 
+    robotContainer.getFlywheel().runVoltage(12);
+
     robotContainer.updateAlerts();
     FiringSolver.getInstance().clearCachedSolution();
 

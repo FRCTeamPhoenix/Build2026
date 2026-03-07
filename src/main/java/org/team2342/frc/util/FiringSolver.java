@@ -21,33 +21,23 @@ public class FiringSolver {
 
   private static final int ITERATIONS = 5;
 
-  public static final FiringSolution BUMPER_SHOT = new FiringSolution(new Rotation2d(), 23.5, 0.0);
+  public static final FiringSolution BUMPER_SHOT = new FiringSolution(new Rotation2d(), 23.5);
 
   private FiringSolution lastSolution = null;
 
-  private static final InterpolatingDoubleTreeMap angleMap = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap speedMap = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap tofMap = new InterpolatingDoubleTreeMap();
 
   // TODO: tune real maps
   static {
-    angleMap.put(1.859, 0.0);
-    angleMap.put(2.203, 0.0);
-    angleMap.put(2.510, 0.0);
-    angleMap.put(2.844, 0.0);
-    angleMap.put(3.046, 0.0);
-    angleMap.put(3.315, 0.0);
-    angleMap.put(3.973, 0.0);
-    angleMap.put(5.042, 0.0);
-
-    speedMap.put(1.859, 23.0);
-    speedMap.put(2.203, 23.0);
-    speedMap.put(2.510, 25.0);
-    speedMap.put(2.844, 25.5);
-    speedMap.put(3.046, 26.0);
-    speedMap.put(3.315, 26.5);
-    speedMap.put(3.973, 28.5);
-    speedMap.put(5.042, 30.0);
+    speedMap.put(1.859, 15.0);
+    speedMap.put(2.203, 15.0);
+    speedMap.put(2.510, 17.0);
+    speedMap.put(2.844, 18.5);
+    speedMap.put(3.046, 19.0);
+    speedMap.put(3.315, 20.5);
+    speedMap.put(3.973, 20.5);
+    speedMap.put(5.042, 20.0);
 
     tofMap.put(1.859, 1.0);
   }
@@ -99,10 +89,9 @@ public class FiringSolver {
     Rotation2d turretAngle = hub.minus(predictedPose.getTranslation()).getAngle();
     turretAngle = turretAngle.minus(position.getRotation()).minus(Rotation2d.k180deg);
 
-    double hoodAngle = angleMap.get(predictedDistance);
     double wheelSpeed = speedMap.get(predictedDistance);
 
-    lastSolution = new FiringSolution(turretAngle, wheelSpeed, hoodAngle);
+    lastSolution = new FiringSolution(turretAngle, wheelSpeed);
 
     return lastSolution;
   }
@@ -111,5 +100,5 @@ public class FiringSolver {
     lastSolution = null;
   }
 
-  public record FiringSolution(Rotation2d turretAngle, double wheelSpeed, double hoodAngle) {}
+  public record FiringSolution(Rotation2d turretAngle, double wheelSpeed) {}
 }
