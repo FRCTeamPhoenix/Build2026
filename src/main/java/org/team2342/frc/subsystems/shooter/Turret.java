@@ -30,6 +30,7 @@ public class Turret extends SubsystemBase {
   public Turret(SmartMotorIO turretMotor) {
     this.turretMotor = turretMotor;
     setName("Shooter/Turret");
+    turretMotor.setPosition(TurretConstants.STARTING_ANGLE);
     setDefaultCommand(run(() -> turretMotor.runVoltage(0.0)));
   }
 
@@ -100,8 +101,8 @@ public class Turret extends SubsystemBase {
 
   private double calculateTurretAngle(Rotation2d angle) {
     double calculatedAngle = MathUtil.inputModulus(angle.getRadians(), -Math.PI, Math.PI);
-    // if (calculatedAngle < 0) calculatedAngle += 2 * Math.PI;
-    // if (calculatedAngle > Math.PI * 2) calculatedAngle -= 2 * Math.PI;
+    if (calculatedAngle < 0) calculatedAngle += 2 * Math.PI;
+    if (calculatedAngle > Math.PI * 2) calculatedAngle -= 2 * Math.PI;
     return MathUtil.clamp(
         calculatedAngle, TurretConstants.MIN_TURRET_ANGLE, TurretConstants.MAX_TURRET_ANGLE);
   }

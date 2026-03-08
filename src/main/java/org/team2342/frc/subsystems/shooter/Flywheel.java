@@ -47,7 +47,7 @@ public class Flywheel extends SubsystemBase {
                 this));
 
     setName("Shooter/Flywheel");
-    // setDefaultCommand(run(() -> motor.runVoltage(0.0)));
+    setDefaultCommand(run(() -> motor.runVoltage(0.0)));
   }
 
   @Override

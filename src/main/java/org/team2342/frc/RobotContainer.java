@@ -51,6 +51,8 @@ import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.frc.util.FieldConstants;
+import org.team2342.lib.leds.LedIO;
+import org.team2342.lib.leds.LedStrip;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
@@ -70,6 +72,7 @@ public class RobotContainer {
   @Getter private final Wheels wheels;
   @Getter private final Flywheel flywheel;
   @Getter private final Turret turret;
+  @Getter private final LedStrip leds;
 
   @Getter private final Conductor conductor;
 
@@ -126,6 +129,8 @@ public class RobotContainer {
         indexer = new Indexer(new DumbMotorIO() {});
         wheels = new Wheels(new DumbMotorIO() {});
 
+        leds = new LedStrip(new LedIO() {}, "CANdle");
+
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
 
@@ -171,6 +176,8 @@ public class RobotContainer {
         turret = new Turret(new SmartMotorIO() {});
         pivot = new Pivot(new SmartMotorIO() {});
 
+        leds = new LedStrip(new LedIO() {}, "CANdle");
+
         break;
 
       default:
@@ -194,10 +201,13 @@ public class RobotContainer {
         turret = new Turret(new SmartMotorIO() {});
         kicker = new Kicker(new DumbMotorIO() {});
 
+        leds = new LedStrip(new LedIO() {}, "CANdle");
+
         break;
     }
 
-    conductor = new Conductor(flywheel, turret, kicker, drive::getPose, drive::getChassisSpeeds);
+    conductor =
+        new Conductor(flywheel, turret, kicker, leds, drive::getPose, drive::getChassisSpeeds);
 
     configureNamedCommands();
 
@@ -262,12 +272,7 @@ public class RobotContainer {
     driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
 
     // Shooting Controls
-    driverController
-        .rightTrigger()
-        .whileTrue(
-            conductor
-                .goToState(ConductorState.TUNING)
-                .andThen(conductor.runState(ConductorState.TUNING)));
+    driverController.rightTrigger().whileTrue(conductor.runState(ConductorState.TRACKED_FIRING));
 
     driverController.a().whileTrue(flywheel.runVoltage(12)).whileFalse(flywheel.stop());
 
@@ -279,9 +284,9 @@ public class RobotContainer {
     operatorController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
 
     // Location Triggers
-    // allianceZoneTrigger
-    //  .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
-    // .whileTrue(conductor.runState(ConductorState.WARM_UP));
+    allianceZoneTrigger
+        .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
+        .whileTrue(conductor.runState(ConductorState.WARM_UP));
   }
 
   public Command getAutonomousCommand() {
