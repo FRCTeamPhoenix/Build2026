@@ -325,7 +325,7 @@ public class RobotContainer {
     operatorControllerAlert.set(!operatorController.isConnected());
   }
 
-  private boolean withinBounds(double value, double bound1, double bound2) {
+  public static boolean withinBounds(double value, double bound1, double bound2) {
     return value <= Math.max(bound1, bound2) && value >= Math.min(bound1, bound2);
   }
 }
