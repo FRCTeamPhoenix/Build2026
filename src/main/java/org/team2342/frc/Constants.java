@@ -180,11 +180,11 @@ public final class Constants {
 
     public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS =
         new PIDFFConfigs()
-            .withKP(0.5)
-            .withKI(0.0)
-            .withKS(Units.radiansToRotations(0.10346))
-            .withKV(Units.radiansToRotations(0.057928))
-            .withKA(Units.radiansToRotations(0.0080087));
+            .withKP(0.625)
+            .withKI(0.4)
+            .withKS(0.15989)
+            .withKV(0.019968)
+            .withKA(0.005977);
 
     public static final SmartMotorConfig FLYWHEEL_CONFIG =
         new SmartMotorConfig()
@@ -228,9 +228,9 @@ public final class Constants {
 
     public static final double AT_POSITION_THRESHOLD = 0.01;
 
-    public static final double STARTING_ANGLE = Units.degreesToRadians(0);
-    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(-90);
-    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(90);
+    public static final double STARTING_ANGLE = Units.degreesToRadians(90);
+    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(0);
+    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(359);
 
     public static final double GEAR_RATIO = (48.0 / 12.0) * (100.0 / 10.0);
 

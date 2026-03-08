@@ -19,6 +19,7 @@ import org.team2342.frc.subsystems.shooter.Kicker;
 import org.team2342.frc.subsystems.shooter.Turret;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.fsm.StateMachine;
+import org.team2342.lib.leds.LedStrip;
 import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.logging.tunable.TunableNumber;
 
@@ -54,6 +55,7 @@ public class Conductor extends SubsystemBase {
       Flywheel flywheel,
       Turret turret,
       Kicker kicker,
+      LedStrip leds,
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> velocitySupplier) {
     this.flywheel = flywheel;
@@ -78,7 +80,7 @@ public class Conductor extends SubsystemBase {
   }
 
   public Command runState(ConductorState state) {
-    return run(() -> fsm.requestTransition(state));
+    return run(() -> fsm.requestTransition(state)).withName("Conductor Run " + state.name());
   }
 
   public Command goToState(ConductorState state) {
@@ -107,7 +109,7 @@ public class Conductor extends SubsystemBase {
     fsm.addStateCommand(
         ConductorState.TRACKED_FIRING,
         turret
-            .goToPositionCommand(
+            .runPositionCommand(
                 () ->
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())
@@ -123,7 +125,7 @@ public class Conductor extends SubsystemBase {
     fsm.addStateCommand(
         ConductorState.TUNING,
         turret
-            .goToPositionCommand(
+            .runPositionCommand(
                 () ->
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())

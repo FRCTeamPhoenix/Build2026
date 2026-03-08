@@ -31,16 +31,11 @@ public class FiringSolver {
 
   // TODO: tune real maps
   static {
-    speedMap.put(1.859, 15.0);
-    speedMap.put(2.203, 15.0);
-    speedMap.put(2.510, 17.0);
-    speedMap.put(2.844, 18.5);
-    speedMap.put(3.046, 19.0);
-    speedMap.put(3.315, 20.5);
-    speedMap.put(3.973, 20.5);
-    speedMap.put(5.042, 20.0);
+    speedMap.put(1.141, 15.0);
+    speedMap.put(1.445, 17.0);
 
-    tofMap.put(1.859, 1.0);
+    tofMap.put(1.141, 12.66 - 11.46);
+    tofMap.put(1.445, 8.34 - 6.95);
   }
 
   public static FiringSolver getInstance() {
@@ -82,7 +77,7 @@ public class FiringSolver {
               .minus(turretTranslation)
               .getAngle()
               .minus(position.getRotation())
-              .minus(Rotation2d.k180deg);
+              .minus(Rotation2d.kCCW_Pi_2);
 
       // TODO: tune real passing speed
       lastSolution = new FiringSolution(turretAngle, 15.0);
@@ -111,6 +106,7 @@ public class FiringSolver {
     Pose2d predictedPose = turretPose;
 
     double predictedDistance = hub.getDistance(turretPose.getTranslation());
+    Logger.recordOutput("FiringSolver/Distance", predictedDistance);
     for (int i = 0; i < ITERATIONS; i++) {
       tof = tofMap.get(predictedDistance);
       predictedPose =
@@ -122,8 +118,11 @@ public class FiringSolver {
     Logger.recordOutput("FiringSolver/PredictedPose", predictedPose);
     Logger.recordOutput("FiringSolver/PredictedDistance", predictedDistance);
 
-    Rotation2d turretAngle = hub.minus(predictedPose.getTranslation()).getAngle();
-    turretAngle = turretAngle.minus(position.getRotation()).minus(Rotation2d.k180deg);
+    Rotation2d turretAngle =
+        hub.minus(predictedPose.getTranslation())
+            .getAngle()
+            .minus(position.getRotation())
+            .minus(Rotation2d.kCCW_Pi_2);
 
     double wheelSpeed = speedMap.get(predictedDistance);
 
