@@ -57,7 +57,6 @@ import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
-import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
