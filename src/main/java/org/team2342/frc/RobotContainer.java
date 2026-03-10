@@ -56,7 +56,6 @@ import org.team2342.frc.util.FieldConstants;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
-import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
 import org.team2342.lib.motors.smart.SmartMotorIOTalonFX;
@@ -128,7 +127,7 @@ public class RobotContainer {
         wheels = new Wheels(new DumbMotorIO() {});
         pivot =
             new Pivot(
-                new DumbMotorIOTalonFX(
+                new SmartMotorIOTalonFX(
                     CANConstants.INTAKE_PIVOT_MOTOR_ID, PivotConstants.PIVOT_CONFIG));
         hood = new Hood(new SmartMotorIO() {});
 
@@ -185,7 +184,7 @@ public class RobotContainer {
                     ShooterConstants.HOOD_SIM,
                     1));
         turret = new Turret(new SmartMotorIO() {});
-        pivot = new Pivot(new DumbMotorIO() {});
+        pivot = new Pivot(new SmartMotorIO() {});
 
         break;
 
@@ -205,7 +204,7 @@ public class RobotContainer {
                 new VisionIO() {});
         indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {});
         wheels = new Wheels(new DumbMotorIO() {});
-        pivot = new Pivot(new DumbMotorIO() {});
+        pivot = new Pivot(new SmartMotorIO() {});
         flywheel = new Flywheel(new SmartMotorIO() {});
         hood = new Hood(new SmartMotorIO() {});
         turret = new Turret(new SmartMotorIO() {});

@@ -10,22 +10,26 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.PivotConstants;
 import org.team2342.lib.logging.ExecutionLogger;
-import org.team2342.lib.motors.dumb.DumbMotorIO;
-import org.team2342.lib.motors.dumb.DumbMotorIOInputsAutoLogged;
+import org.team2342.lib.motors.smart.SmartMotorIO;
+import org.team2342.lib.motors.smart.SmartMotorIOInputsAutoLogged;
 
 public class Pivot extends SubsystemBase {
 
-  private final DumbMotorIO pivotMotor;
-  private final DumbMotorIOInputsAutoLogged pivotMotorInputs = new DumbMotorIOInputsAutoLogged();
+  private final SmartMotorIO pivotMotor;
+  private final SmartMotorIOInputsAutoLogged pivotMotorInputs = new SmartMotorIOInputsAutoLogged();
+
+  @AutoLogOutput(key = "Intake/Pivot/TargetAngle")
+  private double goal = 0.0;
 
   private final Alert pivotMotorAlert = new Alert("Pivot motor is disconnected!", AlertType.kError);
 
-  public Pivot(DumbMotorIO pivotMotor) {
+  public Pivot(SmartMotorIO pivotMotor) {
     this.pivotMotor = pivotMotor;
-    setName("Pivot");
+    setName("Intake/Pivot");
     setDefaultCommand(run(() -> pivotMotor.runVoltage(0.0)));
   }
 
@@ -33,44 +37,30 @@ public class Pivot extends SubsystemBase {
   public void periodic() {
     pivotMotor.updateInputs(pivotMotorInputs);
     Logger.processInputs("Intake/Pivot", pivotMotorInputs);
-    Logger.processInputs("Shooter/Hood/Motor", pivotMotorInputs);
-
+    pivotMotorAlert.set(!pivotMotorInputs.motorsConnected[0]);
     ExecutionLogger.log("Intake/Pivot");
   }
 
-  // @AutoLogOutput(key = "Intake/Pivot/Angle")
-  // public Rotation2d getAngle() {
-  //   return Rotation2d.fromRadians(pivotMotorInputs.positionRad);
-  // }
-
-  // public Command goToAngle(Rotation2d targetAngle) {
-  //   return run(() -> pivotMotor.runPosition(targetAngle.getRadians()))
-  //       .until(
-  //           () -> {
-  //             // Using minus() and getRadians() handles the wrap-around math for you!
-  //             double error = targetAngle.minus(getAngle()).getRadians();
-  //             return Math.abs(error) < PivotConstants.AT_TARGET_TOLERANCE;
-  //           })
-  //       .withName("Pivot Go To Angle"); // Fixed the quote here
-  // }
-
-  public Command in() {
-    return run(() -> pivotMotor.runVoltage(PivotConstants.IN_VOLTAGE))
-        .withTimeout(2.0)
-        .withName("Pivot In");
+  public void runAngle(double angle) {
+    goal = angle;
+    pivotMotor.runPosition(angle);
   }
 
-  public Command out() {
-    return run(() -> pivotMotor.runVoltage(-PivotConstants.IN_VOLTAGE))
-        .withTimeout(2.0)
-        .withName("Pivot Out");
+  public Command goToAngle(double angle) {
+    return run(() -> runAngle(angle))
+        .until(() -> Math.abs(goal - angle) <= PivotConstants.AT_TARGET_TOLERANCE)
+        .withName("Pivot Go To Angle");
   }
-  // public Command holdAngle(Rotation2d targetAngle) {
-  //   return run(() -> pivotMotor.runPosition(targetAngle.getRadians())).withName("Pivot Hold
-  // Angle");
-  // }
+
+  public Command runVoltage(double voltage) {
+    return run(() -> pivotMotor.runVoltage(voltage)).withName("Pivot Run Voltage");
+  }
+
+  public Command holdAngle(double angle) {
+    return run(() -> runAngle(angle)).withName("Pivot Hold Angle");
+  }
 
   public Command stop() {
-    return runOnce(() -> pivotMotor.runVoltage(0.0)).withName("Stop Pivot");
+    return runOnce(() -> pivotMotor.runVoltage(0.0)).withName("Pivot Stop");
   }
 }
