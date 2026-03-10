@@ -180,8 +180,8 @@ public final class Constants {
 
     public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS =
         new PIDFFConfigs()
-            .withKP(0.625)
-            .withKI(0.4)
+            .withKP(0.575)
+            .withKI(0.6)
             .withKS(0.15989)
             .withKV(0.019968)
             .withKA(0.005977);
