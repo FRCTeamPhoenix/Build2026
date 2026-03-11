@@ -26,8 +26,13 @@ public class RotationLockedDrive extends Command {
   private final Drive drive;
 
   private final Timer inputTimer = new Timer();
-  private final ProfiledPIDController rotationPID =
-      new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(8.0, 20.0));
+  private final ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            5.0,
+            0.0,
+            0.4,
+            new TrapezoidProfile.Constraints(8.0, 20.0));
+
   private Rotation2d rotationLock;
 
   public RotationLockedDrive(
@@ -40,7 +45,7 @@ public class RotationLockedDrive extends Command {
     this.ySupplier = ySupplier;
     this.rotationSupplier = rotationSupplier;
 
-    rotationPID.enableContinuousInput(-Math.PI, Math.PI);
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     super.setName("RotationLockedDrive");
     super.addRequirements(drive);
@@ -50,7 +55,7 @@ public class RotationLockedDrive extends Command {
   public void initialize() {
     inputTimer.restart();
     rotationLock = drive.getRawOdometryPose().getRotation();
-    rotationPID.reset(drive.getRotation().getRadians());
+    angleController.reset(drive.getRotation().getRadians());
   }
 
   @Override
@@ -69,13 +74,13 @@ public class RotationLockedDrive extends Command {
       Logger.recordOutput("Drive/RotationLock/Engaged", true);
       Logger.recordOutput("Drive/RotationLock/LockedHeading", rotationLock);
       omega =
-          rotationPID.calculate(
+          angleController.calculate(
               drive.getRawOdometryPose().getRotation().getRadians(), rotationLock.getRadians());
     } else {
       Logger.recordOutput("Drive/RotationLock/Engaged", false);
       omega = controllerOmega * drive.getMaxAngularSpeedRadPerSec();
       rotationLock = drive.getRawOdometryPose().getRotation();
-      rotationPID.reset(drive.getRotation().getRadians());
+      angleController.reset(drive.getRotation().getRadians());
     }
 
     // Calculate new linear velocity
