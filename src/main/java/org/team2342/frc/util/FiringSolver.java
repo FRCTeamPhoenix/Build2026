@@ -65,12 +65,17 @@ public class FiringSolver {
       Translation2d leftBump = AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner);
 
       Translation2d rightBump =
-          AllianceUtils.flipToAlliance(FieldConstants.RightBump.nearRightCorner);
+          AllianceUtils.flipToAlliance(FieldConstants.RightBump.farLeftCorner);
+
+      Logger.recordOutput("FiringSolver/LeftTarget", new Pose2d(leftBump, Rotation2d.kZero));
+      Logger.recordOutput("FiringSolver/RightTarget", new Pose2d(rightBump, Rotation2d.kZero));
 
       Translation2d passTarget =
           (turretTranslation.getDistance(leftBump) < turretTranslation.getDistance(rightBump)
               ? leftBump
               : rightBump);
+
+      Logger.recordOutput("FiringSolver/Target", new Pose2d(passTarget, Rotation2d.kZero));
 
       Rotation2d turretAngle =
           passTarget
@@ -109,6 +114,7 @@ public class FiringSolver {
     Logger.recordOutput("FiringSolver/Distance", predictedDistance);
     for (int i = 0; i < ITERATIONS; i++) {
       tof = tofMap.get(predictedDistance);
+      Logger.recordOutput("FiringSolver/PredictedTOF", tof);
       predictedPose =
           new Pose2d(
               turretPose.getTranslation().plus(new Translation2d(velX * tof, velY * tof)),

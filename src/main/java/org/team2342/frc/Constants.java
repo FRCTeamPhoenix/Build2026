@@ -23,7 +23,7 @@ import org.team2342.lib.pidff.PIDFFConfigs;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
-  public static final Mode CURRENT_MODE = Mode.REAL;
+  public static final Mode CURRENT_MODE = Mode.SIM;
   public static final boolean TUNING = true;
 
   public static enum Mode {
