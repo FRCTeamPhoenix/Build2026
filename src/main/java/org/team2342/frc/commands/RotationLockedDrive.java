@@ -27,11 +27,7 @@ public class RotationLockedDrive extends Command {
 
   private final Timer inputTimer = new Timer();
   private final ProfiledPIDController angleController =
-        new ProfiledPIDController(
-            5.0,
-            0.0,
-            0.4,
-            new TrapezoidProfile.Constraints(8.0, 20.0));
+      new ProfiledPIDController(5.0, 0.0, 0.4, new TrapezoidProfile.Constraints(8.0, 20.0));
 
   private Rotation2d rotationLock;
 

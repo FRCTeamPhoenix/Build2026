@@ -22,7 +22,7 @@ public class FiringSolver {
 
   private static final int ITERATIONS = 5;
 
-  public static final FiringSolution BUMPER_SHOT = new FiringSolution(new Rotation2d(), 23.5);
+  public static final double MIN_TOF, MAX_TOF;
 
   private FiringSolution lastSolution = null;
 
@@ -33,6 +33,9 @@ public class FiringSolver {
   static {
     speedMap.put(1.141, 15.0);
     speedMap.put(1.445, 17.0);
+
+    MIN_TOF = 1.0;
+    MAX_TOF = 1.0;
 
     tofMap.put(1.141, 12.66 - 11.46);
     tofMap.put(1.445, 8.34 - 6.95);
@@ -85,7 +88,7 @@ public class FiringSolver {
               .minus(Rotation2d.kCCW_Pi_2);
 
       // TODO: tune real passing speed
-      lastSolution = new FiringSolution(turretAngle, 15.0);
+      lastSolution = new FiringSolution(turretAngle, 15.0, true);
 
       return lastSolution;
     }
@@ -132,7 +135,7 @@ public class FiringSolver {
 
     double wheelSpeed = speedMap.get(predictedDistance);
 
-    lastSolution = new FiringSolution(turretAngle, wheelSpeed);
+    lastSolution = new FiringSolution(turretAngle, wheelSpeed, false);
 
     return lastSolution;
   }
@@ -141,5 +144,5 @@ public class FiringSolver {
     lastSolution = null;
   }
 
-  public record FiringSolution(Rotation2d turretAngle, double wheelSpeed) {}
+  public record FiringSolution(Rotation2d turretAngle, double wheelSpeed, boolean passing) {}
 }

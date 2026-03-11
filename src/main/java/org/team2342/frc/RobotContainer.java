@@ -8,14 +8,18 @@ package org.team2342.frc;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import lombok.Getter;
@@ -50,6 +54,8 @@ import org.team2342.frc.subsystems.vision.VisionIO;
 import org.team2342.frc.subsystems.vision.VisionIOPhoton;
 import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.frc.util.FieldConstants;
+import org.team2342.frc.util.FiringSolver;
+import org.team2342.frc.util.HubShiftUtil;
 import org.team2342.lib.leds.LedIO;
 import org.team2342.lib.leds.LedStrip;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
@@ -91,6 +97,9 @@ public class RobotContainer {
       new Alert("Operator controller is disconnected!", AlertType.kError);
 
   private final Trigger allianceZoneTrigger;
+  private final Trigger shiftAboutToEnd;
+  private final Trigger activeOrPassing;
+  private final Trigger readyToFire;
 
   public RobotContainer() {
     switch (Constants.CURRENT_MODE) {
@@ -210,8 +219,7 @@ public class RobotContainer {
         break;
     }
 
-    conductor =
-        new Conductor(flywheel, turret, kicker, leds, drive::getPose, drive::getChassisSpeeds);
+    conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
 
     configureNamedCommands();
 
@@ -219,17 +227,6 @@ public class RobotContainer {
     autoChooser.get();
 
     if (Constants.TUNING) setupDevelopmentRoutines();
-
-    autoChooser.addOption(
-        "wait n fire",
-        conductor
-            .runState(ConductorState.WARM_UP)
-            .withTimeout(1)
-            .andThen(
-                conductor
-                    .goToState(ConductorState.TRACKED_FIRING)
-                    .andThen(conductor.runState(ConductorState.TRACKED_FIRING))
-                    .alongWith(indexer.in())));
 
     SmartDashboard.putData(
         "Calculate Vision Heading Offset",
@@ -244,6 +241,16 @@ public class RobotContainer {
                     drive.getPose().getX(),
                     AllianceUtils.flipToAlliance(Pose2d.kZero).getX(),
                     AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner).getX()));
+    shiftAboutToEnd = new Trigger(() -> (HubShiftUtil.getShiftedShiftInfo().remainingTime() < 1.0));
+    activeOrPassing =
+        new Trigger(
+            () ->
+                HubShiftUtil.getShiftedShiftInfo().active()
+                    || FiringSolver.getInstance()
+                        .calculate(drive.getChassisSpeeds(), drive.getPose())
+                        .passing());
+    readyToFire =
+        new Trigger(() -> flywheel.atGoal() && turret.atGoal());
 
     configureBindings();
   }
@@ -261,10 +268,12 @@ public class RobotContainer {
             () -> -driverController.getLeftX(),
             () -> -driverController.getRightX()));
 
+    // X-Stop
     driverController.x().whileTrue(Commands.run(drive::stopWithX, drive));
 
+    // Reset Gyro
     driverController
-        .b()
+        .povDown()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -273,27 +282,57 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
-    driverController.a().whileTrue(indexer.in()).onFalse(indexer.stop());
+    // Trench Drive
+    driverController
+        .b()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () -> Rotation2d.kZero));
 
-    // Shooting Controls
+    // Run Intake
+    driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
+
+    // Retract Intake
+    driverController.leftBumper();
+
+    // Auto Shoot
     driverController
         .rightTrigger()
+        .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
+        .and(activeOrPassing)
+        .and(readyToFire.debounce(0.2, DebounceType.kFalling))
+        .whileTrue(indexer.in().alongWith(kicker.in()))
+        .onFalse(indexer.stop().alongWith(kicker.stop()));
+
+    // Firing during inactive period
+    driverController
+        .rightTrigger()
+        .and(() -> !HubShiftUtil.getShiftedShiftInfo().active()).onTrue(driverController.rumble(RumbleType.kBothRumble, 1.0).withTimeout(0.5));
+
+    // Shift Timer Override
+    driverController
+        .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING).alongWith(indexer.in()))
-        .onFalse(indexer.stop());
-
-    // Operator Overrides
-    operatorController.povRight().whileTrue(indexer.in()).onFalse(indexer.stop());
-    operatorController.povLeft().whileTrue(indexer.out()).onFalse(indexer.stop());
-
-    operatorController.leftBumper().whileTrue(wheels.out()).onFalse(wheels.stop());
-    operatorController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
+        .and(readyToFire.debounce(0.2, DebounceType.kFalling))
+        .whileTrue(indexer.in().alongWith(kicker.in()))
+        .onFalse(indexer.stop().alongWith(kicker.stop()));
 
     // Location Triggers
-    // allianceZoneTrigger
-    //
-    // .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
-    //     .whileTrue(conductor.runState(ConductorState.WARM_UP));
+    allianceZoneTrigger
+    .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
+        .whileTrue(conductor.runState(ConductorState.WARM_UP));
+
+    // Shift Util Resets
+    RobotModeTriggers.teleop().onTrue(Commands.runOnce(HubShiftUtil::initialize));
+    RobotModeTriggers.autonomous().onTrue(Commands.runOnce(HubShiftUtil::initialize));
+
+    // Shift Ending Rumble
+    shiftAboutToEnd
+        .and(RobotModeTriggers.teleop())
+        .onTrue(driverController.rumble(RumbleType.kRightRumble, 1.0).withTimeout(0.25));
   }
 
   public Command getAutonomousCommand() {
