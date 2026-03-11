@@ -30,6 +30,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.team2342.frc.util.FiringSolver;
+import org.team2342.frc.util.HubShiftUtil;
 import org.team2342.frc.util.PhoenixUtils;
 import org.team2342.lib.logging.ExecutionLogger;
 
@@ -158,7 +159,8 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
     ExecutionLogger.log("Commands");
 
-    robotContainer.getFlywheel().runVoltage(12);
+    Logger.recordOutput("ShiftUtil/Official", HubShiftUtil.getOfficialShiftInfo());
+    Logger.recordOutput("ShiftUtil/Shifted", HubShiftUtil.getShiftedShiftInfo());
 
     robotContainer.updateAlerts();
     FiringSolver.getInstance().clearCachedSolution();

@@ -15,15 +15,11 @@ import java.util.function.Supplier;
 import lombok.experimental.Delegate;
 import org.team2342.frc.Constants;
 import org.team2342.frc.subsystems.shooter.Flywheel;
-import org.team2342.frc.subsystems.shooter.Kicker;
 import org.team2342.frc.subsystems.shooter.Turret;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.fsm.StateMachine;
-import org.team2342.lib.leds.LedStrip;
 import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.logging.tunable.TunableNumber;
-import org.team2342.lib.leds.LedIO.LEDAnimation;
-import edu.wpi.first.wpilibj.util.Color;
 
 public class Conductor extends SubsystemBase {
 
@@ -48,8 +44,6 @@ public class Conductor extends SubsystemBase {
 
   private final Flywheel flywheel;
   private final Turret turret;
-  private final Kicker kicker;
-  private final LedStrip leds;
 
   private final Supplier<Pose2d> poseSupplier;
   private final Supplier<ChassisSpeeds> velocitySupplier;
@@ -57,14 +51,10 @@ public class Conductor extends SubsystemBase {
   public Conductor(
       Flywheel flywheel,
       Turret turret,
-      Kicker kicker,
-      LedStrip leds,
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> velocitySupplier) {
     this.flywheel = flywheel;
     this.turret = turret;
-    this.kicker = kicker;
-    this.leds = leds;
 
     this.poseSupplier = poseSupplier;
     this.velocitySupplier = velocitySupplier;
@@ -96,8 +86,7 @@ public class Conductor extends SubsystemBase {
   }
 
   private void setupStateCommands() {
-    fsm.addStateCommand(
-        ConductorState.DISABLED, turret.stop().alongWith(flywheel.stop()).alongWith(kicker.stop()));
+    fsm.addStateCommand(ConductorState.DISABLED, Commands.parallel(turret.stop(), flywheel.stop()));
 
     fsm.addStateCommand(
         ConductorState.WARM_UP,
@@ -107,9 +96,7 @@ public class Conductor extends SubsystemBase {
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .turretAngle())
-            .alongWith(flywheel.warmUp())
-            .alongWith(kicker.stop())
-            .alongWith(leds.setAllCommand(LEDAnimation.SOLID, Color.kRed)));
+            .alongWith(flywheel.warmUp()));
 
     fsm.addStateCommand(
         ConductorState.TRACKED_FIRING,
@@ -124,9 +111,7 @@ public class Conductor extends SubsystemBase {
                     () ->
                         FiringSolver.getInstance()
                             .calculate(velocitySupplier.get(), poseSupplier.get())
-                            .wheelSpeed()))
-            .alongWith(kicker.in())
-            .alongWith(leds.setAllCommand(LEDAnimation.SOLID, Color.kOrange)));
+                            .wheelSpeed())));
 
     fsm.addStateCommand(
         ConductorState.TUNING,
@@ -136,9 +121,7 @@ public class Conductor extends SubsystemBase {
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .turretAngle())
-            .alongWith(flywheel.shoot(flywheelSpeed))
-            .alongWith(kicker.in())
-            .alongWith(leds.setAllCommand(LEDAnimation.SOLID, Color.kPurple)));
+            .alongWith(flywheel.shoot(flywheelSpeed)));
   }
 
   public Command disable() {
@@ -147,6 +130,10 @@ public class Conductor extends SubsystemBase {
 
   public Command enable() {
     return Commands.runOnce(() -> fsm.enable());
+  }
+
+  public ConductorState getCurrentState() {
+    return fsm.getCurrentState();
   }
 
   private void setupTransitions() {
