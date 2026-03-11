@@ -197,6 +197,7 @@ public final class Constants {
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
     public static final double IDLE_SPEED = 15.0;
+    public static final double FLYWHEEL_AT_GOAL_TOLERANCE = 2.0;
 
     public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS =
         new PIDFFConfigs()

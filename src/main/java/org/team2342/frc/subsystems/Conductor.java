@@ -18,7 +18,6 @@ import org.team2342.frc.subsystems.shooter.Flywheel;
 import org.team2342.frc.subsystems.shooter.Turret;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.fsm.StateMachine;
-import org.team2342.lib.leds.LedStrip;
 import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.logging.tunable.TunableNumber;
 
