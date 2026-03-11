@@ -34,6 +34,7 @@ public class Vision extends SubsystemBase {
   private final Alert[] disconnectedAlerts;
 
   private final Supplier<Timestamped<Rotation2d>> timestampedHeading;
+  private boolean hasTags = false;
 
   public Vision(
       VisionConsumer consumer,
@@ -68,6 +69,10 @@ public class Vision extends SubsystemBase {
     return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
+  public boolean hasTags() {
+    return hasTags;
+  }
+
   @Override
   public void periodic() {
     Timestamped<Rotation2d> heading = timestampedHeading.get();
@@ -79,6 +84,8 @@ public class Vision extends SubsystemBase {
       Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
     }
 
+    hasTags = false;
+
     // Initialize logging values
     List<Pose3d> allTagPoses = new LinkedList<>();
     List<Pose3d> allRobotPoses = new LinkedList<>();
@@ -89,6 +96,8 @@ public class Vision extends SubsystemBase {
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       // Update disconnected alert
       disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
+
+      hasTags = hasTags || inputs[cameraIndex].poseObservations.length > 0;
 
       // Initialize logging values
       List<Pose3d> tagPoses = new LinkedList<>();

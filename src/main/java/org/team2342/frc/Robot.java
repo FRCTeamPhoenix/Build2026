@@ -30,10 +30,9 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.team2342.frc.util.FiringSolver;
+import org.team2342.frc.util.HubShiftUtil;
 import org.team2342.frc.util.PhoenixUtils;
 import org.team2342.lib.logging.ExecutionLogger;
-import org.team2342.frc.util.HubShiftUtil;
-
 
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;

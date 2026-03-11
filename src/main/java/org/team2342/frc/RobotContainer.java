@@ -8,7 +8,6 @@ package org.team2342.frc;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -46,6 +45,7 @@ import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
 import org.team2342.frc.subsystems.indexer.Indexer;
 import org.team2342.frc.subsystems.intake.Wheels;
+import org.team2342.frc.subsystems.leds.LEDSubsystem;
 import org.team2342.frc.subsystems.shooter.Flywheel;
 import org.team2342.frc.subsystems.shooter.Kicker;
 import org.team2342.frc.subsystems.shooter.Turret;
@@ -57,7 +57,6 @@ import org.team2342.frc.util.FieldConstants;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.frc.util.HubShiftUtil;
 import org.team2342.lib.leds.LedIO;
-import org.team2342.lib.leds.LedStrip;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
@@ -77,7 +76,7 @@ public class RobotContainer {
   @Getter private final Wheels wheels;
   @Getter private final Flywheel flywheel;
   @Getter private final Turret turret;
-  @Getter private final LedStrip leds;
+  @Getter private final LEDSubsystem leds;
 
   @Getter private final Conductor conductor;
 
@@ -144,7 +143,9 @@ public class RobotContainer {
                     CANConstants.INTAKE_WHEEL_MOTOR_ID,
                     IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
 
-        leds = new LedStrip(new LedIO() {}, "CANdle");
+        conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
+        leds =
+            new LEDSubsystem(new LedIO() {}, "CANdle", vision::hasTags, conductor::getCurrentState);
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
@@ -190,7 +191,9 @@ public class RobotContainer {
         kicker = new Kicker(new DumbMotorIO() {});
         turret = new Turret(new SmartMotorIO() {});
 
-        leds = new LedStrip(new LedIO() {}, "CANdle");
+        conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
+        leds =
+            new LEDSubsystem(new LedIO() {}, "CANdle", vision::hasTags, conductor::getCurrentState);
 
         break;
 
@@ -214,12 +217,12 @@ public class RobotContainer {
         turret = new Turret(new SmartMotorIO() {});
         kicker = new Kicker(new DumbMotorIO() {});
 
-        leds = new LedStrip(new LedIO() {}, "CANdle");
+        conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
+        leds =
+            new LEDSubsystem(new LedIO() {}, "CANdle", vision::hasTags, conductor::getCurrentState);
 
         break;
     }
-
-    conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
 
     configureNamedCommands();
 
@@ -249,8 +252,7 @@ public class RobotContainer {
                     || FiringSolver.getInstance()
                         .calculate(drive.getChassisSpeeds(), drive.getPose())
                         .passing());
-    readyToFire =
-        new Trigger(() -> flywheel.atGoal() && turret.atGoal());
+    readyToFire = new Trigger(() -> flywheel.atGoal() && turret.atGoal());
 
     configureBindings();
   }
@@ -310,7 +312,8 @@ public class RobotContainer {
     // Firing during inactive period
     driverController
         .rightTrigger()
-        .and(() -> !HubShiftUtil.getShiftedShiftInfo().active()).onTrue(driverController.rumble(RumbleType.kBothRumble, 1.0).withTimeout(0.5));
+        .and(() -> !HubShiftUtil.getShiftedShiftInfo().active())
+        .onTrue(driverController.rumble(RumbleType.kBothRumble, 1.0).withTimeout(0.5));
 
     // Shift Timer Override
     driverController
@@ -322,7 +325,7 @@ public class RobotContainer {
 
     // Location Triggers
     allianceZoneTrigger
-    .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
+        .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
         .whileTrue(conductor.runState(ConductorState.WARM_UP));
 
     // Shift Util Resets
