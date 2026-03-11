@@ -199,8 +199,8 @@ public final class Constants {
             LinearSystemId.createDCMotorSystem(INTAKE_WHEELS_SIM_MOTOR, 0.003, 1),
             INTAKE_WHEELS_SIM_MOTOR);
 
-    public static final double PIVOT_GEAR_RATIO = 1.0;
-    public static final double MIN_INTAKE_ANGLE = -1.0;
+    public static final double PIVOT_GEAR_RATIO = 40;
+    public static final double MIN_INTAKE_ANGLE = 0.0;
     public static final double MAX_INTAKE_ANGLE = 1.0;
 
     public static final PIDFFConfigs PIVOT_MOTOR_PID_CONFIGS =
@@ -212,10 +212,9 @@ public final class Constants {
             .withIdleMode(IdleMode.BRAKE)
             .withSupplyCurrentLimit(30.0)
             .withFeedbackConfig(
-                FeedbackConfig.fused(CANConstants.INTAKE_PIVOT_ENCODER_ID, 1.0, 0.0, false))
+                FeedbackConfig.fused(CANConstants.INTAKE_PIVOT_ENCODER_ID, 1.0, -0.176 / 2, false))
             .withProfileConstraintsRad(
-                new TrapezoidProfile.Constraints(
-                    Units.degreesToRadians(1800), Math.PI));
+                new TrapezoidProfile.Constraints(Units.degreesToRadians(1800), Math.PI));
   }
 
   public static final class ShooterConstants {
@@ -318,9 +317,9 @@ public final class Constants {
     public static final int HOOD_MOTOR_ID = 15;
     public static final int HOOD_ENCODER_ID = 16;
 
-    public static final int INTAKE_WHEEL_MOTOR_ID = 17;
-    public static final int INTAKE_PIVOT_MOTOR_ID = 18;
-    public static final int INTAKE_PIVOT_ENCODER_ID = 19;
+    public static final int INTAKE_WHEEL_MOTOR_ID = 18;
+    public static final int INTAKE_PIVOT_MOTOR_ID = 19;
+    public static final int INTAKE_PIVOT_ENCODER_ID = 20;
 
     public static final int INDEXER_WHEEL_ID = 20;
     public static final int INDEXER_BELT_ID = 21;
@@ -330,26 +329,5 @@ public final class Constants {
     public static final int TURRET_ID = 23;
 
     public static final int PDH_ID = 62;
-  }
-
-  public static final class PivotConstants {
-    public static final double GEAR_RATIO = 27;
-    public static final double CLAW_LENGTH = Units.inchesToMeters(16.6);
-    public static final double MIN_ANGLE = -0.93;
-    public static final double MAX_ANGLE = 1.43;
-    public static final double CUTOFF_ANGLE = 1.2;
-    public static final double MOVE_ANGLE = 0.5;
-    public static final double AT_TARGET_TOLERANCE = 0.01;
-    public static final double IN_VOLTAGE = 5.0;
-
-    public static final SmartMotorConfig PIVOT_CONFIG =
-        new SmartMotorConfig()
-            .withGearRatio(GEAR_RATIO)
-            .withIdleMode(IdleMode.BRAKE)
-            .withProfileConstraintsRad(
-                new TrapezoidProfile.Constraints(
-                    Units.degreesToRadians(1260), Units.degreesToRadians(1080)))
-            .withControlType(ControlType.PROFILED_POSITION)
-            .withSupplyCurrentLimit(40);
   }
 }

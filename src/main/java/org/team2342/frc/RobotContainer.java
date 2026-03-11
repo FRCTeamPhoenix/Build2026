@@ -28,7 +28,6 @@ import org.team2342.frc.Constants.ConductorConstants;
 import org.team2342.frc.Constants.DriveConstants;
 import org.team2342.frc.Constants.IndexerConstants;
 import org.team2342.frc.Constants.IntakeConstants;
-import org.team2342.frc.Constants.PivotConstants;
 import org.team2342.frc.Constants.ShooterConstants;
 import org.team2342.frc.Constants.TurretConstants;
 import org.team2342.frc.Constants.VisionConstants;
@@ -116,19 +115,14 @@ public class RobotContainer {
                 new SmartMotorIOTalonFX(
                     CANConstants.TURRET_ID,
                     TurretConstants.TURRET_CONFIG.withPIDFFConfigs(TurretConstants.PID_CONFIG)));
-        flywheel =
-            new Flywheel(
-                new SmartMotorIOTalonFX(
-                    CANConstants.FLYWHEEL_MOTOR_ID,
-                    ShooterConstants.FLYWHEEL_CONFIG.withPIDFFConfigs(
-                        ShooterConstants.FLYWHEEL_PID_CONFIGS)));
+        flywheel = new Flywheel(new SmartMotorIO() {});
 
         indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {});
         wheels = new Wheels(new DumbMotorIO() {});
         pivot =
             new Pivot(
                 new SmartMotorIOTalonFX(
-                    CANConstants.INTAKE_PIVOT_MOTOR_ID, PivotConstants.PIVOT_CONFIG));
+                    CANConstants.INTAKE_PIVOT_MOTOR_ID, IntakeConstants.PIVOT_MOTOR_CONFIG));
         hood = new Hood(new SmartMotorIO() {});
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);

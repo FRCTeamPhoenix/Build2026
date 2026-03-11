@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.team2342.frc.Constants.PivotConstants;
 import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOInputsAutoLogged;
@@ -48,7 +47,7 @@ public class Pivot extends SubsystemBase {
 
   public Command goToAngle(double angle) {
     return run(() -> runAngle(angle))
-        .until(() -> Math.abs(goal - angle) <= PivotConstants.AT_TARGET_TOLERANCE)
+        .until(() -> Math.abs(goal - angle) <= 0.01)
         .withName("Pivot Go To Angle");
   }
 
