@@ -54,6 +54,7 @@ import org.team2342.lib.leds.LedIO;
 import org.team2342.lib.leds.LedStrip;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
+import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOSim;
@@ -124,8 +125,15 @@ public class RobotContainer {
             new Kicker(
                 new DumbMotorIOTalonFXFOC(CANConstants.KICKER_ID, KickerConstants.KICKER_CONFIG));
 
-        indexer = new Indexer(new DumbMotorIO() {});
-        wheels = new Wheels(new DumbMotorIO() {});
+        indexer =
+            new Indexer(
+                new DumbMotorIOTalonFXFOC(
+                    CANConstants.INDEXER_MOTOR_ID, IndexerConstants.INDEXER_MOTOR_CONFIG));
+        wheels =
+            new Wheels(
+                new DumbMotorIOTalonFX(
+                    CANConstants.INTAKE_WHEEL_MOTOR_ID,
+                    IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
 
         leds = new LedStrip(new LedIO() {}, "CANdle");
 
@@ -266,11 +274,13 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
+    driverController.a().whileTrue(indexer.in()).onFalse(indexer.stop());
 
     // Shooting Controls
-    driverController.rightTrigger().whileTrue(conductor.runState(ConductorState.TRACKED_FIRING));
-
-    driverController.a().whileTrue(flywheel.runVoltage(12)).whileFalse(flywheel.stop());
+    driverController
+        .rightTrigger()
+        .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING).alongWith(indexer.in()))
+        .onFalse(indexer.stop());
 
     // Operator Overrides
     operatorController.povRight().whileTrue(indexer.in()).onFalse(indexer.stop());
@@ -280,9 +290,10 @@ public class RobotContainer {
     operatorController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
 
     // Location Triggers
-    allianceZoneTrigger
-        .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
-        .whileTrue(conductor.runState(ConductorState.WARM_UP));
+    // allianceZoneTrigger
+    //
+    // .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
+    //     .whileTrue(conductor.runState(ConductorState.WARM_UP));
   }
 
   public Command getAutonomousCommand() {

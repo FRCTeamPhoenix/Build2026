@@ -138,12 +138,12 @@ public final class Constants {
   }
 
   public static final class IndexerConstants {
-    public static final double RUN_VOLTAGE = 8.0;
+    public static final double RUN_VOLTAGE = 7.0;
     public static final double RUN_CURRENT = 30.0;
 
     public static final MotorConfig INDEXER_MOTOR_CONFIG =
         new MotorConfig()
-            .withMotorInverted(false)
+            .withMotorInverted(true)
             .withSupplyCurrentLimit(30.0)
             .withStatorCurrentLimit(70.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
@@ -259,19 +259,15 @@ public final class Constants {
     public static final int[] BR_IDS = {4, 8, 12};
 
     public static final int FLYWHEEL_MOTOR_ID = 14;
-    public static final int HOOD_MOTOR_ID = 15; // Kicker motor ID
-    public static final int HOOD_ENCODER_ID = 16; // Turret ID
+    public static final int KICKER_ID = 15;
+    public static final int TURRET_ID = 16;
+    public static final int INDEXER_MOTOR_ID = 17;
 
-    public static final int INTAKE_WHEEL_MOTOR_ID = 17;
-    public static final int INTAKE_PIVOT_MOTOR_ID = 18;
-    public static final int INTAKE_PIVOT_ENCODER_ID = 19;
+    public static final int INTAKE_WHEEL_MOTOR_ID = 18;
+    public static final int INTAKE_PIVOT_MOTOR_ID = 19;
+    public static final int INTAKE_PIVOT_ENCODER_ID = 20;
 
-    public static final int INDEXER_MOTOR_ID = 20;
-
-    public static final int KICKER_ID = 22;
-
-    public static final int TURRET_ID = 23;
-
+    public static final int CANDLE_ID = 61;
     public static final int PDH_ID = 62;
   }
 }
