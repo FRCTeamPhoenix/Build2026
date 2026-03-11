@@ -22,8 +22,6 @@ import org.team2342.lib.fsm.StateMachine;
 import org.team2342.lib.leds.LedStrip;
 import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.logging.tunable.TunableNumber;
-import org.team2342.lib.leds.LedIO.LEDAnimation;
-import edu.wpi.first.wpilibj.util.Color;
 
 public class Conductor extends SubsystemBase {
 
@@ -108,8 +106,7 @@ public class Conductor extends SubsystemBase {
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .turretAngle())
             .alongWith(flywheel.warmUp())
-            .alongWith(kicker.stop())
-            .alongWith(leds.setAllCommand(LEDAnimation.SOLID, Color.kRed)));
+            .alongWith(kicker.stop()));
 
     fsm.addStateCommand(
         ConductorState.TRACKED_FIRING,
@@ -125,8 +122,7 @@ public class Conductor extends SubsystemBase {
                         FiringSolver.getInstance()
                             .calculate(velocitySupplier.get(), poseSupplier.get())
                             .wheelSpeed()))
-            .alongWith(kicker.in())
-            .alongWith(leds.setAllCommand(LEDAnimation.SOLID, Color.kOrange)));
+            .alongWith(kicker.in()));
 
     fsm.addStateCommand(
         ConductorState.TUNING,
@@ -137,8 +133,7 @@ public class Conductor extends SubsystemBase {
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .turretAngle())
             .alongWith(flywheel.shoot(flywheelSpeed))
-            .alongWith(kicker.in())
-            .alongWith(leds.setAllCommand(LEDAnimation.SOLID, Color.kPurple)));
+            .alongWith(kicker.in()));
   }
 
   public Command disable() {
