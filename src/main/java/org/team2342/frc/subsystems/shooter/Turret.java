@@ -95,6 +95,10 @@ public class Turret extends SubsystemBase {
     return new Rotation2d(goal);
   }
 
+  public boolean atGoal() {
+    return Math.abs(inputs.positionRad - goal) <= TurretConstants.AT_POSITION_THRESHOLD;
+  }
+
   public void zeroTurret() {
     turretMotor.setPosition(0.0);
   }
