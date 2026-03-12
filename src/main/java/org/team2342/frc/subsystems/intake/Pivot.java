@@ -6,12 +6,14 @@
 
 package org.team2342.frc.subsystems.intake;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.team2342.frc.Constants.IntakeConstants;
 import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.motors.smart.SmartMotorIO;
 import org.team2342.lib.motors.smart.SmartMotorIOInputsAutoLogged;
@@ -41,8 +43,8 @@ public class Pivot extends SubsystemBase {
   }
 
   public void runAngle(double angle) {
-    goal = angle;
-    pivotMotor.runPosition(angle);
+    goal = MathUtil.clamp(angle, IntakeConstants.MIN_ANGLE, IntakeConstants.MAX_ANGLE);
+    pivotMotor.runPosition(goal);
   }
 
   public Command goToAngle(double angle) {

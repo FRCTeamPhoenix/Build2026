@@ -200,23 +200,24 @@ public final class Constants {
             INTAKE_WHEELS_SIM_MOTOR);
 
     public static final double PIVOT_GEAR_RATIO = 40;
-    public static final double MIN_INTAKE_ANGLE = 0.0;
-    public static final double MAX_INTAKE_ANGLE = 2.23;
+    public static final double MIN_ANGLE = 0.1;
+    public static final double MAX_ANGLE = 2.23;
 
     public static final PIDFFConfigs PIVOT_MOTOR_PID_CONFIGS =
-        new PIDFFConfigs().withKP(100).withKI(0).withKD(0);
+        new PIDFFConfigs().withKP(45).withKI(15).withKD(7);
     public static final SmartMotorConfig PIVOT_MOTOR_CONFIG =
         new SmartMotorConfig()
             .withGearRatio(1.0)
             .withControlType(ControlType.PROFILED_POSITION)
             .withIdleMode(IdleMode.BRAKE)
             .withMotorInverted(false)
-            .withSupplyCurrentLimit(30.0)
+            .withSupplyCurrentLimit(40.0)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
                     CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.173, true))
             .withProfileConstraintsRad(
-                new TrapezoidProfile.Constraints(Units.degreesToRadians(1800), Math.PI));
+                new TrapezoidProfile.Constraints(
+                    Units.degreesToRadians(1800), Units.degreesToRadians(540)));
   }
 
   public static final class ShooterConstants {
