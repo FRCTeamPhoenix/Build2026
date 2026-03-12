@@ -125,7 +125,9 @@ public class RobotContainer {
                     CANConstants.INTAKE_PIVOT_MOTOR_ID,
                     IntakeConstants.PIVOT_MOTOR_CONFIG.withPIDFFConfigs(
                         IntakeConstants.PIVOT_MOTOR_PID_CONFIGS)));
-        hood = new Hood(new SmartMotorIO() {});
+                new SmartMotorIOTalonFX(
+                    CANConstants.TURRET_ID,
+                    TurretConstants.TURRET_CONFIG.withPIDFFConfigs(TurretConstants.PID_CONFIG)));
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
@@ -318,8 +320,7 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driverController.leftTrigger().whileTrue(pivot.holdAngle(0.0)).onFalse(pivot.stop());
-    driverController.leftBumper().whileTrue(pivot.holdAngle(1.0)).onFalse(pivot.stop());
+    driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
 
     // Shooting Controls
     driverController
