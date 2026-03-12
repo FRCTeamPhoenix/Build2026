@@ -19,11 +19,12 @@ import org.team2342.lib.motors.MotorConfig;
 import org.team2342.lib.motors.MotorConfig.IdleMode;
 import org.team2342.lib.motors.smart.SmartMotorConfig;
 import org.team2342.lib.motors.smart.SmartMotorConfig.ControlType;
+import org.team2342.lib.motors.smart.SmartMotorConfig.FeedbackConfig;
 import org.team2342.lib.pidff.PIDFFConfigs;
 import org.team2342.lib.util.CameraParameters;
 
 public final class Constants {
-  public static final Mode CURRENT_MODE = Mode.SIM;
+  public static final Mode CURRENT_MODE = Mode.REAL;
   public static final boolean TUNING = true;
 
   public static enum Mode {
@@ -138,13 +139,13 @@ public final class Constants {
   }
 
   public static final class IndexerConstants {
-    public static final double RUN_VOLTAGE = 7.0;
+    public static final double RUN_VOLTAGE = 5.0;
     public static final double RUN_CURRENT = 30.0;
 
     public static final MotorConfig INDEXER_MOTOR_CONFIG =
         new MotorConfig()
             .withMotorInverted(true)
-            .withSupplyCurrentLimit(30.0)
+            .withSupplyCurrentLimit(40.0)
             .withStatorCurrentLimit(70.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
 
@@ -197,7 +198,7 @@ public final class Constants {
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
     public static final double IDLE_SPEED = 15.0;
-    public static final double FLYWHEEL_AT_GOAL_TOLERANCE = 2.0;
+    public static final double FLYWHEEL_AT_GOAL_TOLERANCE = 1.0;
 
     public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS =
         new PIDFFConfigs()

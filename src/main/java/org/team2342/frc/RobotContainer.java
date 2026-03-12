@@ -305,10 +305,16 @@ public class RobotContainer {
                 () -> Rotation2d.kZero));
 
     // Run Intake
-    driverController.leftTrigger().whileTrue(wheels.in()).onFalse(wheels.stop());
+    driverController
+        .leftTrigger()
+        .whileTrue(wheels.in().alongWith(pivot.holdAngle(IntakeConstants.MIN_ANGLE)))
+        .onFalse(wheels.stop().alongWith(pivot.stop()));
 
     // Retract Intake
-    driverController.leftBumper();
+    driverController
+        .leftBumper()
+        .whileTrue(pivot.holdAngle(IntakeConstants.MAX_ANGLE))
+        .onFalse(pivot.stop());
 
     // Auto Shoot
     driverController
@@ -316,8 +322,9 @@ public class RobotContainer {
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(activeOrPassing)
         .and(readyToFire.debounce(0.2, DebounceType.kFalling))
-        .whileTrue(indexer.in().alongWith(kicker.in()))
-        .onFalse(indexer.stop().alongWith(kicker.stop()));
+        .whileTrue(
+            Commands.parallel(indexer.in(), kicker.in(), pivot.agitate(), wheels.runIntake(3)))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), pivot.stop(), wheels.stop()));
 
     // Firing during inactive period
     driverController
@@ -328,10 +335,11 @@ public class RobotContainer {
     // Shift Timer Override
     driverController
         .rightBumper()
-        .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING).alongWith(indexer.in()))
+        .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(readyToFire.debounce(0.2, DebounceType.kFalling))
-        .whileTrue(indexer.in().alongWith(kicker.in()))
-        .onFalse(indexer.stop().alongWith(kicker.stop()));
+        .whileTrue(
+            Commands.parallel(indexer.in(), kicker.in(), pivot.agitate(), wheels.runIntake(3)))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), pivot.stop(), wheels.stop()));
 
     // Location Triggers
     allianceZoneTrigger

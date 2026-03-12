@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -63,5 +64,10 @@ public class Pivot extends SubsystemBase {
 
   public Command stop() {
     return runOnce(() -> pivotMotor.runVoltage(0.0)).withName("Pivot Stop");
+  }
+
+  public Command agitate() {
+    return Commands.repeatingSequence(
+        holdAngle(1.0).withTimeout(0.5), holdAngle(IntakeConstants.MIN_ANGLE).withTimeout(0.5));
   }
 }

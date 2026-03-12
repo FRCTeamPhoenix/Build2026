@@ -65,7 +65,7 @@ public class Flywheel extends SubsystemBase {
   public void runVelocity(double metersPerSec) {
     double radPerSec = metersPerSec / ShooterConstants.FLYWHEEL_RADIUS_METERS;
     atGoal =
-        Math.abs(radPerSec - motorInputs.velocityRadPerSec)
+        Math.abs(metersPerSec - getVelocityMetersPerSec())
             <= ShooterConstants.FLYWHEEL_AT_GOAL_TOLERANCE;
     Logger.recordOutput("Shooter/Flywheel/SetpointMetersPerSec", metersPerSec);
     motor.runVelocity(radPerSec);

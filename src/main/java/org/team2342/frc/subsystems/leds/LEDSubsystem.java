@@ -30,7 +30,7 @@ public class LEDSubsystem extends SubsystemBase {
   private final Supplier<ConductorState> stateSupplier;
 
   private boolean hasEnabled = false;
-  private Debouncer visionDebouncer;
+  private Debouncer visionDebouncer = new Debouncer(0.2);
 
   public LEDSubsystem(
       LedIO io, String name, BooleanSupplier hasTags, Supplier<ConductorState> stateSupplier) {
@@ -53,9 +53,8 @@ public class LEDSubsystem extends SubsystemBase {
     if (DriverStation.isTeleopEnabled()) {
       hasEnabled = true;
 
-      //teleop code here
+      // teleop code here
 
-      
     } else if (DriverStation.isAutonomousEnabled()) {
       hasEnabled = true;
       setAll(new LEDEffect(LEDAnimation.RAINBOW, Color.kWhite));
