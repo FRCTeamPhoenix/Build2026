@@ -30,6 +30,8 @@ public class Flywheel extends SubsystemBase {
 
   private final SysIdRoutine sysId;
 
+  private boolean atGoal;
+
   public Flywheel(SmartMotorIO motor) {
     this.motor = motor;
 
@@ -62,12 +64,18 @@ public class Flywheel extends SubsystemBase {
 
   public void runVelocity(double metersPerSec) {
     double radPerSec = metersPerSec / ShooterConstants.FLYWHEEL_RADIUS_METERS;
+    atGoal =
+        Math.abs(radPerSec - motorInputs.velocityRadPerSec)
+            <= ShooterConstants.FLYWHEEL_AT_GOAL_TOLERANCE;
     Logger.recordOutput("Shooter/Flywheel/SetpointMetersPerSec", metersPerSec);
     motor.runVelocity(radPerSec);
   }
 
   public void runVelocity(DoubleSupplier metersPerSec) {
     double radPerSec = metersPerSec.getAsDouble() / ShooterConstants.FLYWHEEL_RADIUS_METERS;
+    atGoal =
+        Math.abs(radPerSec - motorInputs.velocityRadPerSec)
+            <= ShooterConstants.FLYWHEEL_AT_GOAL_TOLERANCE;
     Logger.recordOutput("Shooter/Flywheel/SetpointMetersPerSec", metersPerSec);
     motor.runVelocity(radPerSec);
   }
@@ -98,6 +106,10 @@ public class Flywheel extends SubsystemBase {
 
   public Command stop() {
     return runOnce(() -> motor.runVoltage(0.0)).withName("Shooter Stop");
+  }
+
+  public boolean atGoal() {
+    return atGoal;
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

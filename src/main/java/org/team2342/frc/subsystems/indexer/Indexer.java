@@ -17,63 +17,38 @@ import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOInputsAutoLogged;
 
 public class Indexer extends SubsystemBase {
-  private final DumbMotorIO beltMotor;
-  private final DumbMotorIOInputsAutoLogged wheelMotorInputs = new DumbMotorIOInputsAutoLogged();
-  private final DumbMotorIOInputsAutoLogged beltMotorInputs = new DumbMotorIOInputsAutoLogged();
+  private final DumbMotorIO motor;
+  private final DumbMotorIOInputsAutoLogged inputs = new DumbMotorIOInputsAutoLogged();
 
-  private final Alert wheelMotorAlert =
-      new Alert("Indexer Wheel Motor is diconnected", AlertType.kError);
-  private final Alert beltMotorAlert =
-      new Alert("Indexer Belt Motor is diconnected", AlertType.kError);
+  private final Alert motorAlert = new Alert("Indexer Motor is diconnected", AlertType.kError);
 
-  public Indexer(DumbMotorIO wheelMotor, DumbMotorIO beltMotor) {
-    this.beltMotor = beltMotor;
+  public Indexer(DumbMotorIO motor) {
+    this.motor = motor;
     setName("Indexer");
 
-    setDefaultCommand(
-        run(
-            () -> {
-              beltMotor.runVoltage(0.0);
-            }));
+    setDefaultCommand(run(() -> motor.runVoltage(0.0)));
   }
 
   @Override
   public void periodic() {
-    beltMotor.updateInputs(beltMotorInputs);
+    motor.updateInputs(inputs);
 
-    Logger.processInputs("Indexer/BeltMotor", beltMotorInputs);
+    Logger.processInputs("Indexer/BeltMotor", inputs);
 
-    beltMotorAlert.set(!beltMotorInputs.connected);
+    motorAlert.set(!inputs.connected);
 
     ExecutionLogger.log("Indexer");
   }
 
-  public Command load() {
-    return run(() -> {
-          beltMotor.runVoltage(IndexerConstants.RUN_VOLTAGE);
-        })
-        .withName("Indexer Feed");
-  }
-
-  public Command feed() {
-    return run(() -> {
-          beltMotor.runTorqueCurrent(IndexerConstants.RUN_CURRENT);
-        })
-        .withName("Indexer Feed");
+  public Command in() {
+    return run(() -> motor.runVoltage(IndexerConstants.RUN_VOLTAGE)).withName("Indexer Feed");
   }
 
   public Command out() {
-    return run(() -> {
-          beltMotor.runVoltage(-IndexerConstants.RUN_VOLTAGE);
-        })
-        .withName("Indexer Out");
+    return run(() -> motor.runVoltage(-IndexerConstants.RUN_VOLTAGE)).withName("Indexer Out");
   }
 
   public Command stop() {
-    return runOnce(
-            () -> {
-              beltMotor.runVoltage(0.0);
-            })
-        .withName("Indexer Stop");
+    return runOnce(() -> motor.runVoltage(0.0)).withName("Indexer Stop");
   }
 }

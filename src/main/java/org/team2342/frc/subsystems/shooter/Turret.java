@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.TurretConstants;
@@ -29,6 +30,7 @@ public class Turret extends SubsystemBase {
   public Turret(SmartMotorIO turretMotor) {
     this.turretMotor = turretMotor;
     setName("Shooter/Turret");
+    turretMotor.setPosition(TurretConstants.STARTING_ANGLE);
     setDefaultCommand(run(() -> turretMotor.runVoltage(0.0)));
   }
 
@@ -46,17 +48,27 @@ public class Turret extends SubsystemBase {
     turretMotor.runPosition(goal);
   }
 
+  public void runPosition(Supplier<Rotation2d> target) {
+    this.goal = calculateTurretAngle(target.get());
+    turretMotor.runPosition(goal);
+  }
+
   public Command runPositionCommand(Rotation2d target) {
     return run(() -> runPosition(target)).withName("Turret RunPosition");
   }
 
-  public void goToPosition(Rotation2d target) {
-    this.goal = calculateTurretAngle(target);
-    turretMotor.runPosition(goal);
+  public Command runPositionCommand(Supplier<Rotation2d> target) {
+    return run(() -> runPosition(target)).withName("Turret RunPosition");
   }
 
   public Command goToPositionCommand(Rotation2d target) {
-    return run(() -> goToPosition(target))
+    return run(() -> runPosition(target))
+        .until(() -> Math.abs(inputs.positionRad - goal) <= TurretConstants.AT_POSITION_THRESHOLD)
+        .withName("Turret GoToPosition");
+  }
+
+  public Command goToPositionCommand(Supplier<Rotation2d> target) {
+    return run(() -> runPosition(target))
         .until(() -> Math.abs(inputs.positionRad - goal) <= TurretConstants.AT_POSITION_THRESHOLD)
         .withName("Turret GoToPosition");
   }
@@ -83,14 +95,18 @@ public class Turret extends SubsystemBase {
     return new Rotation2d(goal);
   }
 
+  public boolean atGoal() {
+    return Math.abs(inputs.positionRad - goal) <= TurretConstants.AT_POSITION_THRESHOLD;
+  }
+
   public void zeroTurret() {
     turretMotor.setPosition(0.0);
   }
 
   private double calculateTurretAngle(Rotation2d angle) {
     double calculatedAngle = MathUtil.inputModulus(angle.getRadians(), -Math.PI, Math.PI);
-    // if (calculatedAngle < 0) calculatedAngle += 2 * Math.PI;
-    // if (calculatedAngle > Math.PI * 2) calculatedAngle -= 2 * Math.PI;
+    if (calculatedAngle < 0) calculatedAngle += 2 * Math.PI;
+    if (calculatedAngle > Math.PI * 2) calculatedAngle -= 2 * Math.PI;
     return MathUtil.clamp(
         calculatedAngle, TurretConstants.MIN_TURRET_ANGLE, TurretConstants.MAX_TURRET_ANGLE);
   }

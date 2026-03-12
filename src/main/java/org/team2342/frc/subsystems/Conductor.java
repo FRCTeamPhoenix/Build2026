@@ -9,26 +9,29 @@ package org.team2342.frc.subsystems;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 import lombok.experimental.Delegate;
+import org.team2342.frc.Constants;
 import org.team2342.frc.subsystems.shooter.Flywheel;
-import org.team2342.frc.subsystems.shooter.Hood;
+import org.team2342.frc.subsystems.shooter.Turret;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.lib.fsm.StateMachine;
 import org.team2342.lib.logging.ExecutionLogger;
+import org.team2342.lib.logging.tunable.TunableNumber;
 
 public class Conductor extends SubsystemBase {
+
+  private TunableNumber flywheelSpeed =
+      new TunableNumber("FlywheelSpeedMPS", 0, () -> Constants.TUNING);
 
   public enum ConductorState {
     UNDETERMINED,
     DISABLED,
-    TRENCH,
-    BUMPER_SHOT,
     WARM_UP,
     TRACKED_FIRING,
-    OVERRIDE_25,
-    OVERRIDE_23;
+    TUNING,
   }
 
   @Delegate(types = FSMDelegate.class)
@@ -40,18 +43,18 @@ public class Conductor extends SubsystemBase {
           ConductorState.class);
 
   private final Flywheel flywheel;
-  private final Hood hood;
+  private final Turret turret;
 
   private final Supplier<Pose2d> poseSupplier;
   private final Supplier<ChassisSpeeds> velocitySupplier;
 
   public Conductor(
       Flywheel flywheel,
-      Hood hood,
+      Turret turret,
       Supplier<Pose2d> poseSupplier,
       Supplier<ChassisSpeeds> velocitySupplier) {
     this.flywheel = flywheel;
-    this.hood = hood;
+    this.turret = turret;
 
     this.poseSupplier = poseSupplier;
     this.velocitySupplier = velocitySupplier;
@@ -59,7 +62,7 @@ public class Conductor extends SubsystemBase {
     setupStateCommands();
     setupTransitions();
 
-    enable();
+    fsm.enable();
 
     setDefaultCommand(runState(ConductorState.DISABLED));
   }
@@ -71,7 +74,7 @@ public class Conductor extends SubsystemBase {
   }
 
   public Command runState(ConductorState state) {
-    return run(() -> fsm.requestTransition(state));
+    return run(() -> fsm.requestTransition(state)).withName("Conductor Run " + state.name());
   }
 
   public Command goToState(ConductorState state) {
@@ -83,102 +86,65 @@ public class Conductor extends SubsystemBase {
   }
 
   private void setupStateCommands() {
-    fsm.addStateCommand(ConductorState.DISABLED, hood.stop().alongWith(flywheel.stop()));
-
-    fsm.addStateCommand(ConductorState.TRENCH, hood.holdAngle(0.0));
-
-    fsm.addStateCommand(
-        ConductorState.BUMPER_SHOT,
-        flywheel
-            .shoot(FiringSolver.BUMPER_SHOT.wheelSpeed())
-            .alongWith(hood.holdAngle(FiringSolver.BUMPER_SHOT.hoodAngle())));
+    fsm.addStateCommand(ConductorState.DISABLED, Commands.parallel(turret.stop(), flywheel.stop()));
 
     fsm.addStateCommand(
         ConductorState.WARM_UP,
-        hood.holdAngle(
+        turret
+            .runPositionCommand(
                 () ->
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())
-                        .hoodAngle())
-            .deadlineFor(flywheel.warmUp()));
+                        .turretAngle())
+            .alongWith(flywheel.warmUp()));
 
     fsm.addStateCommand(
         ConductorState.TRACKED_FIRING,
-        hood.holdAngle(
+        turret
+            .runPositionCommand(
                 () ->
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())
-                        .hoodAngle())
-            .deadlineFor(
+                        .turretAngle())
+            .alongWith(
                 flywheel.shoot(
                     () ->
                         FiringSolver.getInstance()
                             .calculate(velocitySupplier.get(), poseSupplier.get())
                             .wheelSpeed())));
 
-    fsm.addStateCommand(ConductorState.OVERRIDE_25, flywheel.shoot(25.0));
+    fsm.addStateCommand(
+        ConductorState.TUNING,
+        turret
+            .runPositionCommand(
+                () ->
+                    FiringSolver.getInstance()
+                        .calculate(velocitySupplier.get(), poseSupplier.get())
+                        .turretAngle())
+            .alongWith(flywheel.shoot(flywheelSpeed)));
+  }
 
-    fsm.addStateCommand(ConductorState.OVERRIDE_23, flywheel.shoot(23.0));
+  public Command disable() {
+    return Commands.runOnce(() -> fsm.disable());
+  }
+
+  public Command enable() {
+    return Commands.runOnce(() -> fsm.enable());
+  }
+
+  public ConductorState getCurrentState() {
+    return fsm.getCurrentState();
   }
 
   private void setupTransitions() {
     fsm.addOmniTransition(ConductorState.DISABLED);
-
-    fsm.addOmniTransition(ConductorState.TRENCH, hood.goToAngle(0.0));
-
-    fsm.addOmniTransition(
-        ConductorState.BUMPER_SHOT,
-        hood.holdAngle(FiringSolver.BUMPER_SHOT.hoodAngle())
-            .withTimeout(0.5)
-            .deadlineFor(flywheel.shoot(FiringSolver.BUMPER_SHOT.wheelSpeed())));
-
-    fsm.addOmniTransition(
-        ConductorState.WARM_UP,
-        hood.holdAngle(
-                () ->
-                    FiringSolver.getInstance()
-                        .calculate(velocitySupplier.get(), poseSupplier.get())
-                        .hoodAngle())
-            .withTimeout(0.5)
-            .deadlineFor(flywheel.warmUp()));
-
-    fsm.addOmniTransition(
-        ConductorState.TRACKED_FIRING,
-        hood.holdAngle(
-                () ->
-                    FiringSolver.getInstance()
-                        .calculate(velocitySupplier.get(), poseSupplier.get())
-                        .hoodAngle())
-            .withTimeout(0.5)
-            .deadlineFor(
-                flywheel.shoot(
-                    () ->
-                        FiringSolver.getInstance()
-                            .calculate(velocitySupplier.get(), poseSupplier.get())
-                            .wheelSpeed())));
-    fsm.addOmniTransition(
-        ConductorState.OVERRIDE_25,
-        hood.holdAngle(
-                () ->
-                    FiringSolver.getInstance()
-                        .calculate(velocitySupplier.get(), poseSupplier.get())
-                        .hoodAngle())
-            .withTimeout(0.5)
-            .deadlineFor(flywheel.shoot(25.0)));
-
-    fsm.addOmniTransition(ConductorState.OVERRIDE_23, flywheel.shoot(23.0));
-  }
-
-  public Command makeShooterCommand(double flywheelMetersPerSec, double hoodAngle) {
-    return hood.holdAngle(hoodAngle).alongWith(flywheel.shoot(flywheelMetersPerSec));
+    fsm.addOmniTransition(ConductorState.TRACKED_FIRING);
+    fsm.addOmniTransition(ConductorState.WARM_UP);
+    fsm.addOmniTransition(ConductorState.TUNING);
   }
 
   public interface FSMDelegate {
     String dot();
-
-    void enable();
-
-    void disable();
 
     boolean isEnabled();
   }
