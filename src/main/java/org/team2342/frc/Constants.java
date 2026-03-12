@@ -198,6 +198,26 @@ public final class Constants {
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(INTAKE_WHEELS_SIM_MOTOR, 0.003, 1),
             INTAKE_WHEELS_SIM_MOTOR);
+
+    public static final double PIVOT_GEAR_RATIO = 40;
+    public static final double MIN_ANGLE = 0.1;
+    public static final double MAX_ANGLE = 2.23;
+
+    public static final PIDFFConfigs PIVOT_MOTOR_PID_CONFIGS =
+        new PIDFFConfigs().withKP(45).withKI(15).withKD(7);
+    public static final SmartMotorConfig PIVOT_MOTOR_CONFIG =
+        new SmartMotorConfig()
+            .withGearRatio(1.0)
+            .withControlType(ControlType.PROFILED_POSITION)
+            .withIdleMode(IdleMode.BRAKE)
+            .withMotorInverted(false)
+            .withSupplyCurrentLimit(40.0)
+            .withFeedbackConfig(
+                FeedbackConfig.fused(
+                    CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.173, true))
+            .withProfileConstraintsRad(
+                new TrapezoidProfile.Constraints(
+                    Units.degreesToRadians(1800), Units.degreesToRadians(540)));
   }
 
   public static final class ShooterConstants {
@@ -300,9 +320,9 @@ public final class Constants {
     public static final int HOOD_MOTOR_ID = 15;
     public static final int HOOD_ENCODER_ID = 16;
 
-    public static final int INTAKE_WHEEL_MOTOR_ID = 17;
-    public static final int INTAKE_PIVOT_MOTOR_ID = 18;
-    public static final int INTAKE_PIVOT_ENCODER_ID = 19;
+    public static final int INTAKE_WHEEL_MOTOR_ID = 18;
+    public static final int INTAKE_PIVOT_MOTOR_ID = 19;
+    public static final int INTAKE_PIVOT_ENCODER_ID = 20;
 
     public static final int INDEXER_WHEEL_ID = 20;
     public static final int INDEXER_BELT_ID = 21;
