@@ -125,9 +125,9 @@ public class RobotContainer {
                     CANConstants.INTAKE_PIVOT_MOTOR_ID,
                     IntakeConstants.PIVOT_MOTOR_CONFIG.withPIDFFConfigs(
                         IntakeConstants.PIVOT_MOTOR_PID_CONFIGS)));
-                new SmartMotorIOTalonFX(
-                    CANConstants.TURRET_ID,
-                    TurretConstants.TURRET_CONFIG.withPIDFFConfigs(TurretConstants.PID_CONFIG));
+        new SmartMotorIOTalonFX(
+            CANConstants.TURRET_ID,
+            TurretConstants.TURRET_CONFIG.withPIDFFConfigs(TurretConstants.PID_CONFIG));
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
