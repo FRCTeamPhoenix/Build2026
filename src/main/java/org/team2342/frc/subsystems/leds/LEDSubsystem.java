@@ -52,8 +52,13 @@ public class LEDSubsystem extends SubsystemBase {
 
     if (DriverStation.isTeleopEnabled()) {
       hasEnabled = true;
-
-      // teleop code here
+      LEDEffect activeEffect = switch (stateSupplier.get()) {
+        case TRACKED_FIRING -> new LEDEffect(LEDAnimation.SOLID, Color.kCyan);
+        case WARM_UP -> new LEDEffect(LEDAnimation.SOLID, Color.kYellow);
+        case TUNING -> new LEDEffect(LEDAnimation.SOLID, Color.kPurple);
+        default -> new LEDEffect(LEDAnimation.SOLID, Color.kOrange);
+      };
+      setAll(activeEffect);
 
     } else if (DriverStation.isAutonomousEnabled()) {
       hasEnabled = true;
