@@ -116,7 +116,7 @@ public class RobotContainer {
                     CANConstants.TURRET_ID,
                     TurretConstants.TURRET_CONFIG.withPIDFFConfigs(TurretConstants.PID_CONFIG)));
         flywheel = new Flywheel(new SmartMotorIO() {});
-
+        hood = new Hood(new SmartMotorIO() {});
         indexer = new Indexer(new DumbMotorIO() {}, new DumbMotorIO() {});
         wheels = new Wheels(new DumbMotorIO() {});
         pivot =
@@ -127,7 +127,7 @@ public class RobotContainer {
                         IntakeConstants.PIVOT_MOTOR_PID_CONFIGS)));
                 new SmartMotorIOTalonFX(
                     CANConstants.TURRET_ID,
-                    TurretConstants.TURRET_CONFIG.withPIDFFConfigs(TurretConstants.PID_CONFIG)));
+                    TurretConstants.TURRET_CONFIG.withPIDFFConfigs(TurretConstants.PID_CONFIG));
 
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
