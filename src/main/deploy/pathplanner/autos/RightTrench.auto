@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "autoShoot"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "R1"
@@ -17,9 +23,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "autoIntake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "R3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "autoShoot"
           }
         }
       ]

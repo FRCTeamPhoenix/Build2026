@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -269,6 +270,29 @@ public class RobotContainer {
 
   private void configureNamedCommands() {
     NamedCommands.registerCommand("Named Command Test", Commands.print("Named Command Test"));
+    NamedCommands.registerCommand("autoShoot", 
+        conductor.runState(ConductorState.TRACKED_FIRING)
+            .alongWith(indexer.in())
+            .alongWith(kicker.in())
+            .withTimeout(2.0)
+            .finallyDo(() -> {
+                indexer.stop();
+                kicker.stop();
+            })
+    );
+
+    NamedCommands.registerCommand("autoIntake", 
+        wheels.in()
+            .finallyDo(() -> wheels.stop())
+    );
+    
+    NamedCommands.registerCommand("stopAll", 
+        new InstantCommand(() -> {
+            wheels.stop();
+            indexer.stop();
+            kicker.stop();
+        })
+    );
   }
 
   private void configureBindings() {
