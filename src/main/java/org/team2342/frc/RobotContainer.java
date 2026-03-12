@@ -139,6 +139,12 @@ public class RobotContainer {
             new Indexer(
                 new DumbMotorIOTalonFXFOC(
                     CANConstants.INDEXER_MOTOR_ID, IndexerConstants.INDEXER_MOTOR_CONFIG));
+        pivot =
+            new Pivot(
+                new SmartMotorIOTalonFX(
+                    CANConstants.INTAKE_PIVOT_MOTOR_ID,
+                    IntakeConstants.PIVOT_MOTOR_CONFIG.withPIDFFConfigs(
+                        IntakeConstants.PIVOT_MOTOR_PID_CONFIGS)));
         wheels =
             new Wheels(
                 new DumbMotorIOTalonFX(
