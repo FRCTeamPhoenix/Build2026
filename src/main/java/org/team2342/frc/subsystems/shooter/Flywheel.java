@@ -30,6 +30,8 @@ public class Flywheel extends SubsystemBase {
 
   private final SysIdRoutine sysId;
 
+  private boolean atGoal;
+
   public Flywheel(SmartMotorIO motor) {
     this.motor = motor;
 
@@ -62,18 +64,24 @@ public class Flywheel extends SubsystemBase {
 
   public void runVelocity(double metersPerSec) {
     double radPerSec = metersPerSec / ShooterConstants.FLYWHEEL_RADIUS_METERS;
+    atGoal =
+        Math.abs(metersPerSec - getVelocityMetersPerSec())
+            <= ShooterConstants.FLYWHEEL_AT_GOAL_TOLERANCE;
     Logger.recordOutput("Shooter/Flywheel/SetpointMetersPerSec", metersPerSec);
     motor.runVelocity(radPerSec);
   }
 
   public void runVelocity(DoubleSupplier metersPerSec) {
     double radPerSec = metersPerSec.getAsDouble() / ShooterConstants.FLYWHEEL_RADIUS_METERS;
+    atGoal =
+        Math.abs(radPerSec - motorInputs.velocityRadPerSec)
+            <= ShooterConstants.FLYWHEEL_AT_GOAL_TOLERANCE;
     Logger.recordOutput("Shooter/Flywheel/SetpointMetersPerSec", metersPerSec);
     motor.runVelocity(radPerSec);
   }
 
-  private void warmUp(double idleSpeed) {
-    if (getVelocityMetersPerSec() > idleSpeed) {
+  private void warmUp(DoubleSupplier idleSpeed) {
+    if (getVelocityMetersPerSec() > idleSpeed.getAsDouble()) {
       motor.runVoltage(0.0);
     } else {
       runVelocity(idleSpeed);
@@ -88,8 +96,12 @@ public class Flywheel extends SubsystemBase {
     return run(() -> runVelocity(metersPerSec)).withName("Run Shooter");
   }
 
-  public Command warmUp() {
-    return run(() -> warmUp(ShooterConstants.IDLE_SPEED)).withName("Warm Up Shooter");
+  public Command warmUpFixed() {
+    return run(() -> warmUp(() -> ShooterConstants.IDLE_SPEED)).withName("Warm Up Shooter");
+  }
+
+  public Command warmUpCommand(DoubleSupplier metersPerSec) {
+    return run(() -> warmUp(metersPerSec)).withName("Warm Up Shooter");
   }
 
   public Command runVoltage(double volts) {
@@ -98,6 +110,10 @@ public class Flywheel extends SubsystemBase {
 
   public Command stop() {
     return runOnce(() -> motor.runVoltage(0.0)).withName("Shooter Stop");
+  }
+
+  public boolean atGoal() {
+    return atGoal;
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

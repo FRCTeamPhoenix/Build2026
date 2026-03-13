@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -24,14 +25,14 @@ public class Pivot extends SubsystemBase {
   private final SmartMotorIOInputsAutoLogged pivotMotorInputs = new SmartMotorIOInputsAutoLogged();
 
   @AutoLogOutput(key = "Intake/Pivot/TargetAngle")
-  private double goal = 2.23;
+  private double goal = IntakeConstants.MIN_ANGLE;
 
   private final Alert pivotMotorAlert = new Alert("Pivot motor is disconnected!", AlertType.kError);
 
   public Pivot(SmartMotorIO pivotMotor) {
     this.pivotMotor = pivotMotor;
     setName("Intake/Pivot");
-    setDefaultCommand(run(() -> pivotMotor.runVoltage(0.0)));
+    setDefaultCommand(holdAngle(goal));
   }
 
   @Override
@@ -53,6 +54,10 @@ public class Pivot extends SubsystemBase {
         .withName("Pivot Go To Angle");
   }
 
+  public void freeze() {
+    goal = pivotMotorInputs.positionRad;
+  }
+
   public Command runVoltage(double voltage) {
     return run(() -> pivotMotor.runVoltage(voltage)).withName("Pivot Run Voltage");
   }
@@ -63,5 +68,9 @@ public class Pivot extends SubsystemBase {
 
   public Command stop() {
     return runOnce(() -> pivotMotor.runVoltage(0.0)).withName("Pivot Stop");
+  }
+
+  public Command agitate() {
+    return Commands.repeatingSequence(goToAngle(0.8), goToAngle(0.9));
   }
 }

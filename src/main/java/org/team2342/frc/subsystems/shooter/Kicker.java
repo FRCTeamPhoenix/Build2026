@@ -4,7 +4,7 @@
 // This source code is licensed under the MIT License.
 // See the LICENSE file in the root directory of this project.
 
-package org.team2342.frc.subsystems.kicker;
+package org.team2342.frc.subsystems.shooter;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -20,8 +20,7 @@ public class Kicker extends SubsystemBase {
   private final DumbMotorIO kickerMotor;
 
   private final DumbMotorIOInputsAutoLogged kickerMotorInputs = new DumbMotorIOInputsAutoLogged();
-  private final Alert kickerMotorAlert =
-      new Alert("Indexer Feeder Motor is diconnected", AlertType.kError);
+  private final Alert kickerMotorAlert = new Alert("Kicker Motor is diconnected", AlertType.kError);
 
   public Kicker(DumbMotorIO kickerMotor) {
     this.kickerMotor = kickerMotor;
