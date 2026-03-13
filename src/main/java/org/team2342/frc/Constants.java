@@ -139,7 +139,7 @@ public final class Constants {
   }
 
   public static final class IndexerConstants {
-    public static final double RUN_VOLTAGE = 5.0;
+    public static final double RUN_VOLTAGE = 6;
     public static final double RUN_CURRENT = 30.0;
 
     public static final MotorConfig INDEXER_MOTOR_CONFIG =
@@ -198,7 +198,7 @@ public final class Constants {
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
     public static final double IDLE_SPEED = 15.0;
-    public static final double FLYWHEEL_AT_GOAL_TOLERANCE = 1.0;
+    public static final double FLYWHEEL_AT_GOAL_TOLERANCE = 3.0;
 
     public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS =
         new PIDFFConfigs()
@@ -229,7 +229,7 @@ public final class Constants {
   }
 
   public static final class KickerConstants {
-    public static final double RUN_VOLTAGE = 8.0;
+    public static final double RUN_VOLTAGE = 7.5;
 
     public static final MotorConfig KICKER_CONFIG =
         new MotorConfig()
@@ -261,7 +261,7 @@ public final class Constants {
             .withControlType(ControlType.PROFILED_POSITION)
             .withGearRatio(GEAR_RATIO)
             .withIdleMode(IdleMode.BRAKE)
-            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(Math.PI, Math.PI))
+            .withProfileConstraintsRad(new TrapezoidProfile.Constraints(12 * Math.PI, 10 * Math.PI))
             .withSupplyCurrentLimit(40);
 
     public static final PIDFFConfigs PID_CONFIG = new PIDFFConfigs().withKP(100).withKI(10);

@@ -7,6 +7,7 @@
 package org.team2342.frc.subsystems.leds;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
@@ -16,6 +17,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.subsystems.Conductor.ConductorState;
 import org.team2342.lib.leds.LedIO;
+import org.team2342.lib.leds.LedIO.Half;
 import org.team2342.lib.leds.LedIO.LEDAnimation;
 import org.team2342.lib.leds.LedIO.LEDEffect;
 import org.team2342.lib.leds.LedIOInputsAutoLogged;
@@ -30,7 +32,7 @@ public class LEDSubsystem extends SubsystemBase {
   private final Supplier<ConductorState> stateSupplier;
 
   private boolean hasEnabled = false;
-  private Debouncer visionDebouncer = new Debouncer(0.2);
+  private Debouncer visionDebouncer = new Debouncer(0.5, DebounceType.kBoth);
 
   public LEDSubsystem(
       LedIO io, String name, BooleanSupplier hasTags, Supplier<ConductorState> stateSupplier) {
@@ -52,14 +54,14 @@ public class LEDSubsystem extends SubsystemBase {
 
     if (DriverStation.isTeleopEnabled()) {
       hasEnabled = true;
-      LEDEffect activeEffect = switch (stateSupplier.get()) {
-        case TRACKED_FIRING -> new LEDEffect(LEDAnimation.SOLID, Color.kCyan);
-        case WARM_UP -> new LEDEffect(LEDAnimation.SOLID, Color.kYellow);
-        case TUNING -> new LEDEffect(LEDAnimation.SOLID, Color.kPurple);
-        default -> new LEDEffect(LEDAnimation.SOLID, Color.kOrange);
-      };
+      LEDEffect activeEffect =
+          switch (stateSupplier.get()) {
+            case TRACKED_FIRING -> new LEDEffect(LEDAnimation.SOLID, Color.kCyan);
+            case WARM_UP -> new LEDEffect(LEDAnimation.SOLID, Color.kYellow);
+            case TUNING -> new LEDEffect(LEDAnimation.SOLID, Color.kPurple);
+            default -> new LEDEffect(LEDAnimation.SOLID, Color.kOrange);
+          };
       setAll(activeEffect);
-
     } else if (DriverStation.isAutonomousEnabled()) {
       hasEnabled = true;
       setAll(new LEDEffect(LEDAnimation.RAINBOW, Color.kWhite));
@@ -88,7 +90,6 @@ public class LEDSubsystem extends SubsystemBase {
   }
 
   public void setAll(LEDEffect effect) {
-    setFirst(effect);
-    setSecond(effect);
+    io.setEffect(Half.ALL, effect);
   }
 }

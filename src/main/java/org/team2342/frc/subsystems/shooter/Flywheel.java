@@ -80,8 +80,8 @@ public class Flywheel extends SubsystemBase {
     motor.runVelocity(radPerSec);
   }
 
-  private void warmUp(double idleSpeed) {
-    if (getVelocityMetersPerSec() > idleSpeed) {
+  private void warmUp(DoubleSupplier idleSpeed) {
+    if (getVelocityMetersPerSec() > idleSpeed.getAsDouble()) {
       motor.runVoltage(0.0);
     } else {
       runVelocity(idleSpeed);
@@ -96,8 +96,12 @@ public class Flywheel extends SubsystemBase {
     return run(() -> runVelocity(metersPerSec)).withName("Run Shooter");
   }
 
-  public Command warmUp() {
-    return run(() -> warmUp(ShooterConstants.IDLE_SPEED)).withName("Warm Up Shooter");
+  public Command warmUpFixed() {
+    return run(() -> warmUp(() -> ShooterConstants.IDLE_SPEED)).withName("Warm Up Shooter");
+  }
+
+  public Command warmUpCommand(DoubleSupplier metersPerSec) {
+    return run(() -> warmUp(metersPerSec)).withName("Warm Up Shooter");
   }
 
   public Command runVoltage(double volts) {

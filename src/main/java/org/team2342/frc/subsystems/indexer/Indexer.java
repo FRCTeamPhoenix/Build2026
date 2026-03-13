@@ -9,6 +9,7 @@ package org.team2342.frc.subsystems.indexer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.IndexerConstants;
@@ -46,6 +47,11 @@ public class Indexer extends SubsystemBase {
 
   public Command out() {
     return run(() -> motor.runVoltage(-IndexerConstants.RUN_VOLTAGE)).withName("Indexer Out");
+  }
+
+  public Command pulseIn() {
+    return Commands.repeatingSequence(
+        in().withTimeout(0.25), stop().andThen(Commands.waitSeconds(0.25)));
   }
 
   public Command stop() {

@@ -96,7 +96,12 @@ public class Conductor extends SubsystemBase {
                     FiringSolver.getInstance()
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .turretAngle())
-            .alongWith(flywheel.warmUp()));
+            .alongWith(
+                flywheel.warmUpCommand(
+                    () ->
+                        FiringSolver.getInstance()
+                            .calculate(velocitySupplier.get(), poseSupplier.get())
+                            .wheelSpeed())));
 
     fsm.addStateCommand(
         ConductorState.TRACKED_FIRING,

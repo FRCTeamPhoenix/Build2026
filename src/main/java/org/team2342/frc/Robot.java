@@ -175,7 +175,9 @@ public class Robot extends LoggedRobot {
   public void disabledPeriodic() {}
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+    robotContainer.getPivot().freeze();
+  }
 
   @Override
   public void autonomousInit() {
