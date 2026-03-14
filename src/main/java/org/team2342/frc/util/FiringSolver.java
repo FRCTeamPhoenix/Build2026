@@ -33,11 +33,11 @@ public class FiringSolver {
     speedMap.put(1.942, 14.2);
     speedMap.put(2.712, 14.2);
     speedMap.put(2.847, 15.0);
-    speedMap.put(3.065, 16.0);
-    speedMap.put(3.442, 17.0);
-    speedMap.put(3.8, 17.5);
-    speedMap.put(4.16, 19.0);
-    speedMap.put(4.341, 20.5);
+    speedMap.put(3.065, 17.0);
+    speedMap.put(3.442, 18.0);
+    speedMap.put(3.8, 18.5);
+    speedMap.put(4.16, 20.0);
+    speedMap.put(4.341, 21.5);
 
     MIN_TOF = 3.89 - 3.08;
     MAX_TOF = 1.0;
