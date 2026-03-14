@@ -51,7 +51,7 @@ public class Indexer extends SubsystemBase {
 
   public Command pulseIn() {
     return Commands.repeatingSequence(
-        in().withTimeout(2), stop().andThen(Commands.waitSeconds(0.2)));
+        in().withTimeout(2), stop().andThen(Commands.waitSeconds(0.5)));
   }
 
   public Command stop() {
