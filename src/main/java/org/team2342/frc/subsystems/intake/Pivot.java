@@ -71,6 +71,6 @@ public class Pivot extends SubsystemBase {
   }
 
   public Command agitate() {
-    return Commands.repeatingSequence(goToAngle(0.8), goToAngle(0.9));
+    return Commands.repeatingSequence(goToAngle(1.4), goToAngle(1.5));
   }
 }
