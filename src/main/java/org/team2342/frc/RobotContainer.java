@@ -392,7 +392,8 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(activeOrPassing)
-        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in()))
+        .whileTrue(
+            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in())))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
     // Firing during inactive period
@@ -405,7 +406,8 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
-        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in()))
+        .whileTrue(
+            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in())))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
     // Operator override
