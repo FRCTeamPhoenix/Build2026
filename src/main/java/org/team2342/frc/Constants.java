@@ -147,7 +147,7 @@ public final class Constants {
             .withMotorInverted(true)
             .withSupplyCurrentLimit(40.0)
             .withStatorCurrentLimit(70.0)
-            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+            .withIdleMode(MotorConfig.IdleMode.COAST);
 
     public static final DCMotor INDEXER_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim INDEXER_SIM =
