@@ -31,8 +31,8 @@ public class FiringSolver {
   // TODO: tune real maps
   static {
     speedMap.put(1.942, 14.2);
-    speedMap.put(2.712, 14.2);
-    speedMap.put(2.847, 15.0);
+    speedMap.put(2.712, 14.7);
+    speedMap.put(2.847, 15.5);
     speedMap.put(3.065, 17.0);
     speedMap.put(3.442, 18.0);
     speedMap.put(3.8, 18.5);
