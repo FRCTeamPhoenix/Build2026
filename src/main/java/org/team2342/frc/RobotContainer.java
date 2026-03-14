@@ -405,6 +405,7 @@ public class RobotContainer {
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
+
     // Operator override
     operatorController
         .rightTrigger()
