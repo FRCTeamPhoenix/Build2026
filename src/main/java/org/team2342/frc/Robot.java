@@ -163,7 +163,7 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("ShiftUtil/Official", HubShiftUtil.getOfficialShiftInfo());
 
     Logger.recordOutput(
-        "ShiftUtil/Dashboard/Active", HubShiftUtil.getShiftedShiftInfo().currentShift());
+        "ShiftUtil/Dashboard/CurrentShift", HubShiftUtil.getShiftedShiftInfo().currentShift());
     Logger.recordOutput(
         "ShiftUtil/Dashboard/RemainingTime", HubShiftUtil.getShiftedShiftInfo().remainingTime());
     Logger.recordOutput("ShiftUtil/Dashboard/Active", HubShiftUtil.getShiftedShiftInfo().active());
