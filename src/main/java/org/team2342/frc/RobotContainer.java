@@ -10,6 +10,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -102,8 +103,7 @@ public class RobotContainer {
   private final Trigger shiftAboutToEnd;
   private final Trigger activeOrPassing;
 
-  private double turretManual;
-  private double flywheelManual;
+  @Getter private double turretManual, flywheelManual;
 
   public RobotContainer() {
     switch (Constants.CURRENT_MODE) {
@@ -414,8 +414,22 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(Commands.parallel(indexer.out(), kicker.out(), wheels.out()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), wheels.stop()));
+
     // Turret Zero
-    operatorController.back().onTrue(Commands.runOnce(() -> turret.zeroTurret(), turret));
+    operatorController.back().onTrue(Commands.runOnce(() -> turret.zeroTurret()));
+
+    // Manual Mode
+    operatorController
+        .start()
+        .toggleOnTrue(conductor.forceManual().alongWith(Commands.runOnce(this::resetManual)));
+    operatorController.povUp().whileTrue(Commands.runOnce(() -> flywheelManual += 0.5));
+    operatorController.povDown().whileTrue(Commands.runOnce(() -> flywheelManual -= 0.5));
+    operatorController
+        .povLeft()
+        .whileTrue(Commands.runOnce(() -> turretManual -= Units.degreesToRadians(1)));
+    operatorController
+        .povRight()
+        .whileTrue(Commands.runOnce(() -> turretManual += Units.degreesToRadians(1)));
 
     // Location Triggers
     allianceZoneTrigger

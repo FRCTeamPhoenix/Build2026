@@ -150,7 +150,8 @@ public class Conductor extends SubsystemBase {
   }
 
   public Command forceManual() {
-    return Commands.runOnce(() -> fsm.forceState(ConductorState.MANUAL));
+    return Commands.run(() -> fsm.forceState(ConductorState.MANUAL))
+        .finallyDo(() -> fsm.forceState(ConductorState.DISABLED));
   }
 
   public Command enable() {

@@ -25,7 +25,7 @@ public class Pivot extends SubsystemBase {
   private final SmartMotorIOInputsAutoLogged pivotMotorInputs = new SmartMotorIOInputsAutoLogged();
 
   @AutoLogOutput(key = "Intake/Pivot/TargetAngle")
-  private double goal = IntakeConstants.MIN_ANGLE;
+  private double goal = IntakeConstants.MAX_ANGLE;
 
   private final Alert pivotMotorAlert = new Alert("Pivot motor is disconnected!", AlertType.kError);
 

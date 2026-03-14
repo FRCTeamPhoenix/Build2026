@@ -13,6 +13,7 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUsageId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -160,7 +161,17 @@ public class Robot extends LoggedRobot {
     ExecutionLogger.log("Commands");
 
     Logger.recordOutput("ShiftUtil/Official", HubShiftUtil.getOfficialShiftInfo());
+
+    Logger.recordOutput(
+        "ShiftUtil/Dashboard/Active", HubShiftUtil.getShiftedShiftInfo().currentShift());
+    Logger.recordOutput(
+        "ShiftUtil/Dashboard/RemainingTime", HubShiftUtil.getShiftedShiftInfo().remainingTime());
+    Logger.recordOutput("ShiftUtil/Dashboard/Active", HubShiftUtil.getShiftedShiftInfo().active());
+
     Logger.recordOutput("ShiftUtil/Shifted", HubShiftUtil.getShiftedShiftInfo());
+    Logger.recordOutput("TurretManual", Units.radiansToDegrees(robotContainer.getTurretManual()));
+    Logger.recordOutput("FlywheelManual", robotContainer.getFlywheelManual());
+    Logger.recordOutput("Vision/HasTags", robotContainer.getVision().hasTags());
 
     robotContainer.updateAlerts();
     FiringSolver.getInstance().clearCachedSolution();
