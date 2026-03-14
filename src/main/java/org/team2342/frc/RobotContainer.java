@@ -390,7 +390,7 @@ public class RobotContainer {
     // Auto Shoot
     driverController
         .rightTrigger()
-        .whileTrue(conductor.runState(ConductorState.TUNING))
+        .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(activeOrPassing)
         .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
@@ -404,7 +404,7 @@ public class RobotContainer {
     // Shift Timer Override
     driverController
         .rightBumper()
-        .whileTrue(conductor.runState(ConductorState.TUNING))
+        .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
@@ -437,7 +437,7 @@ public class RobotContainer {
     // Location Triggers
     allianceZoneTrigger
         .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
-        .whileTrue(conductor.runState(ConductorState.TUNING));
+        .whileTrue(conductor.runState(ConductorState.WARM_UP));
 
     // Shift Util Resets
     RobotModeTriggers.teleop().onTrue(Commands.runOnce(HubShiftUtil::initialize));
