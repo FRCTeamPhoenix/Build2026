@@ -381,6 +381,15 @@ public class RobotContainer {
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
+    //Operator override
+    operatorController
+        .rightTrigger()
+        .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
+    operatorController
+        .rightBumper()
+        .whileTrue(Commands.parallel(indexer.out(), kicker.out(), wheels.out()))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), wheels.stop()));
 
     // Location Triggers
     allianceZoneTrigger
