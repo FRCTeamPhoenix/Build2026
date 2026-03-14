@@ -213,8 +213,8 @@ public final class Constants {
             .withControlType(ControlType.VELOCITY)
             .withGearRatio(FLYWHEEL_GEAR_RATIO)
             .withMotorInverted(true)
-            .withSupplyCurrentLimit(40)
-            .withStatorCurrentLimit(70)
+            .withSupplyCurrentLimit(50)
+            .withStatorCurrentLimit(80)
             .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000));
     public static final DCMotor FLYWHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim FLYWHEEL_SIM =
@@ -235,7 +235,7 @@ public final class Constants {
         new MotorConfig()
             .withMotorInverted(true)
             .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(40.0)
+            .withStatorCurrentLimit(60.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
   }
 
