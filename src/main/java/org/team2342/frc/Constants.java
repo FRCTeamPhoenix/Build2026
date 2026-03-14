@@ -139,7 +139,7 @@ public final class Constants {
   }
 
   public static final class IndexerConstants {
-    public static final double RUN_VOLTAGE = 6;
+    public static final double RUN_VOLTAGE = 5;
     public static final double RUN_CURRENT = 30.0;
 
     public static final MotorConfig INDEXER_MOTOR_CONFIG =
