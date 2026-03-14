@@ -437,7 +437,7 @@ public class RobotContainer {
     // Location Triggers
     allianceZoneTrigger
         .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
-        .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING));
+        .whileTrue(conductor.runState(ConductorState.WARM_UP));
 
     // Shift Util Resets
     RobotModeTriggers.teleop().onTrue(Commands.runOnce(HubShiftUtil::initialize));
