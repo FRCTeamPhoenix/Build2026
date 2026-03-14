@@ -102,6 +102,9 @@ public class RobotContainer {
   private final Trigger shiftAboutToEnd;
   private final Trigger activeOrPassing;
 
+  private double turretManual;
+  private double flywheelManual;
+
   public RobotContainer() {
     switch (Constants.CURRENT_MODE) {
       case REAL:
@@ -151,7 +154,14 @@ public class RobotContainer {
                     CANConstants.INTAKE_WHEEL_MOTOR_ID,
                     IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
 
-        conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
+        conductor =
+            new Conductor(
+                flywheel,
+                turret,
+                drive::getPose,
+                drive::getChassisSpeeds,
+                () -> turretManual,
+                () -> flywheelManual);
         leds =
             new LEDSubsystem(
                 new LedIOCANdle(CANConstants.CANDLE_ID, 32),
@@ -204,7 +214,14 @@ public class RobotContainer {
         turret = new Turret(new SmartMotorIO() {});
         pivot = new Pivot(new SmartMotorIO() {});
 
-        conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
+        conductor =
+            new Conductor(
+                flywheel,
+                turret,
+                drive::getPose,
+                drive::getChassisSpeeds,
+                () -> turretManual,
+                () -> flywheelManual);
         leds =
             new LEDSubsystem(new LedIO() {}, "CANdle", vision::hasTags, conductor::getCurrentState);
 
@@ -231,7 +248,14 @@ public class RobotContainer {
         turret = new Turret(new SmartMotorIO() {});
         kicker = new Kicker(new DumbMotorIO() {});
 
-        conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
+        conductor =
+            new Conductor(
+                flywheel,
+                turret,
+                drive::getPose,
+                drive::getChassisSpeeds,
+                () -> turretManual,
+                () -> flywheelManual);
         leds =
             new LEDSubsystem(new LedIO() {}, "CANdle", vision::hasTags, conductor::getCurrentState);
 
@@ -381,7 +405,7 @@ public class RobotContainer {
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
-    //Operator override
+    // Operator override
     operatorController
         .rightTrigger()
         .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
@@ -390,6 +414,8 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(Commands.parallel(indexer.out(), kicker.out(), wheels.out()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), wheels.stop()));
+    // Turret Zero
+    operatorController.back().onTrue(Commands.runOnce(() -> turret.zeroTurret(), turret));
 
     // Location Triggers
     allianceZoneTrigger
@@ -445,6 +471,11 @@ public class RobotContainer {
   public void updateAlerts() {
     driverControllerAlert.set(!driverController.isConnected());
     operatorControllerAlert.set(!operatorController.isConnected());
+  }
+
+  public void resetManual() {
+    flywheelManual = flywheel.getVelocityMetersPerSec();
+    turretManual = turret.getTurretPositionAsADouble();
   }
 
   public static boolean withinBounds(double value, double bound1, double bound2) {

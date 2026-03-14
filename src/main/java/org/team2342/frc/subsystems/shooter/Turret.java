@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -53,8 +54,17 @@ public class Turret extends SubsystemBase {
     turretMotor.runPosition(goal);
   }
 
+  public void runPositionNoLimit(DoubleSupplier target) {
+    this.goal = target.getAsDouble();
+    turretMotor.runPosition(goal);
+  }
+
   public Command runPositionCommand(Rotation2d target) {
     return run(() -> runPosition(target)).withName("Turret RunPosition");
+  }
+
+  public Command runPositionNoLimitCommand(DoubleSupplier target) {
+    return run(() -> runPositionNoLimit(target)).withName("Turret RunPosition No Limit");
   }
 
   public Command runPositionCommand(Supplier<Rotation2d> target) {
@@ -84,6 +94,10 @@ public class Turret extends SubsystemBase {
   @AutoLogOutput(key = "Shooter/Turret/Position")
   public Rotation2d getTurretPosition() {
     return Rotation2d.fromRadians(inputs.positionRad);
+  }
+
+  public double getTurretPositionAsADouble() {
+    return inputs.positionRad;
   }
 
   public double getTurretVelocity() {

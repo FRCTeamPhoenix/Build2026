@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import lombok.experimental.Delegate;
 import org.team2342.frc.Constants;
@@ -29,6 +30,7 @@ public class Conductor extends SubsystemBase {
   public enum ConductorState {
     UNDETERMINED,
     DISABLED,
+    MANUAL,
     WARM_UP,
     TRACKED_FIRING,
     TUNING,
@@ -48,16 +50,24 @@ public class Conductor extends SubsystemBase {
   private final Supplier<Pose2d> poseSupplier;
   private final Supplier<ChassisSpeeds> velocitySupplier;
 
+  private final DoubleSupplier manualTurretSupplier;
+  private final DoubleSupplier manualFlywheelSupplier;
+
   public Conductor(
       Flywheel flywheel,
       Turret turret,
       Supplier<Pose2d> poseSupplier,
-      Supplier<ChassisSpeeds> velocitySupplier) {
+      Supplier<ChassisSpeeds> velocitySupplier,
+      DoubleSupplier manualTurretSupplier,
+      DoubleSupplier manualFlywheelSupplier) {
     this.flywheel = flywheel;
     this.turret = turret;
 
     this.poseSupplier = poseSupplier;
     this.velocitySupplier = velocitySupplier;
+
+    this.manualFlywheelSupplier = manualFlywheelSupplier;
+    this.manualTurretSupplier = manualTurretSupplier;
 
     setupStateCommands();
     setupTransitions();
@@ -127,10 +137,20 @@ public class Conductor extends SubsystemBase {
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .turretAngle())
             .alongWith(flywheel.shoot(flywheelSpeed)));
+
+    fsm.addStateCommand(
+        ConductorState.MANUAL,
+        turret
+            .runPositionNoLimitCommand(manualTurretSupplier)
+            .alongWith(flywheel.shoot(manualFlywheelSupplier)));
   }
 
   public Command disable() {
     return Commands.runOnce(() -> fsm.disable());
+  }
+
+  public Command forceManual() {
+    return Commands.runOnce(() -> fsm.forceState(ConductorState.MANUAL));
   }
 
   public Command enable() {
@@ -142,10 +162,11 @@ public class Conductor extends SubsystemBase {
   }
 
   private void setupTransitions() {
-    fsm.addOmniTransition(ConductorState.DISABLED);
-    fsm.addOmniTransition(ConductorState.TRACKED_FIRING);
-    fsm.addOmniTransition(ConductorState.WARM_UP);
-    fsm.addOmniTransition(ConductorState.TUNING);
+    fsm.addTransition(ConductorState.UNDETERMINED, ConductorState.DISABLED);
+    fsm.addDualTransition(ConductorState.DISABLED, ConductorState.TRACKED_FIRING);
+    fsm.addDualTransition(ConductorState.WARM_UP, ConductorState.TRACKED_FIRING);
+    fsm.addDualTransition(ConductorState.DISABLED, ConductorState.WARM_UP);
+    fsm.addDualTransition(ConductorState.DISABLED, ConductorState.TUNING);
   }
 
   public interface FSMDelegate {
