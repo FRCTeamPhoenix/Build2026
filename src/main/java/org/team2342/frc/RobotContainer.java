@@ -275,7 +275,7 @@ public class RobotContainer {
                     .alongWith(wheels.in().alongWith(pivot.holdAngle(IntakeConstants.MIN_ANGLE)))
                     .andThen(
                         Commands.parallel(
-                            indexer.in(), kicker.in(), pivot.agitate(), wheels.in()))));
+                            indexer.pulseIn(), kicker.in(), pivot.agitate(), wheels.in()))));
 
     if (Constants.TUNING) setupDevelopmentRoutines();
 
