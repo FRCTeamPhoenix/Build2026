@@ -381,7 +381,7 @@ public class RobotContainer {
         .onFalse(pivot.stop());
 
     driverController
-        .povDown()
+        .povLeft()
         .whileTrue(pivot.agitate().alongWith(wheels.runIntake(5)))
         .onFalse(wheels.stop().alongWith(pivot.stop()));
 
