@@ -269,14 +269,15 @@ public class RobotContainer {
     autoChooser.addOption(
         "Point and fire",
         conductor
-            .runState(ConductorState.TRACKED_FIRING)
-            .alongWith(
-                Commands.waitSeconds(5)
-                    .alongWith(wheels.in().alongWith(pivot.holdAngle(IntakeConstants.MIN_ANGLE)))
-                    .andThen(
-                        Commands.parallel(
-                            indexer.pulseIn(), kicker.in(), pivot.agitate(), wheels.in()))));
-
+            .runState(ConductorState.WARM_UP)
+            .withTimeout(2.0)
+            .andThen(
+                conductor
+                    .runState(ConductorState.TRACKED_FIRING)
+                    .alongWith(pivot.holdAngle(0))
+                    .alongWith(wheels.in())
+                    .alongWith(indexer.in())
+                    .alongWith(kicker.in())));
     if (Constants.TUNING) setupDevelopmentRoutines();
 
     SmartDashboard.putData(
@@ -424,14 +425,14 @@ public class RobotContainer {
     operatorController
         .start()
         .toggleOnTrue(conductor.forceManual().alongWith(Commands.runOnce(this::resetManual)));
-    operatorController.povUp().whileTrue(Commands.runOnce(() -> flywheelManual += 0.5));
-    operatorController.povDown().whileTrue(Commands.runOnce(() -> flywheelManual -= 0.5));
+    operatorController.povUp().whileTrue(Commands.run(() -> flywheelManual += 0.1));
+    operatorController.povDown().whileTrue(Commands.run(() -> flywheelManual -= 0.1));
     operatorController
         .povLeft()
-        .whileTrue(Commands.runOnce(() -> turretManual -= Units.degreesToRadians(1)));
+        .whileTrue(Commands.run(() -> turretManual -= Units.degreesToRadians(0.75)));
     operatorController
         .povRight()
-        .whileTrue(Commands.runOnce(() -> turretManual += Units.degreesToRadians(1)));
+        .whileTrue(Commands.run(() -> turretManual += Units.degreesToRadians(0.75)));
 
     // Location Triggers
     allianceZoneTrigger
