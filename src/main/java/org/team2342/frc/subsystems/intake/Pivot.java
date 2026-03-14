@@ -32,7 +32,7 @@ public class Pivot extends SubsystemBase {
   public Pivot(SmartMotorIO pivotMotor) {
     this.pivotMotor = pivotMotor;
     setName("Intake/Pivot");
-    setDefaultCommand(holdAngle(goal));
+    setDefaultCommand(run(() -> pivotMotor.runPosition(goal)));
   }
 
   @Override

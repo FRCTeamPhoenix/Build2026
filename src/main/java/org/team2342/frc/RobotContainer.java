@@ -269,12 +269,13 @@ public class RobotContainer {
     autoChooser.addOption(
         "Point and fire",
         conductor
-            .runState(ConductorState.WARM_UP)
-            .withTimeout(2.0)
-            .alongWith(pivot.holdAngle(0))
-            .alongWith(wheels.in())
-            .alongWith(indexer.in())
-            .alongWith(kicker.in()));
+            .runState(ConductorState.TRACKED_FIRING)
+            .alongWith(
+                Commands.waitSeconds(5)
+                    .alongWith(wheels.in().alongWith(pivot.holdAngle(IntakeConstants.MIN_ANGLE)))
+                    .andThen(
+                        Commands.parallel(
+                            indexer.in(), kicker.in(), pivot.agitate(), wheels.in()))));
 
     if (Constants.TUNING) setupDevelopmentRoutines();
 
@@ -390,7 +391,7 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(activeOrPassing)
-        .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
+        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
     // Firing during inactive period
@@ -403,7 +404,7 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
-        .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
+        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
     // Operator override
