@@ -115,6 +115,7 @@ public class Turret extends SubsystemBase {
 
   public void zeroTurret() {
     turretMotor.setPosition(TurretConstants.STARTING_ANGLE);
+    goal = TurretConstants.STARTING_ANGLE;
   }
 
   private double calculateTurretAngle(Rotation2d angle) {
