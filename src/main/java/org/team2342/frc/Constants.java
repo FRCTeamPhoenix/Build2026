@@ -187,7 +187,7 @@ public final class Constants {
             .withSupplyCurrentLimit(40.0)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
-                    CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.69, true))
+                    CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.681, true))
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1800), Units.degreesToRadians(540)));
