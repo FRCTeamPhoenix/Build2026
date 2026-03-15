@@ -310,17 +310,26 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "autoShoot",
         conductor
-            .runState(ConductorState.TRACKED_FIRING)
-            .alongWith(indexer.in())
-            .alongWith(kicker.in())
-            .withTimeout(2.0)
-            .finallyDo(
-                () -> {
-                  indexer.stop();
-                  kicker.stop();
-                }));
+            .runState(ConductorState.WARM_UP)
+            .withTimeout(1.0)
+            .andThen(
+                conductor
+                    .runState(ConductorState.TRACKED_FIRING)
+                    .alongWith(pivot.agitate())
+                    .alongWith(wheels.in())
+                    .alongWith(indexer.in())
+                    .alongWith(kicker.in())
+                    .withTimeout(4.0)
+                    .finallyDo(
+                        () -> {
+                          wheels.stop().schedule();
+                          indexer.stop().schedule();
+                          kicker.stop().schedule();
+                        })));
 
-    NamedCommands.registerCommand("autoIntake", wheels.in().finallyDo(() -> wheels.stop()));
+    NamedCommands.registerCommand(
+        "autoIntake",
+        wheels.in().alongWith(pivot.holdAngle(0)).finallyDo(() -> wheels.stop().schedule()));
 
     NamedCommands.registerCommand(
         "stopAll",

@@ -14,6 +14,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.TurretConstants;
+import org.team2342.frc.RobotContainer;
 import org.team2342.lib.util.AllianceUtils;
 
 public class FiringSolver {
@@ -64,11 +65,11 @@ public class FiringSolver {
       return lastSolution;
     }
 
-    boolean outsideAllianceZone = false;
-    // !RobotContainer.withinBounds(
-    //     position.getX(),
-    //     AllianceUtils.flipToAlliance(Pose2d.kZero).getX(),
-    //     AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner).getX());
+    boolean outsideAllianceZone =
+        !RobotContainer.withinBounds(
+            position.getX(),
+            AllianceUtils.flipToAlliance(Pose2d.kZero).getX(),
+            AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner).getX());
 
     if (outsideAllianceZone) {
       Pose2d turretPose =
