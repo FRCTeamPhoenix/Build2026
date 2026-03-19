@@ -32,16 +32,16 @@ public class FiringSolver {
   // TODO: tune real maps
   static {
     speedMap.put(1.942, 14.2);
-    speedMap.put(2.712, 14.2);
-    speedMap.put(2.847, 15.0);
-    speedMap.put(3.065, 16.0);
-    speedMap.put(3.442, 17.0);
-    speedMap.put(3.8, 17.5);
-    speedMap.put(4.16, 19.0);
-    speedMap.put(4.341, 20.5);
+    speedMap.put(2.712, 14.7);
+    speedMap.put(2.847, 15.5);
+    speedMap.put(3.065, 17.5);
+    speedMap.put(3.442, 18.0);
+    speedMap.put(3.8, 18.5);
+    speedMap.put(4.16, 20.5);
+    speedMap.put(4.341, 21.5);
 
     MIN_TOF = 3.89 - 3.08;
-    MAX_TOF = 1.0;
+    MAX_TOF = 11.3 - 9.83;
 
     tofMap.put(1.942, 3.89 - 3.08);
     tofMap.put(2.712, 4.11 - 3.30);

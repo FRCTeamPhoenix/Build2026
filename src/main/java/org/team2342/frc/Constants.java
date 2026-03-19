@@ -139,7 +139,7 @@ public final class Constants {
   }
 
   public static final class IndexerConstants {
-    public static final double RUN_VOLTAGE = 6;
+    public static final double RUN_VOLTAGE = 5;
     public static final double RUN_CURRENT = 30.0;
 
     public static final MotorConfig INDEXER_MOTOR_CONFIG =
@@ -147,7 +147,7 @@ public final class Constants {
             .withMotorInverted(true)
             .withSupplyCurrentLimit(40.0)
             .withStatorCurrentLimit(70.0)
-            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+            .withIdleMode(MotorConfig.IdleMode.COAST);
 
     public static final DCMotor INDEXER_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim INDEXER_SIM =
@@ -187,7 +187,7 @@ public final class Constants {
             .withSupplyCurrentLimit(40.0)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
-                    CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.173, true))
+                    CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.681, true))
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1800), Units.degreesToRadians(540)));
@@ -213,8 +213,8 @@ public final class Constants {
             .withControlType(ControlType.VELOCITY)
             .withGearRatio(FLYWHEEL_GEAR_RATIO)
             .withMotorInverted(true)
-            .withSupplyCurrentLimit(40)
-            .withStatorCurrentLimit(70)
+            .withSupplyCurrentLimit(50)
+            .withStatorCurrentLimit(80)
             .withProfileConstraintsRad(new TrapezoidProfile.Constraints(1000, 1000));
     public static final DCMotor FLYWHEEL_SIM_MOTOR = DCMotor.getKrakenX60(1);
     public static final DCMotorSim FLYWHEEL_SIM =
@@ -235,7 +235,7 @@ public final class Constants {
         new MotorConfig()
             .withMotorInverted(true)
             .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(40.0)
+            .withStatorCurrentLimit(60.0)
             .withIdleMode(MotorConfig.IdleMode.BRAKE);
   }
 

@@ -10,6 +10,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -102,6 +103,8 @@ public class RobotContainer {
   private final Trigger shiftAboutToEnd;
   private final Trigger activeOrPassing;
 
+  @Getter private double turretManual, flywheelManual;
+
   public RobotContainer() {
     switch (Constants.CURRENT_MODE) {
       case REAL:
@@ -151,7 +154,14 @@ public class RobotContainer {
                     CANConstants.INTAKE_WHEEL_MOTOR_ID,
                     IntakeConstants.INTAKE_WHEELS_MOTOR_CONFIG));
 
-        conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
+        conductor =
+            new Conductor(
+                flywheel,
+                turret,
+                drive::getPose,
+                drive::getChassisSpeeds,
+                () -> turretManual,
+                () -> flywheelManual);
         leds =
             new LEDSubsystem(
                 new LedIOCANdle(CANConstants.CANDLE_ID, 32),
@@ -204,7 +214,14 @@ public class RobotContainer {
         turret = new Turret(new SmartMotorIO() {});
         pivot = new Pivot(new SmartMotorIO() {});
 
-        conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
+        conductor =
+            new Conductor(
+                flywheel,
+                turret,
+                drive::getPose,
+                drive::getChassisSpeeds,
+                () -> turretManual,
+                () -> flywheelManual);
         leds =
             new LEDSubsystem(new LedIO() {}, "CANdle", vision::hasTags, conductor::getCurrentState);
 
@@ -231,7 +248,14 @@ public class RobotContainer {
         turret = new Turret(new SmartMotorIO() {});
         kicker = new Kicker(new DumbMotorIO() {});
 
-        conductor = new Conductor(flywheel, turret, drive::getPose, drive::getChassisSpeeds);
+        conductor =
+            new Conductor(
+                flywheel,
+                turret,
+                drive::getPose,
+                drive::getChassisSpeeds,
+                () -> turretManual,
+                () -> flywheelManual);
         leds =
             new LEDSubsystem(new LedIO() {}, "CANdle", vision::hasTags, conductor::getCurrentState);
 
@@ -247,11 +271,13 @@ public class RobotContainer {
         conductor
             .runState(ConductorState.WARM_UP)
             .withTimeout(2.0)
-            .alongWith(pivot.holdAngle(0))
-            .alongWith(wheels.in())
-            .alongWith(indexer.in())
-            .alongWith(kicker.in()));
-
+            .andThen(
+                conductor
+                    .runState(ConductorState.TRACKED_FIRING)
+                    .alongWith(pivot.holdAngle(0))
+                    .alongWith(wheels.in())
+                    .alongWith(indexer.in())
+                    .alongWith(kicker.in())));
     if (Constants.TUNING) setupDevelopmentRoutines();
 
     SmartDashboard.putData(
@@ -284,17 +310,26 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "autoShoot",
         conductor
-            .runState(ConductorState.TRACKED_FIRING)
-            .alongWith(indexer.in())
-            .alongWith(kicker.in())
-            .withTimeout(2.0)
-            .finallyDo(
-                () -> {
-                  indexer.stop();
-                  kicker.stop();
-                }));
+            .runState(ConductorState.WARM_UP)
+            .withTimeout(1.0)
+            .andThen(
+                conductor
+                    .runState(ConductorState.TRACKED_FIRING)
+                    .alongWith(pivot.agitate())
+                    .alongWith(wheels.in())
+                    .alongWith(indexer.in())
+                    .alongWith(kicker.in())
+                    .withTimeout(4.0)
+                    .finallyDo(
+                        () -> {
+                          wheels.stop().schedule();
+                          indexer.stop().schedule();
+                          kicker.stop().schedule();
+                        })));
 
-    NamedCommands.registerCommand("autoIntake", wheels.in().finallyDo(() -> wheels.stop()));
+    NamedCommands.registerCommand(
+        "autoIntake",
+        wheels.in().alongWith(pivot.holdAngle(0)).finallyDo(() -> wheels.stop().schedule()));
 
     NamedCommands.registerCommand(
         "stopAll",
@@ -357,7 +392,7 @@ public class RobotContainer {
         .onFalse(pivot.stop());
 
     driverController
-        .povDown()
+        .povLeft()
         .whileTrue(pivot.agitate().alongWith(wheels.runIntake(5)))
         .onFalse(wheels.stop().alongWith(pivot.stop()));
 
@@ -366,7 +401,8 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(activeOrPassing)
-        .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
+        .whileTrue(
+            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in())))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
     // Firing during inactive period
@@ -379,8 +415,35 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
+        .whileTrue(
+            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in())))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
+
+    // Operator override
+    operatorController
+        .rightTrigger()
         .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
+    operatorController
+        .rightBumper()
+        .whileTrue(Commands.parallel(indexer.out(), kicker.out(), wheels.out()))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), wheels.stop()));
+
+    // Turret Zero
+    operatorController.back().onTrue(Commands.runOnce(() -> turret.zeroTurret()));
+
+    // Manual Mode
+    operatorController
+        .start()
+        .toggleOnTrue(conductor.forceManual().alongWith(Commands.runOnce(this::resetManual)));
+    operatorController.povUp().whileTrue(Commands.run(() -> flywheelManual += 0.1));
+    operatorController.povDown().whileTrue(Commands.run(() -> flywheelManual -= 0.1));
+    operatorController
+        .povLeft()
+        .whileTrue(Commands.run(() -> turretManual -= Units.degreesToRadians(0.75)));
+    operatorController
+        .povRight()
+        .whileTrue(Commands.run(() -> turretManual += Units.degreesToRadians(0.75)));
 
     // Location Triggers
     allianceZoneTrigger
@@ -436,6 +499,11 @@ public class RobotContainer {
   public void updateAlerts() {
     driverControllerAlert.set(!driverController.isConnected());
     operatorControllerAlert.set(!operatorController.isConnected());
+  }
+
+  public void resetManual() {
+    flywheelManual = flywheel.getVelocityMetersPerSec();
+    turretManual = turret.getTurretPositionAsADouble();
   }
 
   public static boolean withinBounds(double value, double bound1, double bound2) {

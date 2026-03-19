@@ -25,14 +25,14 @@ public class Pivot extends SubsystemBase {
   private final SmartMotorIOInputsAutoLogged pivotMotorInputs = new SmartMotorIOInputsAutoLogged();
 
   @AutoLogOutput(key = "Intake/Pivot/TargetAngle")
-  private double goal = IntakeConstants.MIN_ANGLE;
+  private double goal = IntakeConstants.MAX_ANGLE;
 
   private final Alert pivotMotorAlert = new Alert("Pivot motor is disconnected!", AlertType.kError);
 
   public Pivot(SmartMotorIO pivotMotor) {
     this.pivotMotor = pivotMotor;
     setName("Intake/Pivot");
-    setDefaultCommand(holdAngle(goal));
+    setDefaultCommand(run(() -> pivotMotor.runPosition(goal)));
   }
 
   @Override
@@ -71,6 +71,6 @@ public class Pivot extends SubsystemBase {
   }
 
   public Command agitate() {
-    return Commands.repeatingSequence(goToAngle(0.8), goToAngle(0.9));
+    return Commands.repeatingSequence(goToAngle(1.4), goToAngle(1.5));
   }
 }
