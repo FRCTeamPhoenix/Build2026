@@ -102,6 +102,7 @@ public class RobotContainer {
   private final Trigger allianceZoneTrigger;
   private final Trigger shiftAboutToEnd;
   private final Trigger activeOrPassing;
+  private final Trigger readyToFire;
 
   @Getter private double turretManual, flywheelManual;
 
@@ -301,6 +302,7 @@ public class RobotContainer {
                     || FiringSolver.getInstance()
                         .calculate(drive.getChassisSpeeds(), drive.getPose())
                         .passing());
+    readyToFire = new Trigger(() -> turret.atGoal() && flywheel.atGoal());
 
     configureBindings();
   }
@@ -401,8 +403,8 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(activeOrPassing)
-        .whileTrue(
-            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in())))
+        .and(readyToFire)
+        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
     // Firing during inactive period
@@ -415,8 +417,8 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
-        .whileTrue(
-            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in())))
+        .and(readyToFire)
+        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
     // Operator override

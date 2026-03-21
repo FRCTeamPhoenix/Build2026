@@ -173,7 +173,7 @@ public final class Constants {
             INTAKE_WHEELS_SIM_MOTOR);
 
     public static final double PIVOT_GEAR_RATIO = 40;
-    public static final double MIN_ANGLE = 0.1;
+    public static final double MIN_ANGLE = 0.2;
     public static final double MAX_ANGLE = 2.23;
 
     public static final PIDFFConfigs PIVOT_MOTOR_PID_CONFIGS =
@@ -198,7 +198,8 @@ public final class Constants {
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
     public static final double IDLE_SPEED = 15.0;
-    public static final double FLYWHEEL_AT_GOAL_TOLERANCE = 3.0;
+    public static final double FLYWHEEL_AT_GOAL_TOLERANCE =
+        2.0 / ShooterConstants.FLYWHEEL_RADIUS_METERS;
 
     public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS =
         new PIDFFConfigs()
@@ -251,8 +252,8 @@ public final class Constants {
     public static final double AT_POSITION_THRESHOLD = 0.01;
 
     public static final double STARTING_ANGLE = Units.degreesToRadians(90);
-    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(0);
-    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(359);
+    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(5);
+    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(355);
 
     public static final double GEAR_RATIO = (48.0 / 12.0) * (100.0 / 10.0);
 
