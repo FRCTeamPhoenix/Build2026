@@ -37,17 +37,18 @@ public class PassingController {
     }
 
     public void periodic() {
-        double xInput = MathUtil.applyDeadband(operatorController.getLeftX(), 0.05);
-        double yInput = MathUtil.applyDeadband(operatorController.getLeftY(), 0.05);
-
-        Translation2d adjustment =
-        DriveCommands.getLinearVelocityFromJoysticks(xInput, yInput)
-            .times(ADJUST_SCALE);
-
-        adjustedLeftTarget = adjustedLeftTarget.plus(adjustment);
-        adjustedRightTarget = adjustedRightTarget.plus(adjustment);
-
+        double leftX = operatorController.getLeftX();
+        double leftY = operatorController.getLeftY();
+        Translation2d leftAdjustment =
+            DriveCommands.getLinearVelocityFromJoysticks(leftX, leftY).times(ADJUST_SCALE);
+        adjustedLeftTarget = adjustedLeftTarget.plus(leftAdjustment);
         adjustedLeftTarget = clamp(adjustedLeftTarget, leftMin, leftMax);
+
+        double rightX = operatorController.getRightX();
+        double rightY = operatorController.getRightY();
+        Translation2d rightAdjustment = 
+            DriveCommands.getLinearVelocityFromJoysticks(rightX, rightY).times(ADJUST_SCALE);
+        adjustedRightTarget = adjustedRightTarget.plus(rightAdjustment);
         adjustedRightTarget = clamp(adjustedRightTarget, rightMin, rightMax);
     }
 
