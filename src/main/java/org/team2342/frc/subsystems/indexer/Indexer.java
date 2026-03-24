@@ -57,4 +57,8 @@ public class Indexer extends SubsystemBase {
   public Command stop() {
     return runOnce(() -> motor.runVoltage(0.0)).withName("Indexer Stop");
   }
+
+  public boolean isJammed() {
+    return inputs.currentAmps > IndexerConstants.MAX_CURRENT;
+  }
 }

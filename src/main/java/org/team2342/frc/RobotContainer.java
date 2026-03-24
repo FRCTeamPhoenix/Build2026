@@ -9,7 +9,6 @@ package org.team2342.frc;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -46,8 +45,8 @@ import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
 import org.team2342.frc.subsystems.drive.ModuleIO;
 import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
-import org.team2342.frc.subsystems.indexer.Indexer;
 import org.team2342.frc.subsystems.indexer.Disruptor;
+import org.team2342.frc.subsystems.indexer.Indexer;
 import org.team2342.frc.subsystems.intake.Pivot;
 import org.team2342.frc.subsystems.intake.Wheels;
 import org.team2342.frc.subsystems.leds.LEDSubsystem;
@@ -147,11 +146,13 @@ public class RobotContainer {
             new Indexer(
                 new DumbMotorIOTalonFXFOC(
                     CANConstants.INDEXER_MOTOR_ID, IndexerConstants.INDEXER_MOTOR_CONFIG));
-        
-        disruptor = 
+
+        disruptor =
             new Disruptor(
                 new DumbMotorIOSparkFlex(
-                    0, IndexerConstants.DISRUPTOR_MOTOR_CONFIG, MotorType.kBrushless)); //TODO: can id
+                    0,
+                    IndexerConstants.DISRUPTOR_MOTOR_CONFIG,
+                    MotorType.kBrushless)); // TODO: can id
         pivot =
             new Pivot(
                 new SmartMotorIOTalonFX(
@@ -414,8 +415,7 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(activeOrPassing)
-        .whileTrue(
-            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in())))
+        .whileTrue(pulsedAntiJamFeed())
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
     // Firing during inactive period
@@ -428,35 +428,29 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
-        .whileTrue(
-            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in())))
+        .whileTrue(pulsedAntiJamFeed())
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
 
     // Operator override
     operatorController
         .rightTrigger()
-        .whileTrue(Commands.parallel(indexer.in(), kicker.in(), disruptor.in()))
+        .whileTrue(antiJamFeed())
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
     operatorController
         .rightBumper()
-        .whileTrue(Commands.parallel(indexer.out(), kicker.out(), wheels.out(), disruptor.reverse()))
+        .whileTrue(
+            Commands.parallel(indexer.out(), kicker.out(), wheels.out(), disruptor.reverse()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), wheels.stop(), disruptor.stop()));
-    
+
     // Turret Zero
-    operatorController
-        .back()
-        .onTrue(Commands.runOnce(() -> turret.zeroTurret()));
+    operatorController.back().onTrue(Commands.runOnce(() -> turret.zeroTurret()));
 
     // Manual Mode
     operatorController
         .start()
         .toggleOnTrue(conductor.forceManual().alongWith(Commands.runOnce(this::resetManual)));
-    operatorController
-        .povUp()
-        .whileTrue(Commands.run(() -> flywheelManual += 0.1));
-    operatorController
-        .povDown()
-        .whileTrue(Commands.run(() -> flywheelManual -= 0.1));
+    operatorController.povUp().whileTrue(Commands.run(() -> flywheelManual += 0.1));
+    operatorController.povDown().whileTrue(Commands.run(() -> flywheelManual -= 0.1));
     operatorController
         .povLeft()
         .whileTrue(Commands.run(() -> turretManual -= Units.degreesToRadians(0.75)));
@@ -477,6 +471,8 @@ public class RobotContainer {
     shiftAboutToEnd
         .and(RobotModeTriggers.teleop())
         .onTrue(driverController.rumble(RumbleType.kRightRumble, 1.0).withTimeout(0.25));
+    
+    
   }
 
   public Command getAutonomousCommand() {
@@ -527,5 +523,44 @@ public class RobotContainer {
 
   public static boolean withinBounds(double value, double bound1, double bound2) {
     return value <= Math.max(bound1, bound2) && value >= Math.min(bound1, bound2);
+  }
+
+  private Command antiJamFeed() {
+    return Commands.sequence(
+        Commands.parallel( 
+            indexer.in(),
+            disruptor.in(),
+            kicker.in())
+            .until(() -> indexer.isJammed() || disruptor.isJammed()), 
+        
+        Commands.parallel(
+            indexer.out(),
+            disruptor.reverse(),
+            kicker.out())
+            .withTimeout(1.0), 
+        
+        Commands.parallel(
+            indexer.in(),
+            disruptor.in(),
+            kicker.in())
+    ).repeatedly();
+  }
+
+  private Command pulsedAntiJamFeed() {
+    return Commands.sequence(
+        Commands.waitSeconds(1)
+                .andThen(
+                    Commands.parallel(
+                        indexer.pulseIn(), 
+                        kicker.in(), 
+                        disruptor.in()))
+                .until(() -> indexer.isJammed() || disruptor.isJammed()), 
+        
+        Commands.parallel(
+            indexer.out(),
+            disruptor.reverse(),
+            kicker.out())
+            .withTimeout(1.0)
+    ).repeatedly();
   }
 }
