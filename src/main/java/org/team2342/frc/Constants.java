@@ -139,8 +139,10 @@ public final class Constants {
   }
 
   public static final class IndexerConstants {
-    public static final double RUN_VOLTAGE = 5;
+    public static final double RUN_VOLTAGE = 5.0;
+    public static final double DISRUPTOR_RUN_VOLTAGE = 5.0;
     public static final double RUN_CURRENT = 30.0;
+    public static final double MAX_CURRENT = 45.0;
 
     public static final MotorConfig INDEXER_MOTOR_CONFIG =
         new MotorConfig()
@@ -153,6 +155,18 @@ public final class Constants {
     public static final DCMotorSim INDEXER_SIM =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(INDEXER_SIM_MOTOR, 0.003, 1), INDEXER_SIM_MOTOR);
+
+    public static final MotorConfig DISRUPTOR_MOTOR_CONFIG =
+        new MotorConfig()
+            .withMotorInverted(true)
+            .withSupplyCurrentLimit(30.0)
+            .withStatorCurrentLimit(60.0)
+            .withIdleMode(MotorConfig.IdleMode.BRAKE);
+
+    public static final DCMotor DISRUPTOR_SIM_MOTOR = DCMotor.getNeoVortex(1);
+    public static final DCMotorSim DISRUPTOR_SIM =
+        new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(DISRUPTOR_SIM_MOTOR, 0.003, 1), DISRUPTOR_SIM_MOTOR);
   }
 
   public static final class IntakeConstants {
@@ -288,6 +302,8 @@ public final class Constants {
     public static final int INTAKE_WHEEL_MOTOR_ID = 18;
     public static final int INTAKE_PIVOT_MOTOR_ID = 19;
     public static final int INTAKE_PIVOT_ENCODER_ID = 20;
+
+    public static final int DISRUPTOR_ID = 21;
 
     public static final int CANDLE_ID = 61;
     public static final int PDH_ID = 62;

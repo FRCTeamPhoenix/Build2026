@@ -8,6 +8,7 @@ package org.team2342.frc;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -44,6 +45,7 @@ import org.team2342.frc.subsystems.drive.GyroIOPigeon2;
 import org.team2342.frc.subsystems.drive.ModuleIO;
 import org.team2342.frc.subsystems.drive.ModuleIOSim;
 import org.team2342.frc.subsystems.drive.ModuleIOTalonFX;
+import org.team2342.frc.subsystems.indexer.Disruptor;
 import org.team2342.frc.subsystems.indexer.Indexer;
 import org.team2342.frc.subsystems.intake.Pivot;
 import org.team2342.frc.subsystems.intake.Wheels;
@@ -62,6 +64,7 @@ import org.team2342.lib.leds.LedIO;
 import org.team2342.lib.leds.LedIOCANdle;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
+import org.team2342.lib.motors.dumb.DumbMotorIOSparkFlex;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFX;
 import org.team2342.lib.motors.dumb.DumbMotorIOTalonFXFOC;
 import org.team2342.lib.motors.smart.SmartMotorIO;
@@ -76,6 +79,7 @@ public class RobotContainer {
   @Getter private final Vision vision;
   @Getter private final Pivot pivot;
   @Getter private final Indexer indexer;
+  @Getter private final Disruptor disruptor;
   @Getter private final Kicker kicker;
   @Getter private final Wheels wheels;
   @Getter private final Flywheel flywheel;
@@ -142,6 +146,13 @@ public class RobotContainer {
             new Indexer(
                 new DumbMotorIOTalonFXFOC(
                     CANConstants.INDEXER_MOTOR_ID, IndexerConstants.INDEXER_MOTOR_CONFIG));
+
+        disruptor =
+            new Disruptor(
+                new DumbMotorIOSparkFlex(
+                    CANConstants.DISRUPTOR_ID,
+                    IndexerConstants.DISRUPTOR_MOTOR_CONFIG,
+                    MotorType.kBrushless));
         pivot =
             new Pivot(
                 new SmartMotorIOTalonFX(
@@ -199,6 +210,11 @@ public class RobotContainer {
                 new DumbMotorIOSim(
                     IndexerConstants.INDEXER_SIM_MOTOR, IndexerConstants.INDEXER_SIM));
 
+        disruptor =
+            new Disruptor(
+                new DumbMotorIOSim(
+                    IndexerConstants.DISRUPTOR_SIM_MOTOR, IndexerConstants.DISRUPTOR_SIM));
+
         wheels =
             new Wheels(
                 new DumbMotorIOSim(
@@ -242,6 +258,7 @@ public class RobotContainer {
                 new VisionIO() {},
                 new VisionIO() {});
         indexer = new Indexer(new DumbMotorIO() {});
+        disruptor = new Disruptor(new DumbMotorIO() {});
         wheels = new Wheels(new DumbMotorIO() {});
         pivot = new Pivot(new SmartMotorIO() {});
         flywheel = new Flywheel(new SmartMotorIO() {});
@@ -277,6 +294,7 @@ public class RobotContainer {
                     .alongWith(pivot.holdAngle(0))
                     .alongWith(wheels.in())
                     .alongWith(indexer.in())
+                    .alongWith(disruptor.in())
                     .alongWith(kicker.in())));
     if (Constants.TUNING) setupDevelopmentRoutines();
 
@@ -311,21 +329,15 @@ public class RobotContainer {
         "autoShoot",
         conductor
             .runState(ConductorState.WARM_UP)
-            .withTimeout(1.0)
+            .withTimeout(2.0)
             .andThen(
                 conductor
                     .runState(ConductorState.TRACKED_FIRING)
-                    .alongWith(pivot.agitate())
+                    .alongWith(pivot.holdAngle(0))
                     .alongWith(wheels.in())
                     .alongWith(indexer.in())
-                    .alongWith(kicker.in())
-                    .withTimeout(4.0)
-                    .finallyDo(
-                        () -> {
-                          wheels.stop().schedule();
-                          indexer.stop().schedule();
-                          kicker.stop().schedule();
-                        })));
+                    .alongWith(disruptor.in())
+                    .alongWith(kicker.in())));
 
     NamedCommands.registerCommand(
         "autoIntake",
@@ -335,8 +347,10 @@ public class RobotContainer {
         "stopAll",
         new InstantCommand(
             () -> {
+              pivot.stop();
               wheels.stop();
               indexer.stop();
+              disruptor.stop();
               kicker.stop();
             }));
   }
@@ -401,9 +415,8 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(activeOrPassing)
-        .whileTrue(
-            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in())))
-        .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
+        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
 
     // Firing during inactive period
     driverController
@@ -415,19 +428,19 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
-        .whileTrue(
-            Commands.waitSeconds(1).andThen(Commands.parallel(indexer.pulseIn(), kicker.in())))
-        .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
+        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
 
     // Operator override
     operatorController
         .rightTrigger()
-        .whileTrue(Commands.parallel(indexer.in(), kicker.in()))
+        .whileTrue(antiJamFeed())
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
     operatorController
         .rightBumper()
-        .whileTrue(Commands.parallel(indexer.out(), kicker.out(), wheels.out()))
-        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), wheels.stop()));
+        .whileTrue(
+            Commands.parallel(indexer.out(), kicker.out(), wheels.out(), disruptor.reverse()))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), wheels.stop(), disruptor.stop()));
 
     // Turret Zero
     operatorController.back().onTrue(Commands.runOnce(() -> turret.zeroTurret()));
@@ -508,5 +521,23 @@ public class RobotContainer {
 
   public static boolean withinBounds(double value, double bound1, double bound2) {
     return value <= Math.max(bound1, bound2) && value >= Math.min(bound1, bound2);
+  }
+
+  private Command antiJamFeed() {
+    return Commands.sequence(
+            Commands.parallel(indexer.in(), disruptor.in(), kicker.in())
+                .until(() -> indexer.isJammed() || disruptor.isJammed()),
+            Commands.parallel(indexer.out(), disruptor.reverse(), kicker.out()).withTimeout(1.0),
+            Commands.parallel(indexer.in(), disruptor.in(), kicker.in()))
+        .repeatedly();
+  }
+
+  private Command pulsedAntiJamFeed() {
+    return Commands.sequence(
+            Commands.waitSeconds(1)
+                .andThen(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
+                .until(() -> indexer.isJammed() || disruptor.isJammed()),
+            Commands.parallel(indexer.out(), disruptor.reverse(), kicker.out()).withTimeout(1.0))
+        .repeatedly();
   }
 }
