@@ -150,9 +150,9 @@ public class RobotContainer {
         disruptor =
             new Disruptor(
                 new DumbMotorIOSparkFlex(
-                    0,
+                    CANConstants.DISRUPTOR_ID,
                     IndexerConstants.DISRUPTOR_MOTOR_CONFIG,
-                    MotorType.kBrushless)); // TODO: can id
+                    MotorType.kBrushless));
         pivot =
             new Pivot(
                 new SmartMotorIOTalonFX(
@@ -415,8 +415,8 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
         .and(activeOrPassing)
-        .whileTrue(pulsedAntiJamFeed())
-        .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
+        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
 
     // Firing during inactive period
     driverController
@@ -428,8 +428,8 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
-        .whileTrue(pulsedAntiJamFeed())
-        .onFalse(Commands.parallel(indexer.stop(), kicker.stop()));
+        .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
+        .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
 
     // Operator override
     operatorController
@@ -471,8 +471,6 @@ public class RobotContainer {
     shiftAboutToEnd
         .and(RobotModeTriggers.teleop())
         .onTrue(driverController.rumble(RumbleType.kRightRumble, 1.0).withTimeout(0.25));
-    
-    
   }
 
   public Command getAutonomousCommand() {
@@ -527,40 +525,19 @@ public class RobotContainer {
 
   private Command antiJamFeed() {
     return Commands.sequence(
-        Commands.parallel( 
-            indexer.in(),
-            disruptor.in(),
-            kicker.in())
-            .until(() -> indexer.isJammed() || disruptor.isJammed()), 
-        
-        Commands.parallel(
-            indexer.out(),
-            disruptor.reverse(),
-            kicker.out())
-            .withTimeout(1.0), 
-        
-        Commands.parallel(
-            indexer.in(),
-            disruptor.in(),
-            kicker.in())
-    ).repeatedly();
+            Commands.parallel(indexer.in(), disruptor.in(), kicker.in())
+                .until(() -> indexer.isJammed() || disruptor.isJammed()),
+            Commands.parallel(indexer.out(), disruptor.reverse(), kicker.out()).withTimeout(1.0),
+            Commands.parallel(indexer.in(), disruptor.in(), kicker.in()))
+        .repeatedly();
   }
 
   private Command pulsedAntiJamFeed() {
     return Commands.sequence(
-        Commands.waitSeconds(1)
-                .andThen(
-                    Commands.parallel(
-                        indexer.pulseIn(), 
-                        kicker.in(), 
-                        disruptor.in()))
-                .until(() -> indexer.isJammed() || disruptor.isJammed()), 
-        
-        Commands.parallel(
-            indexer.out(),
-            disruptor.reverse(),
-            kicker.out())
-            .withTimeout(1.0)
-    ).repeatedly();
+            Commands.waitSeconds(1)
+                .andThen(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
+                .until(() -> indexer.isJammed() || disruptor.isJammed()),
+            Commands.parallel(indexer.out(), disruptor.reverse(), kicker.out()).withTimeout(1.0))
+        .repeatedly();
   }
 }

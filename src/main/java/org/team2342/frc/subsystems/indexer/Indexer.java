@@ -59,6 +59,6 @@ public class Indexer extends SubsystemBase {
   }
 
   public boolean isJammed() {
-    return inputs.currentAmps > IndexerConstants.MAX_CURRENT;
+    return inputs.currentAmps > IndexerConstants.INDEXER_MOTOR_CONFIG.statorLimit;
   }
 }

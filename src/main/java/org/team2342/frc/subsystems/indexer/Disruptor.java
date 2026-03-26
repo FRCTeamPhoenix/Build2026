@@ -52,6 +52,6 @@ public class Disruptor extends SubsystemBase {
   }
 
   public boolean isJammed() {
-    return inputs.currentAmps > IndexerConstants.MAX_CURRENT;
+    return inputs.currentAmps > IndexerConstants.DISRUPTOR_MOTOR_CONFIG.supplyLimit;
   }
 }
