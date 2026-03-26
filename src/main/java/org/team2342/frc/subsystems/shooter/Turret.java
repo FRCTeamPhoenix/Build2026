@@ -113,6 +113,10 @@ public class Turret extends SubsystemBase {
     return Math.abs(inputs.positionRad - goal) <= TurretConstants.AT_POSITION_THRESHOLD;
   }
 
+  public boolean aroundGoal() {
+    return Math.abs(inputs.positionRad - goal) <= 0.05;
+  }
+
   public void zeroTurret() {
     turretMotor.setPosition(TurretConstants.STARTING_ANGLE);
     goal = TurretConstants.STARTING_ANGLE;

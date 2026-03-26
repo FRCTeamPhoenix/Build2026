@@ -106,6 +106,7 @@ public class RobotContainer {
   private final Trigger allianceZoneTrigger;
   private final Trigger shiftAboutToEnd;
   private final Trigger activeOrPassing;
+  private final Trigger readyToFire;
 
   @Getter private double turretManual, flywheelManual;
 
@@ -319,6 +320,7 @@ public class RobotContainer {
                     || FiringSolver.getInstance()
                         .calculate(drive.getChassisSpeeds(), drive.getPose())
                         .passing());
+    readyToFire = new Trigger(() -> turret.atGoal() && flywheel.atGoal());
 
     configureBindings();
   }
@@ -414,6 +416,7 @@ public class RobotContainer {
     driverController
         .rightTrigger()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
+        .and(readyToFire)
         .and(activeOrPassing)
         .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
@@ -428,6 +431,7 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
+        .and(readyToFire)
         .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
 
