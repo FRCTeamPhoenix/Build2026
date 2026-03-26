@@ -9,7 +9,6 @@ package org.team2342.frc.subsystems.indexer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.IndexerConstants;
@@ -17,15 +16,15 @@ import org.team2342.lib.logging.ExecutionLogger;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOInputsAutoLogged;
 
-public class Indexer extends SubsystemBase {
+public class Disruptor extends SubsystemBase {
   private final DumbMotorIO motor;
   private final DumbMotorIOInputsAutoLogged inputs = new DumbMotorIOInputsAutoLogged();
 
-  private final Alert motorAlert = new Alert("Indexer Motor is diconnected", AlertType.kError);
+  private final Alert motorAlert = new Alert("Disruptor Motor is diconnected", AlertType.kError);
 
-  public Indexer(DumbMotorIO motor) {
+  public Disruptor(DumbMotorIO motor) {
     this.motor = motor;
-    setName("Indexer");
+    setName("Disruptor");
 
     setDefaultCommand(run(() -> motor.runVoltage(0.0)));
   }
@@ -33,32 +32,26 @@ public class Indexer extends SubsystemBase {
   @Override
   public void periodic() {
     motor.updateInputs(inputs);
-
-    Logger.processInputs("Indexer/BeltMotor", inputs);
-
+    Logger.processInputs("Disruptor", inputs);
     motorAlert.set(!inputs.connected);
-
-    ExecutionLogger.log("Indexer");
+    ExecutionLogger.log("Disruptor");
   }
 
   public Command in() {
-    return run(() -> motor.runVoltage(IndexerConstants.RUN_VOLTAGE)).withName("Indexer Feed");
+    return run(() -> motor.runVoltage(IndexerConstants.DISRUPTOR_RUN_VOLTAGE))
+        .withName("Disruptor Feed");
   }
 
-  public Command out() {
-    return run(() -> motor.runVoltage(-IndexerConstants.RUN_VOLTAGE)).withName("Indexer Out");
-  }
-
-  public Command pulseIn() {
-    return Commands.repeatingSequence(
-        in().withTimeout(2), stop().andThen(Commands.waitSeconds(0.5)));
+  public Command reverse() {
+    return run(() -> motor.runVoltage(-IndexerConstants.DISRUPTOR_RUN_VOLTAGE))
+        .withName("Disruptor Reverse");
   }
 
   public Command stop() {
-    return runOnce(() -> motor.runVoltage(0.0)).withName("Indexer Stop");
+    return run(() -> motor.runVoltage(0.0)).withName("Disruptor Stop");
   }
 
   public boolean isJammed() {
-    return inputs.currentAmps > IndexerConstants.INDEXER_MOTOR_CONFIG.statorLimit;
+    return inputs.currentAmps > IndexerConstants.DISRUPTOR_MOTOR_CONFIG.supplyLimit;
   }
 }
