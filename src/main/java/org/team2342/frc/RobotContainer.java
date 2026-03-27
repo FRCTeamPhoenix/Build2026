@@ -316,11 +316,11 @@ public class RobotContainer {
     activeOrPassing =
         new Trigger(
             () ->
-                HubShiftUtil.getShiftedShiftInfo().active()
+                HubShiftUtil.getOfficialShiftInfo().active()
                     || FiringSolver.getInstance()
                         .calculate(drive.getChassisSpeeds(), drive.getPose())
                         .passing());
-    readyToFire = new Trigger(() -> turret.atGoal() && flywheel.atGoal());
+    readyToFire = new Trigger(() -> turret.aroundGoal() && flywheel.atGoal());
 
     configureBindings();
   }
@@ -394,7 +394,7 @@ public class RobotContainer {
     driverController
         .leftTrigger()
         .whileTrue(wheels.in().alongWith(pivot.holdAngle(IntakeConstants.MIN_ANGLE)))
-        .onFalse(wheels.stop().alongWith(pivot.stop()));
+        .onFalse(wheels.stop().alongWith(pivot.holdAngle(0.2)));
 
     // Retract Intake
     driverController

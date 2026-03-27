@@ -187,7 +187,7 @@ public final class Constants {
             INTAKE_WHEELS_SIM_MOTOR);
 
     public static final double PIVOT_GEAR_RATIO = 40;
-    public static final double MIN_ANGLE = 0.2;
+    public static final double MIN_ANGLE = 0.1;
     public static final double MAX_ANGLE = 2.23;
 
     public static final PIDFFConfigs PIVOT_MOTOR_PID_CONFIGS =
