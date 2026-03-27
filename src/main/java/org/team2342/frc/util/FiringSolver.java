@@ -28,6 +28,7 @@ public class FiringSolver {
 
   private static final InterpolatingDoubleTreeMap speedMap = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap tofMap = new InterpolatingDoubleTreeMap();
+  private static final InterpolatingDoubleTreeMap passingMap = new InterpolatingDoubleTreeMap();
 
   // TODO: tune real maps
   static {
@@ -53,6 +54,7 @@ public class FiringSolver {
     tofMap.put(4.23, 3.43 - 2.25);
     tofMap.put(4.95, 2.64 - 1.33);
     tofMap.put(5.166, 6.9 - 5.4);
+
   }
 
   public static FiringSolver getInstance() {

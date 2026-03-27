@@ -17,9 +17,13 @@ public class PassingController {
   private final EnhancedXboxController operatorController;
 
   private final Translation2d leftTarget =
-      AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner);
+    AllianceUtils.flipToAlliance(FieldConstants.Outpost.centerPoint);
+
   private final Translation2d rightTarget =
-      AllianceUtils.flipToAlliance(FieldConstants.RightBump.farLeftCorner);
+    AllianceUtils.flipToAlliance(
+        new Translation2d(
+            FieldConstants.Outpost.centerPoint.getX(),
+            FieldConstants.fieldWidth - FieldConstants.Outpost.centerPoint.getY()));
 
   private Translation2d adjustedLeftTarget = leftTarget;
   private Translation2d adjustedRightTarget = rightTarget;
