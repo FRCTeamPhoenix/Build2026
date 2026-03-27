@@ -1,77 +1,80 @@
-package org.team2342.frc.util;
+// Copyright (c) 2026 Team 2342
+// https://github.com/FRCTeamPhoenix
+//
+// This source code is licensed under the MIT License.
+// See the LICENSE file in the root directory of this project.
 
-import org.team2342.lib.util.AllianceUtils;
-import org.team2342.lib.util.EnhancedXboxController;
-import org.team2342.frc.commands.DriveCommands;
+package org.team2342.frc.util;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
+import org.team2342.frc.commands.DriveCommands;
+import org.team2342.lib.util.AllianceUtils;
+import org.team2342.lib.util.EnhancedXboxController;
 
 public class PassingController {
-    
-    private final EnhancedXboxController operatorController;
 
-    private final Translation2d leftTarget = AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner);
-    private final Translation2d rightTarget = AllianceUtils.flipToAlliance(FieldConstants.RightBump.farLeftCorner);
+  private final EnhancedXboxController operatorController;
 
-    private Translation2d adjustedLeftTarget = leftTarget;
-    private Translation2d adjustedRightTarget = rightTarget;
+  private final Translation2d leftTarget =
+      AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner);
+  private final Translation2d rightTarget =
+      AllianceUtils.flipToAlliance(FieldConstants.RightBump.farLeftCorner);
 
-    private static final double MAX_OFFSET = 0.5; 
-    private static final double ADJUST_SCALE = 0.1; 
+  private Translation2d adjustedLeftTarget = leftTarget;
+  private Translation2d adjustedRightTarget = rightTarget;
 
-    private Translation2d leftMin;
-    private Translation2d leftMax;
+  private static final double MAX_OFFSET = 0.5;
+  private static final double ADJUST_SCALE = 0.1;
 
-    private Translation2d rightMin;
-    private Translation2d rightMax;
+  private Translation2d leftMin;
+  private Translation2d leftMax;
 
-    public PassingController(EnhancedXboxController operatorController) {
-        this.operatorController = operatorController;
+  private Translation2d rightMin;
+  private Translation2d rightMax;
 
-        leftMin = leftTarget.minus(new Translation2d(MAX_OFFSET, MAX_OFFSET));
-        leftMax = leftTarget.plus(new Translation2d(MAX_OFFSET, MAX_OFFSET));
+  public PassingController(EnhancedXboxController operatorController) {
+    this.operatorController = operatorController;
 
-        rightMin = rightTarget.minus(new Translation2d(MAX_OFFSET, MAX_OFFSET));
-        rightMax = rightTarget.plus(new Translation2d(MAX_OFFSET, MAX_OFFSET));
-    }
+    leftMin = leftTarget.minus(new Translation2d(MAX_OFFSET, MAX_OFFSET));
+    leftMax = leftTarget.plus(new Translation2d(MAX_OFFSET, MAX_OFFSET));
 
-    public void periodic() {
-        double leftX = operatorController.getLeftX();
-        double leftY = operatorController.getLeftY();
-        Translation2d leftAdjustment =
-            DriveCommands.getLinearVelocityFromJoysticks(leftX, leftY).times(ADJUST_SCALE);
-        adjustedLeftTarget = adjustedLeftTarget.plus(leftAdjustment);
-        adjustedLeftTarget = clamp(adjustedLeftTarget, leftMin, leftMax);
+    rightMin = rightTarget.minus(new Translation2d(MAX_OFFSET, MAX_OFFSET));
+    rightMax = rightTarget.plus(new Translation2d(MAX_OFFSET, MAX_OFFSET));
+  }
 
-        double rightX = operatorController.getRightX();
-        double rightY = operatorController.getRightY();
-        Translation2d rightAdjustment = 
-            DriveCommands.getLinearVelocityFromJoysticks(rightX, rightY).times(ADJUST_SCALE);
-        adjustedRightTarget = adjustedRightTarget.plus(rightAdjustment);
-        adjustedRightTarget = clamp(adjustedRightTarget, rightMin, rightMax);
-    }
+  public void periodic() {
+    double leftX = operatorController.getLeftX();
+    double leftY = operatorController.getLeftY();
+    Translation2d leftAdjustment =
+        DriveCommands.getLinearVelocityFromJoysticks(leftX, leftY).times(ADJUST_SCALE);
+    adjustedLeftTarget = adjustedLeftTarget.plus(leftAdjustment);
+    adjustedLeftTarget = clamp(adjustedLeftTarget, leftMin, leftMax);
 
-    public Translation2d clamp(Translation2d translation, Translation2d min, Translation2d max) {
-        return new Translation2d(
-            MathUtil.clamp(translation.getX(), 
-            min.getX(), 
-            max.getX()), 
-            MathUtil.clamp(translation.getY(), 
-            min.getY(), 
-            max.getY()));    
-    }
+    double rightX = operatorController.getRightX();
+    double rightY = operatorController.getRightY();
+    Translation2d rightAdjustment =
+        DriveCommands.getLinearVelocityFromJoysticks(rightX, rightY).times(ADJUST_SCALE);
+    adjustedRightTarget = adjustedRightTarget.plus(rightAdjustment);
+    adjustedRightTarget = clamp(adjustedRightTarget, rightMin, rightMax);
+  }
 
-    public Translation2d getLeftTarget() {
-        return adjustedLeftTarget;
-    }
+  public Translation2d clamp(Translation2d translation, Translation2d min, Translation2d max) {
+    return new Translation2d(
+        MathUtil.clamp(translation.getX(), min.getX(), max.getX()),
+        MathUtil.clamp(translation.getY(), min.getY(), max.getY()));
+  }
 
-    public Translation2d getRightTarget() {
-        return adjustedRightTarget;
-    }
+  public Translation2d getLeftTarget() {
+    return adjustedLeftTarget;
+  }
 
-    public void reset() {
-        adjustedLeftTarget = leftTarget;
-        adjustedRightTarget = rightTarget;
-    }
+  public Translation2d getRightTarget() {
+    return adjustedRightTarget;
+  }
+
+  public void reset() {
+    adjustedLeftTarget = leftTarget;
+    adjustedRightTarget = rightTarget;
+  }
 }

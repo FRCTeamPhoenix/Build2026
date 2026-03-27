@@ -31,26 +31,28 @@ public class FiringSolver {
 
   // TODO: tune real maps
   static {
-    speedMap.put(1.942, 14.2);
-    speedMap.put(2.712, 14.7);
-    speedMap.put(2.847, 15.5);
-    speedMap.put(3.065, 17.5);
-    speedMap.put(3.442, 18.0);
-    speedMap.put(3.8, 18.5);
-    speedMap.put(4.16, 20.5);
-    speedMap.put(4.341, 21.5);
+    speedMap.put(2.11, 14.5);
+    speedMap.put(2.42, 15.0);
+    speedMap.put(3.0, 16.0);
+    speedMap.put(3.13, 16.0);
+    speedMap.put(3.455, 16.5);
+    speedMap.put(3.77, 17.0);
+    speedMap.put(4.23, 18.0);
+    speedMap.put(4.95, 19.0);
+    speedMap.put(5.166, 21.0);
 
-    MIN_TOF = 3.89 - 3.08;
-    MAX_TOF = 11.3 - 9.83;
+    MIN_TOF = 7.0 - 6.31;
+    MAX_TOF = 6.9 - 5.4;
 
-    tofMap.put(1.942, 3.89 - 3.08);
-    tofMap.put(2.712, 4.11 - 3.30);
-    tofMap.put(2.847, 2.28 - 1.24);
-    tofMap.put(3.065, 8.70 - 7.62);
-    tofMap.put(3.442, 3.95 - 2.83);
-    tofMap.put(3.8, 3.74 - 2.50);
-    tofMap.put(4.16, 12.27 - 10.91);
-    tofMap.put(4.341, 11.30 - 9.83);
+    tofMap.put(2.11, 7.0 - 6.31);
+    tofMap.put(2.42, 2.41 - 1.66);
+    tofMap.put(3.0, 7.52 - 6.57);
+    tofMap.put(3.13, 2.77 - 1.89);
+    tofMap.put(3.455, 2.65 - 1.62);
+    tofMap.put(3.77, 4.45 - 3.44);
+    tofMap.put(4.23, 3.43 - 2.25);
+    tofMap.put(4.95, 2.64 - 1.33);
+    tofMap.put(5.166, 6.9 - 5.4);
   }
 
   public static FiringSolver getInstance() {
