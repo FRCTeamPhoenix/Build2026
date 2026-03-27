@@ -328,18 +328,17 @@ public class RobotContainer {
   private void configureNamedCommands() {
     NamedCommands.registerCommand("Named Command Test", Commands.print("Named Command Test"));
     NamedCommands.registerCommand(
-        "autoShoot",
-        conductor
-            .runState(ConductorState.WARM_UP)
-            .withTimeout(2.0)
-            .andThen(
-                conductor
-                    .runState(ConductorState.TRACKED_FIRING)
-                    .alongWith(pivot.holdAngle(0))
-                    .alongWith(wheels.in())
-                    .alongWith(indexer.in())
-                    .alongWith(disruptor.in())
-                    .alongWith(kicker.in())));
+    "autoShoot",
+    conductor.runState(ConductorState.WARM_UP)
+        .withTimeout(1.0)
+        .andThen(
+            conductor.runState(ConductorState.TRACKED_FIRING)
+                .alongWith(pivot.holdAngle(IntakeConstants.MIN_ANGLE))
+                .alongWith(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
+                .withTimeout(3.0))  
+        .finallyDo(() -> 
+            Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()
+            )));
 
     NamedCommands.registerCommand(
         "autoIntake",
