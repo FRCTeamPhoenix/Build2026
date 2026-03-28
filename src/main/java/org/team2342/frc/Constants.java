@@ -41,6 +41,7 @@ public final class Constants {
   public static final class VisionConstants {
     public static final String SWERVE_CAMERA_NAME = "swerve_arducam";
     public static final String SHOOTER_CAMERA_NAME = "shooter_arducam";
+    public static final String RIGHT_CAMERA_NAME = "right_arducam";
 
     public static final Transform3d SWERVE_CAMERA_TRANSFORM =
         new Transform3d(
@@ -50,6 +51,24 @@ public final class Constants {
                 Units.inchesToMeters(8)),
             new Rotation3d(
                 0, Units.degreesToRadians(-22.0), Units.degreesToRadians(-(90 + 61.475))));
+
+    public static final Transform3d RIGHT_CAMERA = 
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(-13.428),
+                Units.inchesToMeters(-3.917),
+                Units.inchesToMeters(5.930)),
+            new Rotation3d(
+                0, Units.degreesToRadians(-30), Units.degreesToRadians(10)));
+
+    public static final Transform3d LEFT_CAMERA = 
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(-13.428),
+                Units.inchesToMeters(3.931),
+                Units.inchesToMeters(5.930)),
+            new Rotation3d(
+                0, Units.degreesToRadians(-30), Units.degreesToRadians(-10)));
 
     public static final Transform3d SHOOTER_CAMERA_TRANSFORM =
         new Transform3d(
@@ -65,6 +84,10 @@ public final class Constants {
     public static final CameraParameters SWERVE_CAMERA_PARAMETERS =
         CameraParameters.loadFromName(SWERVE_CAMERA_NAME, 800, 600)
             .withTransform(SWERVE_CAMERA_TRANSFORM);
+
+    public static final CameraParameters RIGHT_CAMERA_PARAMETERS =
+        CameraParameters.loadFromName(SWERVE_CAMERA_NAME, 800, 600)
+            .withTransform(RIGHT_CAMERA);
 
     public static final CameraParameters SHOOTER_CAMERA_PARAMETERS =
         CameraParameters.loadFromName(SHOOTER_CAMERA_NAME, 800, 600)
@@ -151,7 +174,7 @@ public final class Constants {
             .withStatorCurrentLimit(70.0)
             .withIdleMode(MotorConfig.IdleMode.COAST);
 
-    public static final DCMotor INDEXER_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotor INDEXER_SIM_MOTOR = DCMotor.getKrakenX44(1);
     public static final DCMotorSim INDEXER_SIM =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(INDEXER_SIM_MOTOR, 0.003, 1), INDEXER_SIM_MOTOR);
@@ -180,7 +203,7 @@ public final class Constants {
             .withStatorCurrentLimit(70.0)
             .withIdleMode(IdleMode.COAST);
 
-    public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX44(1);
     public static final DCMotorSim INTAKE_WHEEL_SIM =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(INTAKE_WHEELS_SIM_MOTOR, 0.003, 1),

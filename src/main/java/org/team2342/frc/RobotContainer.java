@@ -197,7 +197,7 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 drive::getTimestampedHeading,
                 new VisionIOSim(
-                    VisionConstants.SWERVE_CAMERA_PARAMETERS,
+                    VisionConstants.RIGHT_CAMERA_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose),
