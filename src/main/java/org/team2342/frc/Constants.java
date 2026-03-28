@@ -39,8 +39,7 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final String SWERVE_CAMERA_NAME = "swerve_arducam";
-    public static final String SHOOTER_CAMERA_NAME = "shooter_arducam";
+    public static final String LEFT_CAMERA_NAME = "left_arducam";
     public static final String RIGHT_CAMERA_NAME = "right_arducam";
 
     public static final Transform3d SWERVE_CAMERA_TRANSFORM =
@@ -52,23 +51,21 @@ public final class Constants {
             new Rotation3d(
                 0, Units.degreesToRadians(-22.0), Units.degreesToRadians(-(90 + 61.475))));
 
-    public static final Transform3d RIGHT_CAMERA = 
+    public static final Transform3d RIGHT_CAMERA =
         new Transform3d(
             new Translation3d(
                 Units.inchesToMeters(-13.428),
-                Units.inchesToMeters(-3.917),
-                Units.inchesToMeters(5.930)),
-            new Rotation3d(
-                0, Units.degreesToRadians(-30), Units.degreesToRadians(10)));
+                Units.inchesToMeters(3.917),
+                Units.inchesToMeters(7.618)),
+            new Rotation3d(0, Units.degreesToRadians(-30), Units.degreesToRadians(190)));
 
-    public static final Transform3d LEFT_CAMERA = 
+    public static final Transform3d LEFT_CAMERA =
         new Transform3d(
             new Translation3d(
                 Units.inchesToMeters(-13.428),
-                Units.inchesToMeters(3.931),
-                Units.inchesToMeters(5.930)),
-            new Rotation3d(
-                0, Units.degreesToRadians(-30), Units.degreesToRadians(-10)));
+                Units.inchesToMeters(-3.931),
+                Units.inchesToMeters(7.618)),
+            new Rotation3d(0, Units.degreesToRadians(-30), Units.degreesToRadians(-190)));
 
     public static final Transform3d SHOOTER_CAMERA_TRANSFORM =
         new Transform3d(
@@ -81,17 +78,11 @@ public final class Constants {
                 Units.degreesToRadians((90 - 63.435 + 180)),
                 Units.degreesToRadians(-119.745 + 90)));
 
-    public static final CameraParameters SWERVE_CAMERA_PARAMETERS =
-        CameraParameters.loadFromName(SWERVE_CAMERA_NAME, 800, 600)
-            .withTransform(SWERVE_CAMERA_TRANSFORM);
+    public static final CameraParameters LEFT_CAMERA_PARAMETERS =
+        CameraParameters.loadFromName(LEFT_CAMERA_NAME, 800, 600).withTransform(LEFT_CAMERA);
 
     public static final CameraParameters RIGHT_CAMERA_PARAMETERS =
-        CameraParameters.loadFromName(SWERVE_CAMERA_NAME, 800, 600)
-            .withTransform(RIGHT_CAMERA);
-
-    public static final CameraParameters SHOOTER_CAMERA_PARAMETERS =
-        CameraParameters.loadFromName(SHOOTER_CAMERA_NAME, 800, 600)
-            .withTransform(SHOOTER_CAMERA_TRANSFORM);
+        CameraParameters.loadFromName(LEFT_CAMERA_NAME, 800, 600).withTransform(RIGHT_CAMERA);
 
     // Basic filtering thresholds
     public static final double MAX_AMBIGUITY = 0.1;
@@ -224,7 +215,7 @@ public final class Constants {
             .withSupplyCurrentLimit(40.0)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
-                    CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.681, true))
+                    CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.01, true))
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1800), Units.degreesToRadians(540)));

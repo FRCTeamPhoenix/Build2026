@@ -54,7 +54,6 @@ public class FiringSolver {
     tofMap.put(4.23, 3.43 - 2.25);
     tofMap.put(4.95, 2.64 - 1.33);
     tofMap.put(5.166, 6.9 - 5.4);
-
   }
 
   public static FiringSolver getInstance() {
@@ -104,7 +103,7 @@ public class FiringSolver {
               .minus(Rotation2d.kCCW_Pi_2);
 
       // TODO: tune real passing speed
-      lastSolution = new FiringSolution(turretAngle, 15.0, true);
+      lastSolution = new FiringSolution(turretAngle, 18.0, true);
 
       return lastSolution;
     }
@@ -147,7 +146,8 @@ public class FiringSolver {
         hub.minus(predictedPose.getTranslation())
             .getAngle()
             .minus(position.getRotation())
-            .minus(Rotation2d.kCCW_Pi_2);
+            .minus(Rotation2d.kCCW_Pi_2)
+            .plus(Rotation2d.fromDegrees(5));
 
     double wheelSpeed = speedMap.get(predictedDistance);
 
