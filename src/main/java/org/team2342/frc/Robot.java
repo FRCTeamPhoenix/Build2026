@@ -13,6 +13,7 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUsageId;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
@@ -30,6 +31,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.frc.util.HubShiftUtil;
 import org.team2342.frc.util.PhoenixUtils;
@@ -161,17 +163,21 @@ public class Robot extends LoggedRobot {
     ExecutionLogger.log("Commands");
 
     Logger.recordOutput("ShiftUtil/Official", HubShiftUtil.getOfficialShiftInfo());
-
-    Logger.recordOutput(
-        "ShiftUtil/Dashboard/CurrentShift", HubShiftUtil.getShiftedShiftInfo().currentShift());
-    Logger.recordOutput(
-        "ShiftUtil/Dashboard/RemainingTime", HubShiftUtil.getShiftedShiftInfo().remainingTime());
-    Logger.recordOutput("ShiftUtil/Dashboard/Active", HubShiftUtil.getShiftedShiftInfo().active());
-
     Logger.recordOutput("ShiftUtil/Shifted", HubShiftUtil.getShiftedShiftInfo());
+
+    Logger.recordOutput(
+        "ShiftUtil/Dashboard/CurrentShift", HubShiftUtil.getOfficialShiftInfo().currentShift());
+    Logger.recordOutput(
+        "ShiftUtil/Dashboard/RemainingTime", HubShiftUtil.getOfficialShiftInfo().remainingTime());
+    Logger.recordOutput("ShiftUtil/Dashboard/Active", HubShiftUtil.getOfficialShiftInfo().active());
+
     Logger.recordOutput("TurretManual", Units.radiansToDegrees(robotContainer.getTurretManual()));
     Logger.recordOutput("FlywheelManual", robotContainer.getFlywheelManual());
     Logger.recordOutput("Vision/HasTags", robotContainer.getVision().hasTags());
+
+    Logger.recordOutput("zero", Pose3d.kZero);
+    Logger.recordOutput("camera", Pose3d.kZero.plus(VisionConstants.LEFT_CAMERA));
+    Logger.recordOutput("camera2", Pose3d.kZero.plus(VisionConstants.RIGHT_CAMERA));
 
     robotContainer.updateAlerts();
     FiringSolver.getInstance().clearCachedSolution();

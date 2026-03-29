@@ -39,8 +39,8 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final String SWERVE_CAMERA_NAME = "swerve_arducam";
-    public static final String SHOOTER_CAMERA_NAME = "shooter_arducam";
+    public static final String LEFT_CAMERA_NAME = "left_arducam";
+    public static final String RIGHT_CAMERA_NAME = "right_arducam";
 
     public static final Transform3d SWERVE_CAMERA_TRANSFORM =
         new Transform3d(
@@ -50,6 +50,22 @@ public final class Constants {
                 Units.inchesToMeters(8)),
             new Rotation3d(
                 0, Units.degreesToRadians(-22.0), Units.degreesToRadians(-(90 + 61.475))));
+
+    public static final Transform3d RIGHT_CAMERA =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(-13.428),
+                Units.inchesToMeters(3.917),
+                Units.inchesToMeters(7.618)),
+            new Rotation3d(0, Units.degreesToRadians(-30), Units.degreesToRadians(190)));
+
+    public static final Transform3d LEFT_CAMERA =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(-13.428),
+                Units.inchesToMeters(-3.931),
+                Units.inchesToMeters(7.618)),
+            new Rotation3d(0, Units.degreesToRadians(-30), Units.degreesToRadians(-190)));
 
     public static final Transform3d SHOOTER_CAMERA_TRANSFORM =
         new Transform3d(
@@ -62,13 +78,11 @@ public final class Constants {
                 Units.degreesToRadians((90 - 63.435 + 180)),
                 Units.degreesToRadians(-119.745 + 90)));
 
-    public static final CameraParameters SWERVE_CAMERA_PARAMETERS =
-        CameraParameters.loadFromName(SWERVE_CAMERA_NAME, 800, 600)
-            .withTransform(SWERVE_CAMERA_TRANSFORM);
+    public static final CameraParameters LEFT_CAMERA_PARAMETERS =
+        CameraParameters.loadFromName(LEFT_CAMERA_NAME, 800, 600).withTransform(LEFT_CAMERA);
 
-    public static final CameraParameters SHOOTER_CAMERA_PARAMETERS =
-        CameraParameters.loadFromName(SHOOTER_CAMERA_NAME, 800, 600)
-            .withTransform(SHOOTER_CAMERA_TRANSFORM);
+    public static final CameraParameters RIGHT_CAMERA_PARAMETERS =
+        CameraParameters.loadFromName(LEFT_CAMERA_NAME, 800, 600).withTransform(RIGHT_CAMERA);
 
     // Basic filtering thresholds
     public static final double MAX_AMBIGUITY = 0.1;
@@ -151,7 +165,7 @@ public final class Constants {
             .withStatorCurrentLimit(70.0)
             .withIdleMode(MotorConfig.IdleMode.COAST);
 
-    public static final DCMotor INDEXER_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotor INDEXER_SIM_MOTOR = DCMotor.getKrakenX44(1);
     public static final DCMotorSim INDEXER_SIM =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(INDEXER_SIM_MOTOR, 0.003, 1), INDEXER_SIM_MOTOR);
@@ -180,7 +194,7 @@ public final class Constants {
             .withStatorCurrentLimit(70.0)
             .withIdleMode(IdleMode.COAST);
 
-    public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX60(1);
+    public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX44(1);
     public static final DCMotorSim INTAKE_WHEEL_SIM =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(INTAKE_WHEELS_SIM_MOTOR, 0.003, 1),
@@ -201,7 +215,7 @@ public final class Constants {
             .withSupplyCurrentLimit(40.0)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
-                    CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.681, true))
+                    CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.01, true))
             .withProfileConstraintsRad(
                 new TrapezoidProfile.Constraints(
                     Units.degreesToRadians(1800), Units.degreesToRadians(540)));
@@ -212,7 +226,8 @@ public final class Constants {
     public static final double FLYWHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
 
     public static final double IDLE_SPEED = 15.0;
-    public static final double FLYWHEEL_AT_GOAL_TOLERANCE = 3.0;
+    public static final double FLYWHEEL_AT_GOAL_TOLERANCE =
+        2.0 / ShooterConstants.FLYWHEEL_RADIUS_METERS;
 
     public static final PIDFFConfigs FLYWHEEL_PID_CONFIGS =
         new PIDFFConfigs()
@@ -265,8 +280,8 @@ public final class Constants {
     public static final double AT_POSITION_THRESHOLD = 0.01;
 
     public static final double STARTING_ANGLE = Units.degreesToRadians(90);
-    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(0);
-    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(359);
+    public static final double MIN_TURRET_ANGLE = Units.degreesToRadians(5);
+    public static final double MAX_TURRET_ANGLE = Units.degreesToRadians(355);
 
     public static final double GEAR_RATIO = (48.0 / 12.0) * (100.0 / 10.0);
 

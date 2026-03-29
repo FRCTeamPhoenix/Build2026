@@ -107,7 +107,7 @@ public class Conductor extends SubsystemBase {
                         .calculate(velocitySupplier.get(), poseSupplier.get())
                         .turretAngle())
             .alongWith(
-                flywheel.warmUpCommand(
+                flywheel.shoot(
                     () ->
                         FiringSolver.getInstance()
                             .calculate(velocitySupplier.get(), poseSupplier.get())

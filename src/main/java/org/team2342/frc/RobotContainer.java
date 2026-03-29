@@ -49,7 +49,6 @@ import org.team2342.frc.subsystems.indexer.Disruptor;
 import org.team2342.frc.subsystems.indexer.Indexer;
 import org.team2342.frc.subsystems.intake.Pivot;
 import org.team2342.frc.subsystems.intake.Wheels;
-import org.team2342.frc.subsystems.leds.LEDSubsystem;
 import org.team2342.frc.subsystems.shooter.Flywheel;
 import org.team2342.frc.subsystems.shooter.Kicker;
 import org.team2342.frc.subsystems.shooter.Turret;
@@ -60,8 +59,6 @@ import org.team2342.frc.subsystems.vision.VisionIOSim;
 import org.team2342.frc.util.FieldConstants;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.frc.util.HubShiftUtil;
-import org.team2342.lib.leds.LedIO;
-import org.team2342.lib.leds.LedIOCANdle;
 import org.team2342.lib.motors.dumb.DumbMotorIO;
 import org.team2342.lib.motors.dumb.DumbMotorIOSim;
 import org.team2342.lib.motors.dumb.DumbMotorIOSparkFlex;
@@ -84,7 +81,6 @@ public class RobotContainer {
   @Getter private final Wheels wheels;
   @Getter private final Flywheel flywheel;
   @Getter private final Turret turret;
-  @Getter private final LEDSubsystem leds;
 
   @Getter private final Conductor conductor;
 
@@ -106,6 +102,7 @@ public class RobotContainer {
   private final Trigger allianceZoneTrigger;
   private final Trigger shiftAboutToEnd;
   private final Trigger activeOrPassing;
+  private final Trigger readyToFire;
 
   @Getter private double turretManual, flywheelManual;
 
@@ -124,7 +121,11 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 drive::getTimestampedHeading,
                 new VisionIOPhoton(
-                    VisionConstants.SWERVE_CAMERA_PARAMETERS,
+                    VisionConstants.LEFT_CAMERA_PARAMETERS,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR),
+                new VisionIOPhoton(
+                    VisionConstants.RIGHT_CAMERA_PARAMETERS,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR));
         turret =
@@ -173,13 +174,6 @@ public class RobotContainer {
                 drive::getChassisSpeeds,
                 () -> turretManual,
                 () -> flywheelManual);
-        leds =
-            new LEDSubsystem(
-                new LedIOCANdle(CANConstants.CANDLE_ID, 32),
-                "CANdle",
-                vision::hasTags,
-                conductor::getCurrentState);
-
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
         break;
 
@@ -196,12 +190,12 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 drive::getTimestampedHeading,
                 new VisionIOSim(
-                    VisionConstants.SWERVE_CAMERA_PARAMETERS,
+                    VisionConstants.LEFT_CAMERA_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose),
                 new VisionIOSim(
-                    VisionConstants.SHOOTER_CAMERA_PARAMETERS,
+                    VisionConstants.RIGHT_CAMERA_PARAMETERS,
                     PoseStrategy.CONSTRAINED_SOLVEPNP,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     drive::getRawOdometryPose));
@@ -238,9 +232,6 @@ public class RobotContainer {
                 drive::getChassisSpeeds,
                 () -> turretManual,
                 () -> flywheelManual);
-        leds =
-            new LEDSubsystem(new LedIO() {}, "CANdle", vision::hasTags, conductor::getCurrentState);
-
         break;
 
       default:
@@ -273,9 +264,6 @@ public class RobotContainer {
                 drive::getChassisSpeeds,
                 () -> turretManual,
                 () -> flywheelManual);
-        leds =
-            new LEDSubsystem(new LedIO() {}, "CANdle", vision::hasTags, conductor::getCurrentState);
-
         break;
     }
 
@@ -315,10 +303,11 @@ public class RobotContainer {
     activeOrPassing =
         new Trigger(
             () ->
-                HubShiftUtil.getShiftedShiftInfo().active()
+                HubShiftUtil.getOfficialShiftInfo().active()
                     || FiringSolver.getInstance()
                         .calculate(drive.getChassisSpeeds(), drive.getPose())
                         .passing());
+    readyToFire = new Trigger(() -> turret.aroundGoal() && flywheel.atGoal());
 
     configureBindings();
   }
@@ -329,15 +318,14 @@ public class RobotContainer {
         "autoShoot",
         conductor
             .runState(ConductorState.WARM_UP)
-            .withTimeout(2.0)
+            .withTimeout(1.0)
             .andThen(
                 conductor
                     .runState(ConductorState.TRACKED_FIRING)
-                    .alongWith(pivot.holdAngle(0))
-                    .alongWith(wheels.in())
-                    .alongWith(indexer.in())
-                    .alongWith(disruptor.in())
-                    .alongWith(kicker.in())));
+                    .alongWith(pivot.holdAngle(IntakeConstants.MIN_ANGLE))
+                    .alongWith(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
+                    .withTimeout(3.0))
+            .finallyDo(() -> Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop())));
 
     NamedCommands.registerCommand(
         "autoIntake",
@@ -392,7 +380,7 @@ public class RobotContainer {
     driverController
         .leftTrigger()
         .whileTrue(wheels.in().alongWith(pivot.holdAngle(IntakeConstants.MIN_ANGLE)))
-        .onFalse(wheels.stop().alongWith(pivot.stop()));
+        .onFalse(wheels.stop().alongWith(pivot.holdAngle(0.875)));
 
     // Retract Intake
     driverController
@@ -414,6 +402,7 @@ public class RobotContainer {
     driverController
         .rightTrigger()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
+        .and(readyToFire)
         .and(activeOrPassing)
         .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
@@ -428,6 +417,7 @@ public class RobotContainer {
     driverController
         .rightBumper()
         .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
+        .and(readyToFire)
         .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
 

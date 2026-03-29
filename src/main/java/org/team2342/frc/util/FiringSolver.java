@@ -15,10 +15,17 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import org.littletonrobotics.junction.Logger;
 import org.team2342.frc.Constants.TurretConstants;
 import org.team2342.frc.RobotContainer;
+import org.team2342.lib.logging.tunable.TunableNumber;
 import org.team2342.lib.util.AllianceUtils;
+import org.team2342.lib.util.EnhancedXboxController;
 
 public class FiringSolver {
   private static FiringSolver instance;
+
+  private PassingController controller = new PassingController(new EnhancedXboxController(1));
+
+  private final TunableNumber passingSpeedOffset =
+      new TunableNumber("PassingSpeedOffset", 0, () -> true);
 
   private static final int ITERATIONS = 5;
 
@@ -28,29 +35,47 @@ public class FiringSolver {
 
   private static final InterpolatingDoubleTreeMap speedMap = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap tofMap = new InterpolatingDoubleTreeMap();
+  private static final InterpolatingDoubleTreeMap passingMap = new InterpolatingDoubleTreeMap();
 
-  // TODO: tune real maps
   static {
-    speedMap.put(1.942, 14.2);
-    speedMap.put(2.712, 14.7);
-    speedMap.put(2.847, 15.5);
-    speedMap.put(3.065, 17.5);
-    speedMap.put(3.442, 18.0);
-    speedMap.put(3.8, 18.5);
-    speedMap.put(4.16, 20.5);
-    speedMap.put(4.341, 21.5);
+    speedMap.put(1.8, 14.5);
+    speedMap.put(2.01, 14.5);
+    speedMap.put(2.2, 14.5);
+    speedMap.put(2.4, 15.0);
+    speedMap.put(2.6, 15.2);
+    speedMap.put(2.8, 15.5);
+    speedMap.put(3.0, 16.0);
+    speedMap.put(3.21, 16.5);
+    speedMap.put(3.4, 16.7);
+    speedMap.put(3.6, 17.0);
+    speedMap.put(3.8, 17.2);
+    speedMap.put(4.0, 17.6);
 
-    MIN_TOF = 3.89 - 3.08;
-    MAX_TOF = 11.3 - 9.83;
+    // old
+    speedMap.put(4.23, 18.0);
+    speedMap.put(4.95, 19.0);
+    speedMap.put(5.166, 21.0);
 
-    tofMap.put(1.942, 3.89 - 3.08);
-    tofMap.put(2.712, 4.11 - 3.30);
-    tofMap.put(2.847, 2.28 - 1.24);
-    tofMap.put(3.065, 8.70 - 7.62);
-    tofMap.put(3.442, 3.95 - 2.83);
-    tofMap.put(3.8, 3.74 - 2.50);
-    tofMap.put(4.16, 12.27 - 10.91);
-    tofMap.put(4.341, 11.30 - 9.83);
+    MIN_TOF = 5.49 - 4.73;
+    MAX_TOF = 6.9 - 5.4;
+
+    tofMap.put(1.8, 5.49 - 4.73);
+    tofMap.put(2.01, 3.01 - 2.17);
+    tofMap.put(2.2, 2.78 - 1.88);
+    tofMap.put(2.4, 4.13 - 3.25);
+    tofMap.put(2.6, 3.67 - 2.67);
+    tofMap.put(2.8, 4.42 - 3.47);
+    tofMap.put(3.0, 4.14 - 3.13);
+    tofMap.put(3.21, 3.82 - 2.69);
+    tofMap.put(3.4, 3.03 - 1.91);
+    tofMap.put(3.6, 5.15 - 4.04);
+    tofMap.put(3.8, 3.41 - 2.26);
+    tofMap.put(4.0, 4.0 - 2.82);
+
+    // old
+    tofMap.put(4.23, 3.43 - 2.25);
+    tofMap.put(4.95, 2.64 - 1.33);
+    tofMap.put(5.166, 6.9 - 5.4);
   }
 
   public static FiringSolver getInstance() {
@@ -77,30 +102,30 @@ public class FiringSolver {
 
       Translation2d turretTranslation = turretPose.getTranslation();
 
-      Translation2d leftBump = AllianceUtils.flipToAlliance(FieldConstants.LeftBump.nearLeftCorner);
+      Translation2d leftTarget = AllianceUtils.flipToAlliance(controller.getLeftTarget());
 
-      Translation2d rightBump =
-          AllianceUtils.flipToAlliance(FieldConstants.RightBump.farLeftCorner);
+      Translation2d rightTarget = AllianceUtils.flipToAlliance(controller.getRightTarget());
 
-      Logger.recordOutput("FiringSolver/LeftTarget", new Pose2d(leftBump, Rotation2d.kZero));
-      Logger.recordOutput("FiringSolver/RightTarget", new Pose2d(rightBump, Rotation2d.kZero));
+      Logger.recordOutput("FiringSolver/LeftTarget", new Pose2d(leftTarget, Rotation2d.kZero));
+      Logger.recordOutput("FiringSolver/RightTarget", new Pose2d(rightTarget, Rotation2d.kZero));
 
       Translation2d passTarget =
-          (turretTranslation.getDistance(leftBump) < turretTranslation.getDistance(rightBump)
-              ? leftBump
-              : rightBump);
+          (turretTranslation.getDistance(leftTarget) < turretTranslation.getDistance(rightTarget)
+              ? leftTarget
+              : rightTarget);
 
       Logger.recordOutput("FiringSolver/Target", new Pose2d(passTarget, Rotation2d.kZero));
 
+      Translation2d turretToTarget = passTarget.minus(turretTranslation);
+
       Rotation2d turretAngle =
-          passTarget
-              .minus(turretTranslation)
-              .getAngle()
-              .minus(position.getRotation())
-              .minus(Rotation2d.kCCW_Pi_2);
+          turretToTarget.getAngle().minus(position.getRotation()).minus(Rotation2d.kCCW_Pi_2);
+      Double turretDistance = turretToTarget.getNorm();
 
       // TODO: tune real passing speed
-      lastSolution = new FiringSolution(turretAngle, 15.0, true);
+      lastSolution =
+          new FiringSolution(
+              turretAngle, speedMap.get(turretDistance) - passingSpeedOffset.get(), true);
 
       return lastSolution;
     }
@@ -143,7 +168,8 @@ public class FiringSolver {
         hub.minus(predictedPose.getTranslation())
             .getAngle()
             .minus(position.getRotation())
-            .minus(Rotation2d.kCCW_Pi_2);
+            .minus(Rotation2d.kCCW_Pi_2)
+            .plus(Rotation2d.fromDegrees(5));
 
     double wheelSpeed = speedMap.get(predictedDistance);
 
