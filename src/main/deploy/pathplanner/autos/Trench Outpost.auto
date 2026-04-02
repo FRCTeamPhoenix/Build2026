@@ -49,34 +49,40 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Stop Drive"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Outpost To RightShoot"
           }
         },
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 5.0
-                }
-              },
               {
                 "type": "named",
                 "data": {
                   "name": "Shoot"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Agitate"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop Drive"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stop Shooter"
           }
         }
       ]
