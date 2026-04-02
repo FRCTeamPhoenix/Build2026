@@ -8,9 +8,17 @@ package org.team2342.frc;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -19,12 +27,12 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import lombok.Getter;
 import org.littletonrobotics.junction.LoggedPowerDistribution;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.team2342.frc.Constants.CANConstants;
@@ -171,7 +179,7 @@ public class RobotContainer {
                 flywheel,
                 turret,
                 drive::getPose,
-                drive::getChassisSpeeds,
+                drive::getFieldRelativeChassisSpeeds,
                 () -> turretManual,
                 () -> flywheelManual);
         LoggedPowerDistribution.getInstance(CANConstants.PDH_ID, ModuleType.kRev);
@@ -229,7 +237,7 @@ public class RobotContainer {
                 flywheel,
                 turret,
                 drive::getPose,
-                drive::getChassisSpeeds,
+                drive::getFieldRelativeChassisSpeeds,
                 () -> turretManual,
                 () -> flywheelManual);
         break;
@@ -261,30 +269,11 @@ public class RobotContainer {
                 flywheel,
                 turret,
                 drive::getPose,
-                drive::getChassisSpeeds,
+                drive::getFieldRelativeChassisSpeeds,
                 () -> turretManual,
                 () -> flywheelManual);
         break;
     }
-
-    configureNamedCommands();
-
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-    autoChooser.get();
-    autoChooser.addOption(
-        "Point and fire",
-        conductor
-            .runState(ConductorState.WARM_UP)
-            .withTimeout(2.0)
-            .andThen(
-                conductor
-                    .runState(ConductorState.TRACKED_FIRING)
-                    .alongWith(pivot.holdAngle(0))
-                    .alongWith(wheels.in())
-                    .alongWith(indexer.in())
-                    .alongWith(disruptor.in())
-                    .alongWith(kicker.in())));
-    if (Constants.TUNING) setupDevelopmentRoutines();
 
     SmartDashboard.putData(
         "Calculate Vision Heading Offset",
@@ -310,37 +299,54 @@ public class RobotContainer {
     readyToFire = new Trigger(() -> turret.aroundGoal() && flywheel.atGoal());
 
     configureBindings();
+    configureNamedCommands();
+
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser.get();
+    autoChooser.addOption(
+        "Point and fire",
+        conductor
+            .runState(ConductorState.WARM_UP)
+            .withTimeout(2.0)
+            .andThen(
+                conductor
+                    .runState(ConductorState.TRACKED_FIRING)
+                    .alongWith(pivot.holdAngle(0))
+                    .alongWith(wheels.in())
+                    .alongWith(indexer.in())
+                    .alongWith(disruptor.in())
+                    .alongWith(kicker.in())));
+    if (Constants.TUNING) setupDevelopmentRoutines();
   }
 
   private void configureNamedCommands() {
     NamedCommands.registerCommand("Named Command Test", Commands.print("Named Command Test"));
+
+    NamedCommands.registerCommand("Drop Intake", pivot.holdAngle(0.7).alongWith(wheels.in()));
+
+    NamedCommands.registerCommand("Stow Intake", pivot.holdAngle(IntakeConstants.MAX_ANGLE));
+
+    NamedCommands.registerCommand("Stop Drive", Commands.run(drive::stopWithX, drive));
+
     NamedCommands.registerCommand(
-        "autoShoot",
+        "Shoot",
         conductor
-            .runState(ConductorState.WARM_UP)
-            .withTimeout(1.0)
-            .andThen(
-                conductor
-                    .runState(ConductorState.TRACKED_FIRING)
-                    .alongWith(pivot.holdAngle(IntakeConstants.MIN_ANGLE))
-                    .alongWith(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
-                    .withTimeout(3.0))
-            .finallyDo(() -> Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop())));
+            .runState(ConductorState.TRACKED_FIRING)
+            .alongWith(
+                Commands.waitSeconds(0.1)
+                    .andThen(Commands.waitUntil(readyToFire))
+                    .andThen(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))));
 
     NamedCommands.registerCommand(
-        "autoIntake",
-        wheels.in().alongWith(pivot.holdAngle(0)).finallyDo(() -> wheels.stop().schedule()));
+        "Intake", Commands.parallel(pivot.holdAngle(IntakeConstants.MIN_ANGLE), wheels.in()));
+
+    NamedCommands.registerCommand("Agitate", pivot.agitate().alongWith(wheels.runIntake(5)));
 
     NamedCommands.registerCommand(
-        "stopAll",
-        new InstantCommand(
-            () -> {
-              pivot.stop();
-              wheels.stop();
-              indexer.stop();
-              disruptor.stop();
-              kicker.stop();
-            }));
+        "Stop Intake", Commands.deadline(pivot.holdAngle(0.8).withTimeout(0.01), wheels.stop()));
+
+    NamedCommands.registerCommand(
+        "Stop Indexer", Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
   }
 
   private void configureBindings() {
@@ -451,6 +457,7 @@ public class RobotContainer {
     // Location Triggers
     allianceZoneTrigger
         .and(driverController.rightTrigger().negate().and(driverController.rightBumper().negate()))
+        .and(RobotModeTriggers.teleop())
         .whileTrue(conductor.runState(ConductorState.WARM_UP));
 
     // Shift Util Resets
@@ -529,5 +536,30 @@ public class RobotContainer {
                 .until(() -> indexer.isJammed() || disruptor.isJammed()),
             Commands.parallel(indexer.out(), disruptor.reverse(), kicker.out()).withTimeout(1.0))
         .repeatedly();
+  }
+
+  /**
+   * Create a command to warmup the pathfinder and pathfinding command
+   *
+   * @return Pathfinding warmup command
+   */
+  public static Command warmupCommand() {
+    Logger.recordOutput("Pathfinding Ready", false);
+    return new PathfindingCommand(
+            new Pose2d(1.6, 4.0, Rotation2d.kZero),
+            new PathConstraints(4, 3, 4, 4),
+            () -> new Pose2d(1.5, 4, Rotation2d.kZero),
+            ChassisSpeeds::new,
+            (speeds, feedforwards) -> {},
+            new PPHolonomicDriveController(
+                new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+            new RobotConfig(
+                75,
+                6.8,
+                new ModuleConfig(
+                    0.048, 15.0, 1.2, DCMotor.getKrakenX60(1).withReduction(6.14), 60.0, 1),
+                0.55))
+        .andThen(Commands.runOnce(() -> Logger.recordOutput("Pathfinding Ready", true)))
+        .ignoringDisable(true);
   }
 }

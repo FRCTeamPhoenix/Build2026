@@ -7,15 +7,17 @@
 package org.team2342.frc;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.revrobotics.util.StatusLogger;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUsageId;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Watchdog;
@@ -31,7 +33,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import org.team2342.frc.Constants.VisionConstants;
 import org.team2342.frc.util.FiringSolver;
 import org.team2342.frc.util.HubShiftUtil;
 import org.team2342.frc.util.PhoenixUtils;
@@ -138,6 +139,10 @@ public class Robot extends LoggedRobot {
 
     RobotController.setBrownoutVoltage(6.0);
     SignalLogger.enableAutoLogging(false);
+    StatusLogger.disableAutoLogging();
+
+    CommandScheduler.getInstance().schedule(RobotContainer.warmupCommand());
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
 
     // We use Rust now
     HAL.report(tResourceType.kResourceType_Language, tInstances.kLanguage_Rust);
@@ -175,10 +180,6 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("FlywheelManual", robotContainer.getFlywheelManual());
     Logger.recordOutput("Vision/HasTags", robotContainer.getVision().hasTags());
 
-    Logger.recordOutput("zero", Pose3d.kZero);
-    Logger.recordOutput("camera", Pose3d.kZero.plus(VisionConstants.LEFT_CAMERA));
-    Logger.recordOutput("camera2", Pose3d.kZero.plus(VisionConstants.RIGHT_CAMERA));
-
     robotContainer.updateAlerts();
     FiringSolver.getInstance().clearCachedSolution();
 
@@ -200,7 +201,7 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     robotContainer.getDrive().calculateVisionHeadingOffset();
 
-    CommandScheduler.getInstance().schedule(robotContainer.getWheels().out().withTimeout(1));
+    // CommandScheduler.getInstance().schedule(robotContainer.getWheels().out().withTimeout(1));
 
     autonomousCommand = robotContainer.getAutonomousCommand();
 

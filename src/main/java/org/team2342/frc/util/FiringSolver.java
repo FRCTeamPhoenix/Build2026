@@ -25,7 +25,7 @@ public class FiringSolver {
   private PassingController controller = new PassingController(new EnhancedXboxController(1));
 
   private final TunableNumber passingSpeedOffset =
-      new TunableNumber("PassingSpeedOffset", 0, () -> true);
+      new TunableNumber("PassingSpeedOffset", 2.5, () -> true);
 
   private static final int ITERATIONS = 5;
 
@@ -50,10 +50,13 @@ public class FiringSolver {
     speedMap.put(3.6, 17.0);
     speedMap.put(3.8, 17.2);
     speedMap.put(4.0, 17.6);
+    speedMap.put(4.2, 19.0);
+    speedMap.put(4.4, 20.1);
+    speedMap.put(4.6, 21.2);
+    speedMap.put(4.8, 22.3);
+    speedMap.put(5.0, 23.5);
 
     // old
-    speedMap.put(4.23, 18.0);
-    speedMap.put(4.95, 19.0);
     speedMap.put(5.166, 21.0);
 
     MIN_TOF = 5.49 - 4.73;
@@ -71,10 +74,13 @@ public class FiringSolver {
     tofMap.put(3.6, 5.15 - 4.04);
     tofMap.put(3.8, 3.41 - 2.26);
     tofMap.put(4.0, 4.0 - 2.82);
+    tofMap.put(4.2, 6.05 - 4.75);
+    tofMap.put(4.4, 5.25 - 3.81);
+    tofMap.put(4.6, 5.83 - 4.38);
+    tofMap.put(4.8, 5.65 - 4.13);
+    tofMap.put(5.0, 2.04 - 0.48);
 
     // old
-    tofMap.put(4.23, 3.43 - 2.25);
-    tofMap.put(4.95, 2.64 - 1.33);
     tofMap.put(5.166, 6.9 - 5.4);
   }
 

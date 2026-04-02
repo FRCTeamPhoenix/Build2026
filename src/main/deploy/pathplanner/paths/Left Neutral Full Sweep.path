@@ -1,0 +1,197 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.0,
+        "y": 7.4
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.021864092621733,
+        "y": 7.4
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.0,
+        "y": 7.4
+      },
+      "prevControl": {
+        "x": 6.727969040145628,
+        "y": 7.4
+      },
+      "nextControl": {
+        "x": 7.980367017179473,
+        "y": 7.4
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.68,
+        "y": 4.093223965763196
+      },
+      "prevControl": {
+        "x": 7.68,
+        "y": 4.714460950603835
+      },
+      "nextControl": {
+        "x": 7.68,
+        "y": 2.7471817555302906
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.8,
+        "y": 1.182025677603425
+      },
+      "prevControl": {
+        "x": 7.8,
+        "y": 1.798263410651592
+      },
+      "nextControl": {
+        "x": 7.8,
+        "y": 0.6031767111422472
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.789409638554216,
+        "y": 0.25
+      },
+      "prevControl": {
+        "x": 6.511844581533098,
+        "y": 0.2499999999999999
+      },
+      "nextControl": {
+        "x": 4.879637382163483,
+        "y": 0.2500000000000001
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.634236804564908,
+        "y": 0.25
+      },
+      "prevControl": {
+        "x": 5.203666831914715,
+        "y": 0.24999999999999994
+      },
+      "nextControl": {
+        "x": 4.009785681601021,
+        "y": 0.24999999999999994
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.642,
+        "y": 0.25
+      },
+      "prevControl": {
+        "x": 3.1315108995463365,
+        "y": 0.2499999999999999
+      },
+      "nextControl": {
+        "x": 1.8425491608118125,
+        "y": 0.2500000000000001
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.8006704707560623,
+        "y": 2.644094151212554
+      },
+      "prevControl": {
+        "x": 1.5803257430397166,
+        "y": 2.5259916492593377
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.2000000000000002,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 2.95,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 3.3980277902285914,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 5.757507844016127,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "trig1",
+      "waypointRelativePos": 0.484204793028322,
+      "endWaypointRelativePos": 3.625816993464026,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Intake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "trig2",
+      "waypointRelativePos": 3.656318082788627,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Stop Intake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.5,
+    "maxAcceleration": 2.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -140.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0.0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": true
+}

@@ -7,44 +7,32 @@
         {
           "type": "path",
           "data": {
-            "pathName": "backup"
+            "pathName": "Left Neutral Full Sweep"
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "autoShoot"
-          }
-        },
-        {
-          "type": "race",
+          "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "depot pickup"
+                  "name": "Shoot"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "autoIntake"
+                  "name": "Agitate"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop Drive"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "depot to hub "
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "autoShoot"
           }
         }
       ]

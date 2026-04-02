@@ -2,10 +2,13 @@
   "robotWidth": 0.889,
   "robotLength": 0.889,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "To RightShoot",
+    "Start to Outpost"
+  ],
   "autoFolders": [],
-  "defaultMaxVel": 3.0,
-  "defaultMaxAccel": 3.0,
+  "defaultMaxVel": 2.5,
+  "defaultMaxAccel": 2.5,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,

@@ -54,16 +54,16 @@ public final class Constants {
     public static final Transform3d RIGHT_CAMERA =
         new Transform3d(
             new Translation3d(
-                Units.inchesToMeters(-13.428),
-                Units.inchesToMeters(3.917),
+                Units.inchesToMeters(-12.376),
+                Units.inchesToMeters(3.929),
                 Units.inchesToMeters(7.618)),
             new Rotation3d(0, Units.degreesToRadians(-30), Units.degreesToRadians(190)));
 
     public static final Transform3d LEFT_CAMERA =
         new Transform3d(
             new Translation3d(
-                Units.inchesToMeters(-13.428),
-                Units.inchesToMeters(-3.931),
+                Units.inchesToMeters(-12.376),
+                Units.inchesToMeters(-3.929),
                 Units.inchesToMeters(7.618)),
             new Rotation3d(0, Units.degreesToRadians(-30), Units.degreesToRadians(-190)));
 
