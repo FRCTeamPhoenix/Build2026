@@ -453,6 +453,9 @@ public class RobotContainer {
     operatorController
         .povRight()
         .whileTrue(Commands.run(() -> turretManual += Units.degreesToRadians(0.75)));
+    operatorController
+        .rightTrigger()
+        .whileTrue(conductor.forceTowerShot().alongWith(Commands.runOnce(this::resetManual)));
 
     // Location Triggers
     allianceZoneTrigger
