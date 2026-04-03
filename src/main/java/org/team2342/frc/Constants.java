@@ -212,7 +212,8 @@ public final class Constants {
             .withControlType(ControlType.PROFILED_POSITION)
             .withIdleMode(IdleMode.BRAKE)
             .withMotorInverted(false)
-            .withSupplyCurrentLimit(40.0)
+            .withSupplyCurrentLimit(50.0)
+            .withStatorCurrentLimit(80)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
                     CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.01, true))
