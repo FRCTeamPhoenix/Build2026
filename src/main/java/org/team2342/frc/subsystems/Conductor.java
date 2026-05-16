@@ -31,6 +31,7 @@ public class Conductor extends SubsystemBase {
     UNDETERMINED,
     DISABLED,
     MANUAL,
+    DEMO,
     WARM_UP,
     TRACKED_FIRING,
     TUNING,
@@ -143,6 +144,12 @@ public class Conductor extends SubsystemBase {
         turret
             .runPositionNoLimitCommand(manualTurretSupplier)
             .alongWith(flywheel.shoot(manualFlywheelSupplier)));
+
+    fsm.addStateCommand(
+        ConductorState.DEMO,
+        turret
+          .runPositionNoLimitCommand(manualTurretSupplier)
+          .alongWith(flywheel.shoot(() -> 7.0)));
   }
 
   public Command disable() {
@@ -168,6 +175,7 @@ public class Conductor extends SubsystemBase {
     fsm.addDualTransition(ConductorState.WARM_UP, ConductorState.TRACKED_FIRING);
     fsm.addDualTransition(ConductorState.DISABLED, ConductorState.WARM_UP);
     fsm.addDualTransition(ConductorState.DISABLED, ConductorState.TUNING);
+    fsm.addDualTransition(ConductorState.DISABLED, ConductorState.DEMO);
   }
 
   public interface FSMDelegate {

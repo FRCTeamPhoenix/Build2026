@@ -405,19 +405,32 @@ public class RobotContainer {
         .onFalse(wheels.stop().alongWith(pivot.stop()));
 
     // Auto Shoot
+    // driverController
+    //     .rightTrigger()
+    //     .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
+    //     .and(readyToFire)
+    //     .and(activeOrPassing)
+    //     .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
+    //     .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
     driverController
         .rightTrigger()
-        .whileTrue(conductor.runState(ConductorState.TRACKED_FIRING))
-        .and(readyToFire)
-        .and(activeOrPassing)
+        .whileTrue(conductor.runState(ConductorState.DEMO))
         .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
 
-    // Firing during inactive period
     driverController
-        .rightTrigger()
-        .and(() -> !HubShiftUtil.getShiftedShiftInfo().active())
-        .onTrue(driverController.rumble(RumbleType.kBothRumble, 1.0).withTimeout(0.5));
+        .povLeft()
+        .whileTrue(Commands.run(() -> turretManual -= Units.degreesToRadians(0.75)));
+
+    driverController
+        .povRight()
+        .whileTrue(Commands.run(() -> turretManual += Units.degreesToRadians(0.75)));
+
+    // Firing during inactive period
+    // driverController
+    //     .rightTrigger()
+    //     .and(() -> !HubShiftUtil.getShiftedShiftInfo().active())
+    //     .onTrue(driverController.rumble(RumbleType.kBothRumble, 1.0).withTimeout(0.5));
 
     // Shift Timer Override
     driverController
@@ -426,6 +439,10 @@ public class RobotContainer {
         .and(readyToFire)
         .whileTrue(Commands.parallel(indexer.pulseIn(), kicker.in(), disruptor.in()))
         .onFalse(Commands.parallel(indexer.stop(), kicker.stop(), disruptor.stop()));
+
+    driverController
+        .start()
+        .toggleOnTrue(conductor.forceManual().alongWith(Commands.runOnce(this::resetManual)));
 
     // Operator override
     operatorController

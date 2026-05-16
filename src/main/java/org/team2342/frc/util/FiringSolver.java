@@ -21,8 +21,6 @@ import org.team2342.lib.util.EnhancedXboxController;
 
 public class FiringSolver {
   private static FiringSolver instance;
-  private static final boolean DEMO_MODE = true;
-private static final double DEMO_WHEEL_SPEED = 7.0;
 
   private PassingController controller = new PassingController(new EnhancedXboxController(1));
 
@@ -131,18 +129,10 @@ private static final double DEMO_WHEEL_SPEED = 7.0;
       Double turretDistance = turretToTarget.getNorm();
 
       // TODO: tune real passing speed
-      // lastSolution =
-      //     new FiringSolution(
-      //         turretAngle, speedMap.get(turretDistance) - passingSpeedOffset.get(), true);
-
-      double wheelSpeed = speedMap.get(turretDistance) - passingSpeedOffset.get();
-
-      if (DEMO_MODE) {
-        wheelSpeed = DEMO_WHEEL_SPEED;
-      }
-
       lastSolution =
-          new FiringSolution(turretAngle, wheelSpeed,true);
+          new FiringSolution(
+              turretAngle, speedMap.get(turretDistance) - passingSpeedOffset.get(), true);
+              
       return lastSolution;
     }
 
@@ -188,10 +178,6 @@ private static final double DEMO_WHEEL_SPEED = 7.0;
             .plus(Rotation2d.fromDegrees(5));
 
     double wheelSpeed = speedMap.get(predictedDistance);
-
-    if (DEMO_MODE) {
-      wheelSpeed = DEMO_WHEEL_SPEED;
-    }
 
     lastSolution = new FiringSolution(turretAngle, wheelSpeed, false);
       return lastSolution;
