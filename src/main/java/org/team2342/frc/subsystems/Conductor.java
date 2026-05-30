@@ -32,6 +32,7 @@ public class Conductor extends SubsystemBase {
     DISABLED,
     MANUAL,
     WARM_UP,
+    TOWER_SHOT,
     TRACKED_FIRING,
     TUNING,
   }
@@ -114,6 +115,10 @@ public class Conductor extends SubsystemBase {
                             .wheelSpeed())));
 
     fsm.addStateCommand(
+        ConductorState.TOWER_SHOT,
+        turret.runPositionNoLimitCommand(manualTurretSupplier).alongWith(flywheel.shoot(16.270)));
+
+    fsm.addStateCommand(
         ConductorState.TRACKED_FIRING,
         turret
             .runPositionCommand(
@@ -151,6 +156,11 @@ public class Conductor extends SubsystemBase {
 
   public Command forceManual() {
     return Commands.run(() -> fsm.forceState(ConductorState.MANUAL))
+        .finallyDo(() -> fsm.forceState(ConductorState.DISABLED));
+  }
+
+  public Command forceTowerShot() {
+    return Commands.run(() -> fsm.forceState(ConductorState.TOWER_SHOT))
         .finallyDo(() -> fsm.forceState(ConductorState.DISABLED));
   }
 

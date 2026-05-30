@@ -184,14 +184,14 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final double RUN_VOLTAGE = 7.0;
+    public static final double RUN_VOLTAGE = 8.0;
     public static final double RUN_CURRENT = 10.0;
 
     public static final MotorConfig INTAKE_WHEELS_MOTOR_CONFIG =
         new MotorConfig()
             .withMotorInverted(true)
-            .withSupplyCurrentLimit(30.0)
-            .withStatorCurrentLimit(70.0)
+            .withSupplyCurrentLimit(40.0)
+            .withStatorCurrentLimit(80.0)
             .withIdleMode(IdleMode.COAST);
 
     public static final DCMotor INTAKE_WHEELS_SIM_MOTOR = DCMotor.getKrakenX44(1);
@@ -212,7 +212,8 @@ public final class Constants {
             .withControlType(ControlType.PROFILED_POSITION)
             .withIdleMode(IdleMode.BRAKE)
             .withMotorInverted(false)
-            .withSupplyCurrentLimit(40.0)
+            .withSupplyCurrentLimit(50.0)
+            .withStatorCurrentLimit(80)
             .withFeedbackConfig(
                 FeedbackConfig.fused(
                     CANConstants.INTAKE_PIVOT_ENCODER_ID, PIVOT_GEAR_RATIO, 0.01, true))

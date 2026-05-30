@@ -9,7 +9,7 @@
         "containers": [
           {
             "title": "heartbeat",
-            "x": 128.0,
+            "x": 192.0,
             "y": 576.0,
             "width": 128.0,
             "height": 128.0,
@@ -23,7 +23,7 @@
           },
           {
             "title": "heartbeat",
-            "x": 0.0,
+            "x": 64.0,
             "y": 576.0,
             "width": 128.0,
             "height": 128.0,
@@ -37,8 +37,8 @@
           },
           {
             "title": "Auto Choices",
-            "x": 0.0,
-            "y": 0.0,
+            "x": 1152.0,
+            "y": 256.0,
             "width": 384.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -51,9 +51,9 @@
           {
             "title": "Alerts",
             "x": 0.0,
-            "y": 128.0,
+            "y": 0.0,
             "width": 384.0,
-            "height": 448.0,
+            "height": 320.0,
             "type": "Alerts",
             "properties": {
               "topic": "/SmartDashboard/Alerts",
@@ -65,7 +65,7 @@
             "x": 1152.0,
             "y": 128.0,
             "width": 384.0,
-            "height": 192.0,
+            "height": 128.0,
             "type": "Voltage View",
             "properties": {
               "topic": "/AdvantageKit/PowerDistribution/Voltage",
@@ -91,14 +91,14 @@
             }
           },
           {
-            "title": "AtGoal",
-            "x": 448.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 192.0,
+            "title": "Active",
+            "x": 1536.0,
+            "y": 64.0,
+            "width": 320.0,
+            "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/PoseAlignment/AtGoal",
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/Active",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
@@ -108,17 +108,32 @@
             }
           },
           {
-            "title": "DashboardSwerve",
-            "x": 448.0,
+            "title": "RemainingTime",
+            "x": 1536.0,
             "y": 192.0,
-            "width": 256.0,
-            "height": 512.0,
-            "type": "SwerveDrive",
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Match Time",
             "properties": {
-              "topic": "/SmartDashboard/DashboardSwerve",
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/RemainingTime",
               "period": 0.06,
-              "show_robot_rotation": true,
-              "rotation_unit": "Radians"
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "CurrentShift",
+            "x": 1536.0,
+            "y": 320.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/CurrentShift",
+              "period": 0.06,
+              "data_type": "string"
             }
           },
           {
@@ -131,14 +146,126 @@
             "properties": {
               "topic": "/SmartDashboard/DashboardField",
               "period": 0.06,
-              "field_game": "Reefscape",
+              "field_game": "Rebuilt",
               "robot_width": 0.85,
               "robot_length": 0.85,
               "show_other_objects": true,
               "show_trajectories": true,
               "field_rotation": 90.0,
               "robot_color": 4294198070,
-              "trajectory_color": 4294967295
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "DashboardSwerve",
+            "x": 448.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 320.0,
+            "type": "SwerveDrive",
+            "properties": {
+              "topic": "/SmartDashboard/DashboardSwerve",
+              "period": 0.06,
+              "show_robot_rotation": true,
+              "rotation_unit": "Radians"
+            }
+          },
+          {
+            "title": "CurrentState",
+            "x": 448.0,
+            "y": 448.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Conductor/FSM/CurrentState",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "PhotonAlerts",
+            "x": 0.0,
+            "y": 320.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/PhotonAlerts",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "FlywheelManual",
+            "x": 448.0,
+            "y": 576.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/FlywheelManual",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "TurretManual",
+            "x": 576.0,
+            "y": 576.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/TurretManual",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Active",
+            "x": 448.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/Active",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "CurrentShift",
+            "x": 1152.0,
+            "y": 576.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/CurrentShift",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "RemainingTime",
+            "x": 1152.0,
+            "y": 448.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/RemainingTime",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Seconds Only",
+              "red_start_time": 5,
+              "yellow_start_time": 10
             }
           }
         ]
@@ -151,7 +278,7 @@
         "containers": [
           {
             "title": "heartbeat",
-            "x": 128.0,
+            "x": 192.0,
             "y": 576.0,
             "width": 128.0,
             "height": 128.0,
@@ -165,7 +292,7 @@
           },
           {
             "title": "heartbeat",
-            "x": 0.0,
+            "x": 64.0,
             "y": 576.0,
             "width": 128.0,
             "height": 128.0,
@@ -179,8 +306,8 @@
           },
           {
             "title": "Auto Choices",
-            "x": 0.0,
-            "y": 0.0,
+            "x": 1152.0,
+            "y": 256.0,
             "width": 384.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -193,9 +320,9 @@
           {
             "title": "Alerts",
             "x": 0.0,
-            "y": 128.0,
+            "y": 0.0,
             "width": 384.0,
-            "height": 448.0,
+            "height": 320.0,
             "type": "Alerts",
             "properties": {
               "topic": "/SmartDashboard/Alerts",
@@ -207,7 +334,7 @@
             "x": 1152.0,
             "y": 128.0,
             "width": 384.0,
-            "height": 192.0,
+            "height": 128.0,
             "type": "Voltage View",
             "properties": {
               "topic": "/AdvantageKit/PowerDistribution/Voltage",
@@ -233,14 +360,14 @@
             }
           },
           {
-            "title": "AtGoal",
-            "x": 448.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 192.0,
+            "title": "Active",
+            "x": 1536.0,
+            "y": 64.0,
+            "width": 320.0,
+            "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/PoseAlignment/AtGoal",
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/Active",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
@@ -250,17 +377,32 @@
             }
           },
           {
-            "title": "DashboardSwerve",
-            "x": 448.0,
+            "title": "RemainingTime",
+            "x": 1536.0,
             "y": 192.0,
-            "width": 256.0,
-            "height": 512.0,
-            "type": "SwerveDrive",
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Match Time",
             "properties": {
-              "topic": "/SmartDashboard/DashboardSwerve",
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/RemainingTime",
               "period": 0.06,
-              "show_robot_rotation": true,
-              "rotation_unit": "Radians"
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "CurrentShift",
+            "x": 1536.0,
+            "y": 320.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/CurrentShift",
+              "period": 0.06,
+              "data_type": "string"
             }
           },
           {
@@ -273,14 +415,126 @@
             "properties": {
               "topic": "/SmartDashboard/DashboardField",
               "period": 0.06,
-              "field_game": "Reefscape",
+              "field_game": "Rebuilt",
               "robot_width": 0.85,
               "robot_length": 0.85,
               "show_other_objects": true,
               "show_trajectories": true,
               "field_rotation": -90.0,
-              "robot_color": 4281746164,
-              "trajectory_color": 4294967295
+              "robot_color": 4281755636,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "DashboardSwerve",
+            "x": 448.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 320.0,
+            "type": "SwerveDrive",
+            "properties": {
+              "topic": "/SmartDashboard/DashboardSwerve",
+              "period": 0.06,
+              "show_robot_rotation": true,
+              "rotation_unit": "Radians"
+            }
+          },
+          {
+            "title": "CurrentState",
+            "x": 448.0,
+            "y": 448.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Conductor/FSM/CurrentState",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "PhotonAlerts",
+            "x": 0.0,
+            "y": 320.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/PhotonAlerts",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "FlywheelManual",
+            "x": 448.0,
+            "y": 576.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/FlywheelManual",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "TurretManual",
+            "x": 576.0,
+            "y": 576.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/TurretManual",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Active",
+            "x": 448.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/Active",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "CurrentShift",
+            "x": 1152.0,
+            "y": 576.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/CurrentShift",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "RemainingTime",
+            "x": 1152.0,
+            "y": 448.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/ShiftUtil/Dashboard/RemainingTime",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Seconds Only",
+              "red_start_time": 5,
+              "yellow_start_time": 10
             }
           }
         ]
